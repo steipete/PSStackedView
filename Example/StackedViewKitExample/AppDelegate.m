@@ -19,11 +19,9 @@
 @synthesize stackController = stackController_;
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions; {
-    NSLog(@"starting up.");
-    
-    // really should be default
+
     self.window = [[[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]] autorelease];
-    self.window.backgroundColor = [UIColor greenColor];
+    self.window.backgroundColor = [UIColor blackColor]; // really should be default
     
     // set root controller as stack controller
     self.stackController = [[[ExampleStackRootController alloc] init] autorelease];

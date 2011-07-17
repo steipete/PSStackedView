@@ -30,10 +30,10 @@ enum {
 }
 
 // Uses a horizontal slide transition. Has no effect if the view controller is already in the stack.
-- (void)pushViewController:(UIViewController<PSStackedViewDelegate> *)viewController animated:(BOOL)animated;
+- (void)pushViewController:(UIViewController*)viewController animated:(BOOL)animated;
 
  // Returns the popped controller.
-- (UIViewController<PSStackedViewDelegate> *)popViewControllerAnimated:(BOOL)animated;
+- (UIViewController *)popViewControllerAnimated:(BOOL)animated;
 
 - (NSUInteger)canCollapseStack;
 

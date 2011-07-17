@@ -1,5 +1,5 @@
 //
-// Prefix header for all source files of the 'StackedViewKitExample' target in the 'StackedViewKitExample' project
+// Prefix header for all source files of the 'PSStackedViewExample' target in the 'PSStackedViewExample' project
 //
 
 #import <Availability.h>

@@ -32,7 +32,7 @@
 
 - (id)init {
     if ((self = [super init])) {
-        SVLog(@"Init example VC");
+        PSLog(@"Init example VC");
     }
     return self;
 }
@@ -48,7 +48,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    SVLog(@"Init example VC VIEW");
+    PSLog(@"Init example VC VIEW");
     
     // add example background
     self.view.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"background"]];
@@ -118,12 +118,7 @@
 #pragma mark - UITableViewDelegate
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
-	return 70;
-}
-
-- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section {
-    return nil;
-	//return _menuHeader;
+	return 0;
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {    

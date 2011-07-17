@@ -1,6 +1,6 @@
 //
 //  main.m
-//  StackedViewKitExample
+//  PSStackedViewExample
 //
 //  Created by Peter Steinberger on 7/14/11.
 //  Copyright 2011 Peter Steinberger. All rights reserved.

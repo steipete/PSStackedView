@@ -8,14 +8,14 @@
 
 #import "PSStackedViewRootController.h"
 #import "PSStackedViewGlobal.h"
-#import <objc/runtime.h>
+#import "PSSVContainerView.h"
 #import <QuartzCore/QuartzCore.h>
 
 #define kSVStackAnimationDuration 0.3
-#define kSVCornerRadius 6.f
-#define kSVMaskKey @"kPSMaskKey"
-#define kSVGradientShadow @"kPSGradientShadow"
-#define kSVShadowWidth 20.f
+
+@implementation UIViewController (PSStackedViewAdditions)
+- (PSSVContainerView *)containerView; { return ([self.view.superview isKindOfClass:[PSSVContainerView class]] ? (PSSVContainerView *)self.view.superview : nil); }
+@end
 
 @interface PSStackedViewRootController() <UIGestureRecognizerDelegate> {
     // internal drag state handling
@@ -73,64 +73,9 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Private Helpers
 
-- (void)addMastToViewController:(UIViewController *)controller corners:(UIRectCorner)corners {
-    // Re-calculate the size of the mask to account for adding/removing rows.
-    CGRect frame = controller.view.bounds;
-    if([controller.view isKindOfClass:[UIScrollView class]] && ((UIScrollView *)controller.view).contentSize.height > controller.view.frame.size.height) {
-    	frame.size = ((UIScrollView *)controller.view).contentSize;
-    } else {
-        frame.size = controller.view.frame.size;
-    }
-    
-    // Create the path (with only the top-left corner rounded)
-    UIBezierPath *maskPath = [UIBezierPath bezierPathWithRoundedRect:frame 
-                                                   byRoundingCorners:corners
-                                                         cornerRadii:CGSizeMake(kSVCornerRadius, kSVCornerRadius)];
-    
-    // Create the shape layer and set its path
-    CAShapeLayer *maskLayer = [CAShapeLayer layer];
-    maskLayer.frame = frame;
-    maskLayer.path = maskPath.CGPath;
-    
-    // Set the newly created shape layer as the mask for the image view's layer
-    controller.view.layer.mask = maskLayer;
-}
-
-- (void)removeMaskFromController:(UIViewController *)controller {
-    controller.view.layer.mask = nil;
-}
-
-#define SHADOW_HEIGHT 20.0
-#define SHADOW_INVERSE_HEIGHT 10.0
-- (void)addShadowToViewController:(UIViewController *)controller {
-    
-    CAGradientLayer *newShadow = [[[CAGradientLayer alloc] init] autorelease];
-    newShadow.startPoint = CGPointMake(0, 0.5);
-    newShadow.endPoint = CGPointMake(1.0, 0.5);
-	CGRect newShadowFrame = CGRectMake(-kSVShadowWidth, 0, kSVShadowWidth, controller.view.height);
-    
-	newShadow.frame = newShadowFrame;
-	CGColorRef darkColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:0.6].CGColor;
-	CGColorRef lightColor = [UIColor clearColor].CGColor;
-	newShadow.colors = [NSArray arrayWithObjects:(id)lightColor, (id)darkColor, nil];
-
-    newShadow.name = kSVGradientShadow;
-    [controller.view.superview.layer addSublayer:newShadow];
-}
-
-- (void)removeShadowFromViewController:(UIViewController *)controller {
-    NSMutableSet *removeLayers = [NSMutableSet set];
-    for (CALayer *layer in controller.view.layer.sublayers) {
-        if (layer.name == kSVGradientShadow) {
-            [removeLayers addObject:layer];
-        }
-    }
-    [removeLayers makeObjectsPerformSelector:@selector(removeFromSuperlayer)];
-}
-
 // return screen width
 - (NSUInteger)screenWidth {
-    NSUInteger screenWidth = SVIsLandscape() ? self.view.height : self.view.width;
+    NSUInteger screenWidth = PSIsLandscape() ? self.view.height : self.view.width;
     return screenWidth;
 }
 
@@ -171,17 +116,17 @@
 }
 
 // if view controller is completely hidden behind other controller, its set to invisible to save resources
-- (BOOL)isViewControllerVisible:(UIViewController<PSStackedViewDelegate> *)viewController completely:(BOOL)completely {
+- (BOOL)isViewControllerVisible:(UIViewController *)viewController completely:(BOOL)completely {
     NSUInteger screenWidth = [self screenWidth];
     
-    if ((viewController.view.left < screenWidth && !completely) || (completely && viewController.view.right <= screenWidth)) {
+    if ((viewController.containerView.left < screenWidth && !completely) || (completely && viewController.containerView.right <= screenWidth)) {
         return YES;
     }
     return NO;
 }
 
 // returns view controller that is displayed before viewController 
-- (UIViewController<PSStackedViewDelegate> *)previousViewController:(UIViewController<PSStackedViewDelegate> *)viewController {
+- (UIViewController<PSStackedViewDelegate> *)previousViewController:(UIViewController *)viewController {
     NSParameterAssert(viewController);
     
     NSUInteger vcIndex = [self.viewControllers indexOfObject:viewController];
@@ -194,7 +139,7 @@
 }
 
 // returns view controller that is displayed after viewController 
-- (UIViewController<PSStackedViewDelegate> *)nextViewController:(UIViewController<PSStackedViewDelegate> *)viewController {
+- (UIViewController<PSStackedViewDelegate> *)nextViewController:(UIViewController *)viewController {
     NSParameterAssert(viewController);
     
     NSUInteger vcIndex = [self.viewControllers indexOfObject:viewController];
@@ -246,18 +191,18 @@
     // are we at the end?
     UIViewController *lastViewController = [self lastViewController];
     if (lastViewController == [self lastVisibleViewControllerCompletelyVisible:NO]) {
-        if (minCommonWidth+[self minimalLeftBorder] <= lastViewController.view.right) {
+        if (minCommonWidth+[self minimalLeftBorder] <= lastViewController.containerView.right) {
             snapPointAvailableAfterOffset = NO;
         }
     }
-        
+    
     // slow down first controller when dragged to the right
     if ([self canCollapseStack] == 0) {
         snapPointAvailableAfterOffset = NO;
     }
     
     // not using [self canExand] here, as firstVisibleIndex is set while scrolling (menu!)
-    if ([self firstViewController].view.left > self.backEmptyWidth) {
+    if ([self firstViewController].containerView.left > self.backEmptyWidth) {
         snapPointAvailableAfterOffset = NO;
     }
     
@@ -290,10 +235,10 @@
         
         for (NSUInteger firstIndex = self.firstVisibleIndex; firstIndex <= lastVisibleIndex; firstIndex++) {
             UIViewController *vc = [self.viewControllers objectAtIndex:firstIndex];
-            screenSpaceLeft -= vc.view.width;
+            screenSpaceLeft -= vc.containerView.width;
         }
         
-        if (self.firstVisibleIndex > 0 && screenSpaceLeft >= ((UIViewController *)[self.viewControllers objectAtIndex:self.firstVisibleIndex-1]).view.width) {
+        if (self.firstVisibleIndex > 0 && screenSpaceLeft >= ((UIViewController *)[self.viewControllers objectAtIndex:self.firstVisibleIndex-1]).containerView.width) {
             self.firstVisibleIndex -= 1;
         }
     }
@@ -303,66 +248,70 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - SVStackRootController (Public)
 
-- (void)updateViewControllerMasks {
+- (void)updateViewControllerMasksAndShadow {
     // only one!
     if ([self.viewControllers count] == 1) {
-        [self addMastToViewController:[self firstViewController] corners:UIRectCornerAllCorners];
+        [[self firstViewController].containerView addMaskToCorners:UIRectCornerAllCorners];
+        [[self firstViewController].containerView addShadowToSides:PSSVSideLeft | PSSVSideRight];
     }else {
         // rounded corners on first and last controller
         [self.viewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            UIViewController *vc = (UIViewController *)obj;
             if (idx == 0) {
-                [self addMastToViewController:obj corners:UIRectCornerBottomLeft | UIRectCornerTopLeft];
+                [vc.containerView addShadowToSides:PSSVSideLeft];
+                [vc.containerView addMaskToCorners:UIRectCornerBottomLeft | UIRectCornerTopLeft];
             }else if(idx == [self.viewControllers count]-1) {
-                [self addMastToViewController:obj corners:UIRectCornerBottomRight | UIRectCornerTopRight];                
+                [vc.containerView addMaskToCorners:UIRectCornerBottomRight | UIRectCornerTopRight];
+                [vc.containerView addShadowToSides:PSSVSideLeft | PSSVSideRight];
             }else {
-                [self removeMaskFromController:obj];
+                [vc.containerView removeMask];
+                [vc.containerView addShadowToSides:PSSVSideLeft | PSSVSideRight];
             }
         }];
     }
 }
 
-- (void)pushViewController:(UIViewController<PSStackedViewDelegate> *)viewController animated:(BOOL)animated; {    
-    SVLog(@"pushing VC with index %d on stack: %@ (animated: %d)", [self.viewControllers count], viewController, animated);
+- (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated; {    
+    PSLog(@"pushing VC with index %d on stack: %@ (animated: %d)", [self.viewControllers count], viewController, animated);
+    
+    if ([viewController respondsToSelector:@selector(stackableMaxWidth)]) {
+        viewController.view.width = [(UIViewController<PSStackedViewDelegate> *)viewController stackableMaxWidth];
+    }
+    viewController.view.height = self.view.height;
     
     // add to view stack!
-    viewController.view.frame = self.view.bounds;
-    viewController.view.width = [viewController stackableMaxWidth];
-    
-    NSUInteger leftGap = [self totalStackWidth] + [self minimalLeftBorder];    
-    viewController.view.left = leftGap;
-    viewController.view.autoresizingMask = UIViewAutoresizingFlexibleHeight; // width is not flexible!
-    
     [viewController viewWillAppear:animated];
     
-//    UIView *containerView = [[UIView alloc] initWithFrame:viewController.view.frame];
-//    containerView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-//    [containerView addSubview:viewController.view];
-    
-    //[self.view addSubview:containerView];
-    [viewController viewDidAppear:animated];
-        
+    // controller view is embedded into a container
+    PSSVContainerView *container = [PSSVContainerView containerViewWithController:viewController];
+    NSUInteger leftGap = [self totalStackWidth] + [self minimalLeftBorder];    
+    container.left = leftGap;
+    container.width = viewController.view.width;
+    container.autoresizingMask = UIViewAutoresizingFlexibleHeight; // width is not flexible!
+    [self.view addSubview:container];
+
+    [viewController viewDidAppear:animated];    
     [viewControllers_ addObject:viewController];
     
-    [self addShadowToViewController:viewController];
-    [self updateViewControllerMasks];
+    [self updateViewControllerMasksAndShadow];
     [self displayViewControllerIndexOnRightMost:[self.viewControllers count]-1 animated:animated];
 }
 
 - (UIViewController<PSStackedViewDelegate> *)popViewControllerAnimated:(BOOL)animated; {
-    SVLog(@"popping last VC: %@ (animated:%d)", [self lastViewController], animated);
+    PSLog(@"popping last VC: %@ (animated:%d)", [self lastViewController], animated);
     
     UIViewController<PSStackedViewDelegate> *lastController = [self lastViewController];
     if (lastController) {        
         
+        PSSVContainerView *container = lastController.containerView;
+        
         // remove from view stack!
         [lastController viewWillAppear:animated];
-        [lastController.view removeFromSuperview];
+        [container removeFromSuperview];
         [lastController viewDidDisappear:animated];
         
-        [self removeShadowFromViewController:lastController];
-        [self removeMaskFromController:lastController];
         [viewControllers_ removeLastObject];
-        [self updateViewControllerMasks];
+        [self updateViewControllerMasksAndShadow];
         
         // realign view controllers
         [self alignStackAnimated:animated];
@@ -374,7 +323,7 @@
 
 // moves the stack to a specific offset. 
 - (void)moveStackWithOffset:(NSInteger)offset animated:(BOOL)animated userDragging:(BOOL)userDragging {
-    SVLog(@"moving stack on %d pixels (animated:%d, decellerating:%d)", offset, animated, userDragging);
+    PSLog(@"moving stack on %d pixels (animated:%d, decellerating:%d)", offset, animated, userDragging);
     
     if (animated) {
         [UIView beginAnimations:@"stackAnim" context:nil];
@@ -392,12 +341,12 @@
         NSInteger minimalLeftBorder = [self minimalLeftBorder];
         
         // we just move the top view controller
-        NSInteger currentVCLeftPosition = currentViewController.view.left;
+        NSInteger currentVCLeftPosition = currentViewController.containerView.left;
         if (isTopViewController) {
             currentVCLeftPosition += offset;
         }else {
             // make sure we're connected to the next controller!
-            currentVCLeftPosition = rightViewController.view.left - currentViewController.view.width;
+            currentVCLeftPosition = rightViewController.containerView.left - currentViewController.containerView.width;
         }
         
         // prevent scrolling < minimal width (except for the top view controller - allow stupidness!)
@@ -406,27 +355,27 @@
         }
         
         // a previous view controller is not allowed to overlap the next view controller.
-        if (leftViewController && leftViewController.view.right > currentVCLeftPosition) {
-            NSInteger leftVCLeftPosition = currentVCLeftPosition - leftViewController.view.width;
+        if (leftViewController && leftViewController.containerView.right > currentVCLeftPosition) {
+            NSInteger leftVCLeftPosition = currentVCLeftPosition - leftViewController.containerView.width;
             if (leftVCLeftPosition < minimalLeftBorder) {
                 leftVCLeftPosition = minimalLeftBorder;
             }
-            leftViewController.view.left = leftVCLeftPosition;
+            leftViewController.containerView.left = leftVCLeftPosition;
         }
         
-        currentViewController.view.left = currentVCLeftPosition;
+        currentViewController.containerView.left = currentVCLeftPosition;
         
         isTopViewController = NO; // there can only be one.
     }];
     
     // update firstVisibleIndex
-#ifdef kSVStackedViewKitDebugEnabled
+#ifdef kPSSVStackedViewKitDebugEnabled
     NSUInteger oldFirstVisibleIndex = self.firstVisibleIndex;
 #endif
     
-    NSInteger minLeft = [self firstViewController].view.left;
+    NSInteger minLeft = [self firstViewController].containerView.left;
     for (UIViewController *vc in self.viewControllers) {
-        NSInteger vcLeft = vc.view.left;
+        NSInteger vcLeft = vc.containerView.left;
         if (minLeft < vcLeft) {
             self.firstVisibleIndex = [self.viewControllers indexOfObject:vc]-1;
             break;
@@ -436,9 +385,9 @@
     // don't get all too excited about the new index - it may be wrong! (e.g. too high stacking)
     [self correctFirstVisibleIndex];
     
-#ifdef kSVStackedViewKitDebugEnabled
+#ifdef kPSSVStackedViewKitDebugEnabled
     if (oldFirstVisibleIndex != self.firstVisibleIndex) {
-        SVLog(@"updating firstVisibleIndex from %d to %d", oldFirstVisibleIndex, self.firstVisibleIndex);
+        PSLog(@"updating firstVisibleIndex from %d to %d", oldFirstVisibleIndex, self.firstVisibleIndex);
     }
 #endif
     
@@ -454,7 +403,7 @@
     NSInteger screenSpaceLeft = [self screenWidth] - [self leftBorder];
     while (screenSpaceLeft > 0 && lastVisibleIndex < [self.viewControllers count]) {
         UIViewController *vc = [self.viewControllers objectAtIndex:lastVisibleIndex];
-        screenSpaceLeft -= vc.view.width;
+        screenSpaceLeft -= vc.containerView.width;
         
         if (screenSpaceLeft >= 0) {
             lastVisibleIndex++;
@@ -478,15 +427,15 @@
     
     // iterate over all view controllers and snap them to their correct positions
     [self.viewControllers enumerateObjectsWithOptions:0 usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        UIViewController<PSStackedViewDelegate> *currentViewController = (UIViewController<PSStackedViewDelegate> *)obj;
-        UIViewController<PSStackedViewDelegate> *leftViewController = [self previousViewController:currentViewController];
+        UIViewController *currentViewController = (UIViewController *)obj;
+        UIViewController *leftViewController = [self previousViewController:currentViewController];
         
         if (idx <= self.firstVisibleIndex) {
             // collapsed = snap to menu
-            currentViewController.view.left = [self leftBorder];
+            currentViewController.containerView.left = [self leftBorder];
         }else {
             // connect vc to left vc's right!
-            currentViewController.view.left = leftViewController.view.right;
+            currentViewController.containerView.left = leftViewController.containerView.right;
         }
     }];
     
@@ -500,11 +449,11 @@
     NSUInteger steps = [self.viewControllers count] - self.firstVisibleIndex - 1;
     
     if (self.lastVisibleIndex == [self.viewControllers count]-1) {
-        //SVLog(@"complete stack is displayed - aborting.");
+        //PSLog(@"complete stack is displayed - aborting.");
         steps = 0;
     }else if (self.firstVisibleIndex + steps > [self.viewControllers count]-1) {
         steps = [self.viewControllers count] - self.firstVisibleIndex - 1;
-        //SVLog(@"too much steps, adjusting to %d", steps);
+        //PSLog(@"too much steps, adjusting to %d", steps);
     }
     
     return steps;
@@ -513,7 +462,7 @@
 
 - (NSUInteger)collapseStack:(NSUInteger)steps animated:(BOOL)animated; { // (<--- increases firstVisibleIndex)
     [self correctFirstVisibleIndex];
-    SVLog(@"collapsing stack with %d steps [%d-%d]", steps, self.firstVisibleIndex, self.lastVisibleIndex);
+    PSLog(@"collapsing stack with %d steps [%d-%d]", steps, self.firstVisibleIndex, self.lastVisibleIndex);
     
     // sliding menu is it's own step
     if([self isMenuCollapsable] && self.isShowingFullMenu) {
@@ -525,7 +474,7 @@
     if (steps > maxCollapseStackCount) {
         steps = maxCollapseStackCount;
     }
-        
+    
     // hide older VCs, show newer ones
     self.firstVisibleIndex += steps;
     
@@ -538,7 +487,7 @@
     
     // sanity check
     if (steps >= [self.viewControllers count]-1) {
-        SVLog(@"Warning: firstVisibleIndex is higher than viewController count!");
+        PSLog(@"Warning: firstVisibleIndex is higher than viewController count!");
         steps = [self.viewControllers count]-1;
     }
     
@@ -547,11 +496,11 @@
 
 - (NSUInteger)expandStack:(NSUInteger)steps animated:(BOOL)animated; { // (---> decreases firstVisibleIndex)
     [self correctFirstVisibleIndex];
-    SVLog(@"expanding stack with %d steps [%d-%d]", steps, self.firstVisibleIndex, self.lastVisibleIndex);
-
+    PSLog(@"expanding stack with %d steps [%d-%d]", steps, self.firstVisibleIndex, self.lastVisibleIndex);
+    
     if (self.firstVisibleIndex < steps) {
         steps = self.firstVisibleIndex;
-        SVLog(@"Warn! steps are too high! adjusting to %d", steps);
+        PSLog(@"Warn! steps are too high! adjusting to %d", steps);
     }
     
     NSUInteger maxExpandStackCount = [self canExpandStack];
@@ -578,7 +527,7 @@
     // if the move does not make sense (no snapping region), only use 1/2 offset
     BOOL snapPointAvailable = [self snapPointAvailableAfterOffset:offset];
     if (!snapPointAvailable) {
-        SVLog(@"offset dividing/2 in effect");
+        PSLog(@"offset dividing/2 in effect");
         
         // we only want to move full pixels - but if we drag slowly, 1 get divided to zero.
         // so only omit every second event
@@ -627,7 +576,7 @@
                 self.firstVisibleIndex++;
                 
                 // special condition: we dragged menu to border
-                if ([self firstViewController].view.left > [self minimalLeftBorder]) {
+                if ([self firstViewController].containerView.left > [self minimalLeftBorder]) {
                     self.firstVisibleIndex--;
                 }
             }
@@ -708,7 +657,7 @@
     for (UIViewController *controller in self.viewControllers) {
         [controller willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
     }
-    [self updateViewControllerMasks];
+    [self updateViewControllerMasksAndShadow];
 }
 
 @end
