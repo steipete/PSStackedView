@@ -1,0 +1,358 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		787C229213CEE5F400105064 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 787C229113CEE5F400105064 /* UIKit.framework */; };
+		787C229413CEE5F400105064 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 787C229313CEE5F400105064 /* Foundation.framework */; };
+		787C229613CEE5F400105064 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 787C229513CEE5F400105064 /* CoreGraphics.framework */; };
+		787C229C13CEE5F400105064 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 787C229A13CEE5F400105064 /* InfoPlist.strings */; };
+		787C229E13CEE5F400105064 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 787C229D13CEE5F400105064 /* main.m */; };
+		787C22A213CEE5F400105064 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 787C22A113CEE5F400105064 /* AppDelegate.m */; };
+		78815F1D13CF3C110011B343 /* ExampleViewController1.xib in Resources */ = {isa = PBXBuildFile; fileRef = 78815F1C13CF3C110011B343 /* ExampleViewController1.xib */; };
+		7884393313CEF4B900D18A56 /* ExampleViewController1.m in Sources */ = {isa = PBXBuildFile; fileRef = 7884393113CEF4B900D18A56 /* ExampleViewController1.m */; };
+		7884393813CEF4C800D18A56 /* ExampleViewController2.m in Sources */ = {isa = PBXBuildFile; fileRef = 7884393613CEF4C800D18A56 /* ExampleViewController2.m */; };
+		7884393D13CEF7C700D18A56 /* ExampleStackRootController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7884393C13CEF7C700D18A56 /* ExampleStackRootController.m */; };
+		7884394013CEF82D00D18A56 /* background.png in Resources */ = {isa = PBXBuildFile; fileRef = 7884393F13CEF82D00D18A56 /* background.png */; };
+		788820C413D38CDA004A66A2 /* PSStackedViewRootController.m in Sources */ = {isa = PBXBuildFile; fileRef = 788820C113D38CDA004A66A2 /* PSStackedViewRootController.m */; };
+		788820C513D38CDA004A66A2 /* UIView+PSSizes.m in Sources */ = {isa = PBXBuildFile; fileRef = 788820C313D38CDA004A66A2 /* UIView+PSSizes.m */; };
+		78BA6A0F13CEFECF00DDA16E /* MenuTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 78BA6A0E13CEFECF00DDA16E /* MenuTableViewCell.m */; };
+		78BA6A1213CF032B00DDA16E /* glow.png in Resources */ = {isa = PBXBuildFile; fileRef = 78BA6A1113CF032B00DDA16E /* glow.png */; };
+		78BA6A1613CF05C200DDA16E /* 08-chat.png in Resources */ = {isa = PBXBuildFile; fileRef = 78BA6A1313CF05C200DDA16E /* 08-chat.png */; };
+		78BA6A1713CF05C200DDA16E /* 11-clock.png in Resources */ = {isa = PBXBuildFile; fileRef = 78BA6A1413CF05C200DDA16E /* 11-clock.png */; };
+		78BA6A1813CF05C200DDA16E /* 15-tags.png in Resources */ = {isa = PBXBuildFile; fileRef = 78BA6A1513CF05C200DDA16E /* 15-tags.png */; };
+		78DE83D713D3271700D2BADD /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 78DE83D613D3271700D2BADD /* QuartzCore.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		787C228D13CEE5F400105064 /* StackedViewKit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StackedViewKit.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		787C229113CEE5F400105064 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		787C229313CEE5F400105064 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		787C229513CEE5F400105064 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		787C229913CEE5F400105064 /* PSStackedViewExample-Info.plist */ = {isa = PBXFileReference; path = "PSStackedViewExample-Info.plist"; sourceTree = "<group>"; };
+		787C229B13CEE5F400105064 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		787C229D13CEE5F400105064 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		787C229F13CEE5F400105064 /* PSStackedViewExample-Prefix.pch */ = {isa = PBXFileReference; path = "PSStackedViewExample-Prefix.pch"; sourceTree = "<group>"; };
+		787C22A013CEE5F400105064 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		787C22A113CEE5F400105064 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		78815F1C13CF3C110011B343 /* ExampleViewController1.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ExampleViewController1.xib; sourceTree = "<group>"; };
+		7884393013CEF4B900D18A56 /* ExampleViewController1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExampleViewController1.h; sourceTree = "<group>"; };
+		7884393113CEF4B900D18A56 /* ExampleViewController1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExampleViewController1.m; sourceTree = "<group>"; };
+		7884393513CEF4C800D18A56 /* ExampleViewController2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExampleViewController2.h; sourceTree = "<group>"; };
+		7884393613CEF4C800D18A56 /* ExampleViewController2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExampleViewController2.m; sourceTree = "<group>"; };
+		7884393B13CEF7C700D18A56 /* ExampleStackRootController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExampleStackRootController.h; sourceTree = "<group>"; };
+		7884393C13CEF7C700D18A56 /* ExampleStackRootController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExampleStackRootController.m; sourceTree = "<group>"; };
+		7884393F13CEF82D00D18A56 /* background.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = background.png; sourceTree = "<group>"; };
+		788820BD13D38CDA004A66A2 /* PSStackedView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PSStackedView.h; path = ../../PSStackedView/PSStackedView.h; sourceTree = "<group>"; };
+		788820BE13D38CDA004A66A2 /* PSStackedViewDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PSStackedViewDelegate.h; path = ../../PSStackedView/PSStackedViewDelegate.h; sourceTree = "<group>"; };
+		788820BF13D38CDA004A66A2 /* PSStackedViewGlobal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PSStackedViewGlobal.h; path = ../../PSStackedView/PSStackedViewGlobal.h; sourceTree = "<group>"; };
+		788820C013D38CDA004A66A2 /* PSStackedViewRootController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PSStackedViewRootController.h; path = ../../PSStackedView/PSStackedViewRootController.h; sourceTree = "<group>"; };
+		788820C113D38CDA004A66A2 /* PSStackedViewRootController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PSStackedViewRootController.m; path = ../../PSStackedView/PSStackedViewRootController.m; sourceTree = "<group>"; };
+		788820C213D38CDA004A66A2 /* UIView+PSSizes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIView+PSSizes.h"; path = "../../PSStackedView/UIView+PSSizes.h"; sourceTree = "<group>"; };
+		788820C313D38CDA004A66A2 /* UIView+PSSizes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIView+PSSizes.m"; path = "../../PSStackedView/UIView+PSSizes.m"; sourceTree = "<group>"; };
+		78BA6A0D13CEFECF00DDA16E /* MenuTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MenuTableViewCell.h; sourceTree = "<group>"; };
+		78BA6A0E13CEFECF00DDA16E /* MenuTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MenuTableViewCell.m; sourceTree = "<group>"; };
+		78BA6A1113CF032B00DDA16E /* glow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = glow.png; sourceTree = "<group>"; };
+		78BA6A1313CF05C200DDA16E /* 08-chat.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "08-chat.png"; sourceTree = "<group>"; };
+		78BA6A1413CF05C200DDA16E /* 11-clock.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "11-clock.png"; sourceTree = "<group>"; };
+		78BA6A1513CF05C200DDA16E /* 15-tags.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "15-tags.png"; sourceTree = "<group>"; };
+		78DE83D613D3271700D2BADD /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		787C228A13CEE5F400105064 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				78DE83D713D3271700D2BADD /* QuartzCore.framework in Frameworks */,
+				787C229213CEE5F400105064 /* UIKit.framework in Frameworks */,
+				787C229413CEE5F400105064 /* Foundation.framework in Frameworks */,
+				787C229613CEE5F400105064 /* CoreGraphics.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		787C228213CEE5F400105064 = {
+			isa = PBXGroup;
+			children = (
+				78DE83D613D3271700D2BADD /* QuartzCore.framework */,
+				787C229713CEE5F400105064 /* StackedViewKitExample */,
+				787C229013CEE5F400105064 /* Frameworks */,
+				787C228E13CEE5F400105064 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		787C228E13CEE5F400105064 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				787C228D13CEE5F400105064 /* StackedViewKit.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		787C229013CEE5F400105064 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				787C229113CEE5F400105064 /* UIKit.framework */,
+				787C229313CEE5F400105064 /* Foundation.framework */,
+				787C229513CEE5F400105064 /* CoreGraphics.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		787C229713CEE5F400105064 /* StackedViewKitExample */ = {
+			isa = PBXGroup;
+			children = (
+				787C22DB13CEF1B200105064 /* PSStackedView */,
+				7884393A13CEF4DA00D18A56 /* Example */,
+			);
+			path = StackedViewKitExample;
+			sourceTree = "<group>";
+		};
+		787C229813CEE5F400105064 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				787C229913CEE5F400105064 /* PSStackedViewExample-Info.plist */,
+				787C229A13CEE5F400105064 /* InfoPlist.strings */,
+				787C229D13CEE5F400105064 /* main.m */,
+				787C229F13CEE5F400105064 /* PSStackedViewExample-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		787C22DB13CEF1B200105064 /* PSStackedView */ = {
+			isa = PBXGroup;
+			children = (
+				788820BD13D38CDA004A66A2 /* PSStackedView.h */,
+				788820BE13D38CDA004A66A2 /* PSStackedViewDelegate.h */,
+				788820BF13D38CDA004A66A2 /* PSStackedViewGlobal.h */,
+				788820C013D38CDA004A66A2 /* PSStackedViewRootController.h */,
+				788820C113D38CDA004A66A2 /* PSStackedViewRootController.m */,
+				788820C213D38CDA004A66A2 /* UIView+PSSizes.h */,
+				788820C313D38CDA004A66A2 /* UIView+PSSizes.m */,
+			);
+			name = PSStackedView;
+			sourceTree = "<group>";
+		};
+		7884393A13CEF4DA00D18A56 /* Example */ = {
+			isa = PBXGroup;
+			children = (
+				787C229813CEE5F400105064 /* Supporting Files */,
+				7884393E13CEF82D00D18A56 /* Images */,
+				787C22A013CEE5F400105064 /* AppDelegate.h */,
+				787C22A113CEE5F400105064 /* AppDelegate.m */,
+				7884393013CEF4B900D18A56 /* ExampleViewController1.h */,
+				7884393113CEF4B900D18A56 /* ExampleViewController1.m */,
+				78815F1C13CF3C110011B343 /* ExampleViewController1.xib */,
+				7884393513CEF4C800D18A56 /* ExampleViewController2.h */,
+				7884393613CEF4C800D18A56 /* ExampleViewController2.m */,
+				7884393B13CEF7C700D18A56 /* ExampleStackRootController.h */,
+				7884393C13CEF7C700D18A56 /* ExampleStackRootController.m */,
+				78BA6A0D13CEFECF00DDA16E /* MenuTableViewCell.h */,
+				78BA6A0E13CEFECF00DDA16E /* MenuTableViewCell.m */,
+			);
+			name = Example;
+			sourceTree = "<group>";
+		};
+		7884393E13CEF82D00D18A56 /* Images */ = {
+			isa = PBXGroup;
+			children = (
+				78BA6A1313CF05C200DDA16E /* 08-chat.png */,
+				78BA6A1413CF05C200DDA16E /* 11-clock.png */,
+				78BA6A1513CF05C200DDA16E /* 15-tags.png */,
+				78BA6A1113CF032B00DDA16E /* glow.png */,
+				7884393F13CEF82D00D18A56 /* background.png */,
+			);
+			path = Images;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		787C228C13CEE5F400105064 /* PSStackedViewExample */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 787C22A813CEE5F400105064 /* Build configuration list for PBXNativeTarget "PSStackedViewExample" */;
+			buildPhases = (
+				787C228913CEE5F400105064 /* Sources */,
+				787C228A13CEE5F400105064 /* Frameworks */,
+				787C228B13CEE5F400105064 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PSStackedViewExample;
+			productName = StackedViewKitExample;
+			productReference = 787C228D13CEE5F400105064 /* StackedViewKit.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		787C228413CEE5F400105064 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				ORGANIZATIONNAME = "Peter Steinberger";
+			};
+			buildConfigurationList = 787C228713CEE5F400105064 /* Build configuration list for PBXProject "PSStackedViewExample" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 787C228213CEE5F400105064;
+			productRefGroup = 787C228E13CEE5F400105064 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				787C228C13CEE5F400105064 /* PSStackedViewExample */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		787C228B13CEE5F400105064 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				787C229C13CEE5F400105064 /* InfoPlist.strings in Resources */,
+				7884394013CEF82D00D18A56 /* background.png in Resources */,
+				78BA6A1213CF032B00DDA16E /* glow.png in Resources */,
+				78BA6A1613CF05C200DDA16E /* 08-chat.png in Resources */,
+				78BA6A1713CF05C200DDA16E /* 11-clock.png in Resources */,
+				78BA6A1813CF05C200DDA16E /* 15-tags.png in Resources */,
+				78815F1D13CF3C110011B343 /* ExampleViewController1.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		787C228913CEE5F400105064 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				787C229E13CEE5F400105064 /* main.m in Sources */,
+				787C22A213CEE5F400105064 /* AppDelegate.m in Sources */,
+				7884393313CEF4B900D18A56 /* ExampleViewController1.m in Sources */,
+				7884393813CEF4C800D18A56 /* ExampleViewController2.m in Sources */,
+				7884393D13CEF7C700D18A56 /* ExampleStackRootController.m in Sources */,
+				78BA6A0F13CEFECF00DDA16E /* MenuTableViewCell.m in Sources */,
+				788820C413D38CDA004A66A2 /* PSStackedViewRootController.m in Sources */,
+				788820C513D38CDA004A66A2 /* UIView+PSSizes.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		787C229A13CEE5F400105064 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				787C229B13CEE5F400105064 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		787C22A613CEE5F400105064 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_UNIVERSAL_IPHONE_OS)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 2;
+			};
+			name = Debug;
+		};
+		787C22A713CEE5F400105064 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_UNIVERSAL_IPHONE_OS)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
+				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 2;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		787C22A913CEE5F400105064 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "StackedViewKitExample/PSStackedViewExample-Prefix.pch";
+				INFOPLIST_FILE = "StackedViewKitExample/PSStackedViewExample-Info.plist";
+				PRODUCT_NAME = StackedViewKit;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		787C22AA13CEE5F400105064 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "StackedViewKitExample/PSStackedViewExample-Prefix.pch";
+				INFOPLIST_FILE = "StackedViewKitExample/PSStackedViewExample-Info.plist";
+				PRODUCT_NAME = StackedViewKit;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		787C228713CEE5F400105064 /* Build configuration list for PBXProject "PSStackedViewExample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				787C22A613CEE5F400105064 /* Debug */,
+				787C22A713CEE5F400105064 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		787C22A813CEE5F400105064 /* Build configuration list for PBXNativeTarget "PSStackedViewExample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				787C22A913CEE5F400105064 /* Debug */,
+				787C22AA13CEE5F400105064 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 787C228413CEE5F400105064 /* Project object */;
+}
