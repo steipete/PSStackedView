@@ -30,6 +30,7 @@
 #pragma mark -
 #pragma mark private
 
+// creates vertical shadow
 - (CAGradientLayer *)shadowAsInverse:(BOOL)inverse {
 	CAGradientLayer *newShadow = [[[CAGradientLayer alloc] init] autorelease];
     newShadow.startPoint = CGPointMake(0, 0.5);
@@ -41,6 +42,21 @@
                         (id)(inverse ? darkColor : lightColor),
                         nil];
 	return newShadow;
+}
+
+// return available shadows as set, for easy enumeration
+- (NSSet *)shadowSet {
+    NSMutableSet *set = [NSMutableSet set];
+    if (self.leftShadowLayer) {
+        [set addObject:self.leftShadowLayer];
+    }
+    if (self.innerShadowLayer) {
+        [set addObject:self.innerShadowLayer];
+    }
+    if (self.rightShadowLayer) {
+        [set addObject:self.rightShadowLayer];
+    }
+    return [[set copy] autorelease];
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -61,6 +77,17 @@
     [rightShadowLayer_ release];
     [controller_ release];
     [super dealloc];
+}
+
+- (void)setFrame:(CGRect)frame {
+    [super setFrame:frame];
+
+    // adapt layer heights
+    for (CALayer *layer in [self shadowSet]) {
+        CGRect aFrame = layer.frame;
+        aFrame.size.height = frame.size.height;
+        layer.frame = aFrame;
+    }
 }
 
 - (void)setController:(UIViewController *)aController {
