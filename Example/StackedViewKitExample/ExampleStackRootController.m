@@ -131,7 +131,7 @@
     }
     
     if (viewController) {
-        [XAppDelegate.stackController pushViewController:viewController animated:YES];
+        [XAppDelegate.stackController pushViewController:viewController fromViewController:nil animated:YES];
 		[viewController release];
     }
 }

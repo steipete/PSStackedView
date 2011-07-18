@@ -10,8 +10,10 @@
 #import "PSStackedViewGlobal.h"
 #import "PSSVContainerView.h"
 #import <QuartzCore/QuartzCore.h>
+#import <objc/runtime.h>
 
-#define kSVStackAnimationDuration 0.3
+#define kPSSVStackAnimationDuration 0.3
+#define kPSSVAssociatedBaseViewControllerKey @"kPSSVAssociatedBaseViewController"
 
 @implementation UIViewController (PSStackedViewAdditions)
 - (PSSVContainerView *)containerView; { return ([self.view.superview isKindOfClass:[PSSVContainerView class]] ? (PSSVContainerView *)self.view.superview : nil); }
@@ -264,8 +266,23 @@
     }
 }
 
-- (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated; {    
-    PSLog(@"pushing VC with index %d on stack: %@ (animated: %d)", [self.viewControllers count], viewController, animated);
+- (void)pushViewController:(UIViewController *)viewController fromViewController:(UIViewController *)baseViewController animated:(BOOL)animated; {    
+    
+    // figure out where to push, and if we need to get rid of some viewControllers
+    if (baseViewController) {
+        [self.viewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            UIViewController *baseVC = objc_getAssociatedObject(obj, kPSSVAssociatedBaseViewControllerKey);
+            if (baseVC == baseViewController) {
+                PSLog(@"BaseViewController found on index: %d", idx);
+                [self popToViewController:(UIViewController *)obj animated:animated];
+                *stop = YES;
+            }
+        }];
+        
+        objc_setAssociatedObject(viewController, kPSSVAssociatedBaseViewControllerKey, baseViewController, OBJC_ASSOCIATION_ASSIGN); // associate weak
+    }
+    
+    PSLog(@"pushing with index %d on stack: %@ (animated: %d)", [self.viewControllers count], viewController, animated);
     
     if ([viewController respondsToSelector:@selector(stackableMaxWidth)]) {
         viewController.view.width = [(UIViewController<PSStackedViewDelegate> *)viewController stackableMaxWidth];
@@ -282,7 +299,7 @@
     container.width = viewController.view.width;
     container.autoresizingMask = UIViewAutoresizingFlexibleHeight; // width is not flexible!
     [self.view addSubview:container];
-
+    
     [viewController viewDidAppear:animated];    
     [viewControllers_ addObject:viewController];
     
@@ -290,18 +307,30 @@
     [self displayViewControllerIndexOnRightMost:[self.viewControllers count]-1 animated:animated];
 }
 
-- (UIViewController<PSStackedViewDelegate> *)popViewControllerAnimated:(BOOL)animated; {
-    PSLog(@"popping last VC: %@ (animated:%d)", [self lastViewController], animated);
+- (UIViewController *)popViewControllerAnimated:(BOOL)animated; {
+    PSLog(@"popping controller: %@ (#%d total, animated:%d)", [self lastViewController], [self.viewControllers count], animated);
     
-    UIViewController<PSStackedViewDelegate> *lastController = [self lastViewController];
+    UIViewController *lastController = [self lastViewController];
     if (lastController) {        
         
         PSSVContainerView *container = lastController.containerView;
         
         // remove from view stack!
-        [lastController viewWillAppear:animated];
-        [container removeFromSuperview];
-        [lastController viewDidDisappear:animated];
+        [lastController viewWillDisappear:animated];
+        
+        if (animated) {
+            [UIView animateWithDuration:kPSSVStackAnimationDuration delay:0.f options:UIViewAnimationOptionBeginFromCurrentState animations:^(void) {
+                lastController.containerView.alpha = 0.f;
+            } completion:^(BOOL finished) {
+                if (finished) {
+                    [container removeFromSuperview];
+                    [lastController viewDidDisappear:animated];
+                }
+            }];
+        }else {
+            [container removeFromSuperview];
+            [lastController viewDidDisappear:animated];
+        }
         
         [viewControllers_ removeLastObject];
         [self updateViewControllerMasksAndShadow];
@@ -313,6 +342,23 @@
     return lastController;
 }
 
+- (NSArray *)popToViewController:(UIViewController *)viewController animated:(BOOL)animated; {
+    NSParameterAssert(viewController);
+    
+    NSUInteger index = [self.viewControllers indexOfObject:viewController];
+    if (NSNotFound == index) {
+        return nil;
+    }
+    PSLog(@"popping to index %d, from %d", index, [self.viewControllers count]);
+    
+    NSMutableArray *array = [NSMutableArray array];
+    while ([self.viewControllers count] > index) {
+        [self popViewControllerAnimated:animated];
+    }
+    
+    return array;
+}
+
 
 // moves the stack to a specific offset. 
 - (void)moveStackWithOffset:(NSInteger)offset animated:(BOOL)animated userDragging:(BOOL)userDragging {
@@ -320,7 +366,7 @@
     
     if (animated) {
         [UIView beginAnimations:@"stackAnim" context:nil];
-        [UIView setAnimationDuration:kSVStackAnimationDuration];
+        [UIView setAnimationDuration:kPSSVStackAnimationDuration];
         [UIView setAnimationBeginsFromCurrentState:YES];
     }
     
@@ -414,7 +460,7 @@
     
     if (animated) {
         [UIView beginAnimations:@"stackAnim" context:nil];
-        [UIView setAnimationDuration:kSVStackAnimationDuration];
+        [UIView setAnimationDuration:kPSSVStackAnimationDuration];
         [UIView setAnimationBeginsFromCurrentState:YES];
     }
     

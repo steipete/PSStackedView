@@ -28,7 +28,7 @@ enum {
     NSInteger firstVisibleIndex_;
     NSMutableArray *viewControllers_;
     
-    // internal drag state handling
+    // internal drag state handling and other messy details
     NSInteger lastDragOffset_;
     SVSnapOption lastDragOption_;
     BOOL lastDragDividedOne_;
@@ -37,10 +37,12 @@ enum {
 }
 
 // Uses a horizontal slide transition. Has no effect if the view controller is already in the stack.
-- (void)pushViewController:(UIViewController*)viewController animated:(BOOL)animated;
+// baseViewController is used to remove subviews if a previous controller invokes a new view. can be nil.
+- (void)pushViewController:(UIViewController *)viewController fromViewController:(UIViewController *)baseViewController animated:(BOOL)animated;
 
  // Returns the popped controller.
 - (UIViewController *)popViewControllerAnimated:(BOOL)animated;
+- (NSArray *)popToViewController:(UIViewController *)viewController animated:(BOOL)animated;
 
 // can we collapse (=hide) viewControllers? Only collapses until screen width is used
 - (NSUInteger)canCollapseStack;

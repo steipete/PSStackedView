@@ -62,7 +62,7 @@
         viewController = [[ExampleViewController2 alloc] initWithStyle:UITableViewStylePlain];        
     }
     
-    [XAppDelegate.stackController pushViewController:viewController animated:YES];
+    [XAppDelegate.stackController pushViewController:viewController fromViewController:self animated:YES];
 	[viewController release];
 }
 
