@@ -11,11 +11,11 @@
 #import "UIView+PSSizes.h"
 
 #define kPSSVCornerRadius 6.f
-#define kPSSVGradientShadow @"kPSSVGradientShadow"
 #define kPSSVShadowWidth 80.f
 
 @interface PSSVContainerView ()
 @property (nonatomic, retain) CAGradientLayer *leftShadowLayer;
+@property (nonatomic, retain) CAGradientLayer *innerShadowLayer;
 @property (nonatomic, retain) CAGradientLayer *rightShadowLayer;
 @end
 
@@ -23,6 +23,7 @@
 
 @synthesize controller = controller_;
 @synthesize leftShadowLayer = leftShadowLayer_;
+@synthesize innerShadowLayer = innerShadowLayer_;
 @synthesize rightShadowLayer = rightShadowLayer_;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -31,13 +32,9 @@
 
 - (CAGradientLayer *)shadowAsInverse:(BOOL)inverse {
 	CAGradientLayer *newShadow = [[[CAGradientLayer alloc] init] autorelease];
-	CGRect newShadowFrame = CGRectMake(-kPSSVShadowWidth+kPSSVCornerRadius, 0, kPSSVShadowWidth+kPSSVCornerRadius, self.controller.view.height);
-	newShadow.frame = newShadowFrame;
     newShadow.startPoint = CGPointMake(0, 0.5);
     newShadow.endPoint = CGPointMake(1.0, 0.5);
-    newShadow.name = kPSSVGradientShadow;
-	CGColorRef darkColor =
-    [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:0.3].CGColor;
+	CGColorRef darkColor  = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:0.3].CGColor;
 	CGColorRef lightColor = [UIColor clearColor].CGColor;
 	newShadow.colors = [NSArray arrayWithObjects:
                         (id)(inverse ? lightColor : darkColor),
@@ -56,10 +53,11 @@
 }
 
 - (void)dealloc {
-    PSLog(@"removing mask/shadow from %@", self.controller);
+    //PSLog(@"removing mask/shadow from %@", self.controller);
     [self removeMask];
     [self removeShadow];
     [leftShadowLayer_ release];
+    [innerShadowLayer_ release];
     [rightShadowLayer_ release];
     [controller_ release];
     [super dealloc];
@@ -79,7 +77,6 @@
         [self addSubview:controller_.view];
     }
 }
-
 
 - (void)addMaskToCorners:(UIRectCorner)corners; {
     // Re-calculate the size of the mask to account for adding/removing rows.
@@ -112,6 +109,8 @@
     if (sides & PSSVSideLeft) {
         if (!self.leftShadowLayer) {
             CAGradientLayer *leftShadow = [self shadowAsInverse:YES];
+            CGRect newShadowFrame = CGRectMake(-kPSSVShadowWidth, 0, kPSSVShadowWidth+kPSSVCornerRadius, self.controller.view.height);
+            leftShadow.frame = newShadowFrame;
             self.leftShadowLayer = leftShadow;
         }
         if ([self.layer.sublayers indexOfObjectIdenticalTo:self.leftShadowLayer] != 0) {
@@ -124,7 +123,7 @@
     if (sides & PSSVSideRight) {
         if (!self.rightShadowLayer) {
             CAGradientLayer *rightShadow = [self shadowAsInverse:NO];
-            CGRect newShadowFrame = CGRectMake(self.width-kPSSVCornerRadius, 0, kPSSVShadowWidth+kPSSVCornerRadius, self.controller.view.height);
+            CGRect newShadowFrame = CGRectMake(self.width-kPSSVCornerRadius, 0, kPSSVShadowWidth, self.controller.view.height);
             rightShadow.frame = newShadowFrame;
             self.rightShadowLayer = rightShadow;
         }
@@ -133,7 +132,24 @@
         }
     }else {
         [self.rightShadowLayer removeFromSuperlayer];
-    }  
+    }
+    
+    if (sides) {
+        if (!self.innerShadowLayer) {
+            
+            CAGradientLayer *innerShadow = [[[CAGradientLayer alloc] init] autorelease];
+            CGRect newShadowFrame = CGRectMake(kPSSVCornerRadius, 0, self.width-kPSSVCornerRadius*2, self.controller.view.height);
+            innerShadow.frame = newShadowFrame;
+            CGColorRef darkColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:0.3].CGColor;
+            innerShadow.colors = [NSArray arrayWithObjects:(id)darkColor, (id)darkColor, nil];
+            self.innerShadowLayer = innerShadow;
+        }
+        if ([self.layer.sublayers indexOfObjectIdenticalTo:self.innerShadowLayer] != 0) {
+            [self.layer insertSublayer:self.innerShadowLayer atIndex:0];
+        }
+    }else {
+        [self.innerShadowLayer removeFromSuperlayer];
+    }
 }
 
 - (void)removeShadow; {

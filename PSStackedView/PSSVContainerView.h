@@ -19,6 +19,7 @@ enum {
 @interface PSSVContainerView : UIView {
     UIViewController *controller_;
     CAGradientLayer *leftShadowLayer_;
+    CAGradientLayer *innerShadowLayer_;
 	CAGradientLayer *rightShadowLayer_;
 }
 
