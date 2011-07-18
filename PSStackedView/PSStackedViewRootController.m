@@ -252,7 +252,17 @@
     }
 }
 
+// updates view containers
 - (void)updateViewControllerMasksAndShadow {
+    // ensure no controller is larger than the screen width
+    NSUInteger maxWidth = [self screenWidth] - [self minimalLeftBorder];
+    for (UIViewController *controller in self.viewControllers) {
+        if(controller.view.width > maxWidth) {
+            PSLog(@"Warning! Resizing controller %@ (rect:%@)to fit max screen width of %d", controller, NSStringFromCGRect(controller.view.frame), maxWidth);
+            controller.view.width = maxWidth;
+        }
+    }
+    
     // only one!
     if ([self.viewControllers count] == 1) {
         [[self firstViewController].containerView addMaskToCorners:UIRectCornerAllCorners];
