@@ -223,7 +223,7 @@
 }
 
 // try to fit in as many VCs as possible
-- (void)correctFirstVisibleIndex {
+- (void)checkAndDecreaseFirstVisibleIndexIfPossible {
     
     // sanity check
     if (self.firstVisibleIndex > [self.viewControllers count] - 1) {
@@ -235,6 +235,11 @@
     NSInteger screenSpaceLeft = [self screenWidth] - [self leftBorder];
     while (screenSpaceLeft > 0 && self.firstVisibleIndex > 0 && [self.viewControllers count]) {
         NSInteger lastVisibleIndex = [self lastVisibleIndex];
+        
+        // only try to decrease the firstVisibleIndex if we're at the end.
+        if (lastVisibleIndex != [self.viewControllers count]-1) {
+            return;
+        }
         
         for (NSUInteger firstIndex = self.firstVisibleIndex; firstIndex <= lastVisibleIndex; firstIndex++) {
             UIViewController *vc = [self.viewControllers objectAtIndex:firstIndex];
@@ -434,7 +439,7 @@
     }
     
     // don't get all too excited about the new index - it may be wrong! (e.g. too high stacking)
-    [self correctFirstVisibleIndex];
+    [self checkAndDecreaseFirstVisibleIndexIfPossible];
     
 #ifdef kPSSVStackedViewKitDebugEnabled
     if (oldFirstVisibleIndex != self.firstVisibleIndex) {
@@ -468,7 +473,7 @@
 
 
 - (void)alignStackAnimated:(BOOL)animated; {
-    //[self correctFirstVisibleIndex];
+    [self checkAndDecreaseFirstVisibleIndexIfPossible];
     
     if (animated) {
         [UIView beginAnimations:@"stackAnim" context:nil];
@@ -512,7 +517,6 @@
 
 
 - (NSUInteger)collapseStack:(NSUInteger)steps animated:(BOOL)animated; { // (<--- increases firstVisibleIndex)
-    [self correctFirstVisibleIndex];
     PSLog(@"collapsing stack with %d steps [%d-%d]", steps, self.firstVisibleIndex, self.lastVisibleIndex);
     
     // sliding menu is it's own step
@@ -546,7 +550,6 @@
 }
 
 - (NSUInteger)expandStack:(NSUInteger)steps animated:(BOOL)animated; { // (---> decreases firstVisibleIndex)
-    [self correctFirstVisibleIndex];
     PSLog(@"expanding stack with %d steps [%d-%d]", steps, self.firstVisibleIndex, self.lastVisibleIndex);
     
     if (self.firstVisibleIndex < steps) {
