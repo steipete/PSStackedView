@@ -81,9 +81,9 @@
 // total stack width if completely expanded
 - (NSUInteger)totalStackWidth {
     NSUInteger totalStackWidth = 0;
-    for (UIViewController<PSStackedViewDelegate> *controller in self.viewControllers) {
+    for (UIViewController *controller in self.viewControllers) {
         if ([controller respondsToSelector:@selector(stackableMaxWidth)]) {
-            totalStackWidth += [controller stackableMaxWidth];
+            totalStackWidth += [(UIViewController<PSStackedViewDelegate> *)controller stackableMaxWidth];
         }else {
             totalStackWidth += controller.view.width;
         }
@@ -129,11 +129,11 @@
 }
 
 // returns view controller that is displayed before viewController 
-- (UIViewController<PSStackedViewDelegate> *)previousViewController:(UIViewController *)viewController {
+- (UIViewController *)previousViewController:(UIViewController *)viewController {
     NSParameterAssert(viewController);
     
     NSUInteger vcIndex = [self.viewControllers indexOfObject:viewController];
-    UIViewController<PSStackedViewDelegate> *prevVC = nil;
+    UIViewController *prevVC = nil;
     if (vcIndex > 0) {
         prevVC = [self.viewControllers objectAtIndex:vcIndex-1];
     }
@@ -142,11 +142,11 @@
 }
 
 // returns view controller that is displayed after viewController 
-- (UIViewController<PSStackedViewDelegate> *)nextViewController:(UIViewController *)viewController {
+- (UIViewController *)nextViewController:(UIViewController *)viewController {
     NSParameterAssert(viewController);
     
     NSUInteger vcIndex = [self.viewControllers indexOfObject:viewController];
-    UIViewController<PSStackedViewDelegate> *nextVC = nil;
+    UIViewController *nextVC = nil;
     if (vcIndex + 1 < [self.viewControllers count]) {
         nextVC = [self.viewControllers objectAtIndex:vcIndex+1];
     }
@@ -155,7 +155,7 @@
 }
 
 // first view controller in stack
-- (UIViewController<PSStackedViewDelegate> *)firstViewController {
+- (UIViewController *)firstViewController {
     if ([self.viewControllers count]) {
         return [self.viewControllers objectAtIndex:0];
     }
@@ -163,17 +163,17 @@
 }
 
 // last view controller in stack
-- (UIViewController<PSStackedViewDelegate> *)lastViewController {
+- (UIViewController *)lastViewController {
     return [self.viewControllers lastObject];
 }
 
 // returns last visible view controller. this *can* be the last view controller in the stack, 
 // but also one of the previous ones if the user navigates back in the stack
-- (UIViewController<PSStackedViewDelegate> *)lastVisibleViewControllerCompletelyVisible:(BOOL)completely {
-    __block UIViewController<PSStackedViewDelegate> *lastVisibleViewController = nil;
+- (UIViewController *)lastVisibleViewControllerCompletelyVisible:(BOOL)completely {
+    __block UIViewController *lastVisibleViewController = nil;
     
     [self.viewControllers enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        UIViewController<PSStackedViewDelegate> *currentViewController = (UIViewController<PSStackedViewDelegate> *)obj;
+        UIViewController *currentViewController = (UIViewController *)obj;
         if ([self isViewControllerVisible:currentViewController completely:completely]) {
             lastVisibleViewController = currentViewController;
             *stop = YES;
@@ -275,12 +275,30 @@
     }
 }
 
+- (NSSet *)visibleViewControllersSetFullyVisible:(BOOL)fullyVisible; {
+    NSMutableSet *set = [NSMutableSet set];    
+    [self.viewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        if ([self isViewControllerVisible:obj completely:fullyVisible]) {
+            [set addObject:obj];
+        }
+    }];
+    
+    return [[set copy] autorelease];
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - SVStackRootController (Public)
 
 - (UIViewController *)topViewController {
     return [self lastViewController];
+}
+
+- (NSSet *)visibleViewControllers {
+    return [self visibleViewControllersSetFullyVisible:NO];
+}
+
+- (NSSet *)fullyVisibleViewControllers {
+    return [self visibleViewControllersSetFullyVisible:YES];
 }
 
 - (void)pushViewController:(UIViewController *)viewController fromViewController:(UIViewController *)baseViewController animated:(BOOL)animated; {    
@@ -391,9 +409,9 @@
     // scroll each controller until we begin to overlap!
     __block BOOL isTopViewController = YES;
     [self.viewControllers enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        UIViewController<PSStackedViewDelegate> *currentViewController = (UIViewController<PSStackedViewDelegate> *)obj;
-        UIViewController<PSStackedViewDelegate> *leftViewController = [self previousViewController:currentViewController];
-        UIViewController<PSStackedViewDelegate> *rightViewController = [self nextViewController:currentViewController];        
+        UIViewController *currentViewController = (UIViewController *)obj;
+        UIViewController *leftViewController = [self previousViewController:currentViewController];
+        UIViewController *rightViewController = [self nextViewController:currentViewController];        
         NSInteger minimalLeftBorder = [self minimalLeftBorder];
         
         // we just move the top view controller

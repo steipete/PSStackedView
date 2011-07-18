@@ -70,6 +70,10 @@ enum {
  // The top view controller on the stack.
 @property(nonatomic, readonly, retain) UIViewController *topViewController;
 
+// view controllers visible. NOT KVO compliant, is calculated on demand.
+@property(nonatomic, readonly, retain) NSSet *visibleViewControllers;
+@property(nonatomic, readonly, retain) NSSet *fullyVisibleViewControllers;
+
 // index of first currently visible view controller
 @property(nonatomic, assign, readonly) NSInteger firstVisibleIndex;
 
