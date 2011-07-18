@@ -67,6 +67,9 @@ enum {
 // expands/collapses stack until entered index is topmost right
 - (void)displayViewControllerIndexOnRightMost:(NSUInteger)index animated:(BOOL)animated;
 
+ // The top view controller on the stack.
+@property(nonatomic, readonly, retain) UIViewController *topViewController;
+
 // index of first currently visible view controller
 @property(nonatomic, assign, readonly) NSInteger firstVisibleIndex;
 

@@ -84,6 +84,8 @@
     for (UIViewController<PSStackedViewDelegate> *controller in self.viewControllers) {
         if ([controller respondsToSelector:@selector(stackableMaxWidth)]) {
             totalStackWidth += [controller stackableMaxWidth];
+        }else {
+            totalStackWidth += controller.view.width;
         }
     }
     return totalStackWidth;
@@ -245,10 +247,6 @@
     }
 }
 
-
-///////////////////////////////////////////////////////////////////////////////////////////////////
-#pragma mark - SVStackRootController (Public)
-
 - (void)updateViewControllerMasksAndShadow {
     // only one!
     if ([self.viewControllers count] == 1) {
@@ -270,6 +268,14 @@
             }
         }];
     }
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark - SVStackRootController (Public)
+
+- (UIViewController *)topViewController {
+    return [self lastViewController];
 }
 
 - (void)pushViewController:(UIViewController *)viewController fromViewController:(UIViewController *)baseViewController animated:(BOOL)animated; {    
@@ -462,7 +468,7 @@
 
 
 - (void)alignStackAnimated:(BOOL)animated; {
-    [self correctFirstVisibleIndex];
+    //[self correctFirstVisibleIndex];
     
     if (animated) {
         [UIView beginAnimations:@"stackAnim" context:nil];
