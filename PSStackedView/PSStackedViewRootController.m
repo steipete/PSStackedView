@@ -185,7 +185,7 @@
     
     // are we at the end?
     UIViewController *lastViewController = [self lastViewController];
-    if (lastViewController == [self lastVisibleViewControllerCompletelyVisible:NO]) {
+    if (lastViewController == [self lastVisibleViewControllerCompletelyVisible:YES]) {
         if (minCommonWidth+[self minimalLeftBorder] <= lastViewController.containerView.right) {
             snapPointAvailableAfterOffset = NO;
         }
