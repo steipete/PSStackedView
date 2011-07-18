@@ -63,6 +63,7 @@
     }
     
     [XAppDelegate.stackController pushViewController:viewController animated:YES];
+	[viewController release];
 }
 
 - (void)setIndexNumber:(NSUInteger)anIndexNumber {

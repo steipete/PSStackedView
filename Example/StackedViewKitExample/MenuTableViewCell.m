@@ -41,6 +41,7 @@
 		glowView.image = [UIImage imageNamed:@"glow"];
 		glowView.hidden = YES;
 		[self addSubview:glowView];
+		[glowView release];
 	}
 	return self;
 }

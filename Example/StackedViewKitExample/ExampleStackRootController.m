@@ -54,17 +54,20 @@
     self.view.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"background"]];
     
     // prepare menu content
-    NSMutableArray *cellContents = [[[NSMutableArray alloc] init] autorelease];
-    [cellContents addObject:[NSDictionary dictionaryWithObjectsAndKeys:[UIImage imageNamed:@"08-chat"], kCellImage, NSLocalizedString(@"Example1",@""), kCellText, nil]];
-    [cellContents addObject:[NSDictionary dictionaryWithObjectsAndKeys:[UIImage imageNamed:@"11-clock"], kCellImage, NSLocalizedString(@"Example2",@""), kCellText, nil]];
-    [cellContents addObject:[NSDictionary dictionaryWithObjectsAndKeys:[UIImage imageNamed:@"15-tags"], kCellImage, NSLocalizedString(@" ",@""), kCellText, nil]];
-    [cellContents addObject:[NSDictionary dictionaryWithObjectsAndKeys:[UIImage imageNamed:@"08-chat"], kCellImage, NSLocalizedString(@"<- Collapse",@""), kCellText, nil]];
-    [cellContents addObject:[NSDictionary dictionaryWithObjectsAndKeys:[UIImage imageNamed:@"11-clock"], kCellImage, NSLocalizedString(@"Expand ->",@""), kCellText, nil]];
-    [cellContents addObject:[NSDictionary dictionaryWithObjectsAndKeys:[UIImage imageNamed:@"15-tags"], kCellImage, NSLocalizedString(@"Clear All",@""), kCellText, nil]];    
-    self.cellContents = [[cellContents copy] autorelease];
+    NSMutableArray *contents = [[NSMutableArray alloc] init];
+    [contents addObject:[NSDictionary dictionaryWithObjectsAndKeys:[UIImage imageNamed:@"08-chat"], kCellImage, NSLocalizedString(@"Example1",@""), kCellText, nil]];
+    [contents addObject:[NSDictionary dictionaryWithObjectsAndKeys:[UIImage imageNamed:@"11-clock"], kCellImage, NSLocalizedString(@"Example2",@""), kCellText, nil]];
+    [contents addObject:[NSDictionary dictionaryWithObjectsAndKeys:[UIImage imageNamed:@"15-tags"], kCellImage, NSLocalizedString(@" ",@""), kCellText, nil]];
+    [contents addObject:[NSDictionary dictionaryWithObjectsAndKeys:[UIImage imageNamed:@"08-chat"], kCellImage, NSLocalizedString(@"<- Collapse",@""), kCellText, nil]];
+    [contents addObject:[NSDictionary dictionaryWithObjectsAndKeys:[UIImage imageNamed:@"11-clock"], kCellImage, NSLocalizedString(@"Expand ->",@""), kCellText, nil]];
+    [contents addObject:[NSDictionary dictionaryWithObjectsAndKeys:[UIImage imageNamed:@"15-tags"], kCellImage, NSLocalizedString(@"Clear All",@""), kCellText, nil]];    
+    self.cellContents = contents;
+	[contents release];
     
     // add table menu
-    self.menuTable = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, kMenuWidth, self.view.height) style:UITableViewStylePlain];
+	UITableView *tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, kMenuWidth, self.view.height) style:UITableViewStylePlain];
+    self.menuTable = tableView;
+	[tableView release];
     
     self.menuTable.backgroundColor = [UIColor clearColor];
     self.menuTable.delegate = self;
@@ -146,6 +149,7 @@
     
     if (viewController) {
         [XAppDelegate.stackController pushViewController:viewController animated:YES];
+		[viewController release];
     }
 }
 
