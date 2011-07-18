@@ -14,16 +14,15 @@ enum {
     SVSnapOptionNearest,
     SVSnapOptionLeft,
     SVSnapOptionRight
-} typedef SVSnapOption;
+} typedef PSSVSnapOption;
 
-// root controller hosting all stacked controllers
-// override controller if you want to fill the background with content (e.g. a menu)
+// StackController hosing a backside rootViewController and the stacked controllers
 @interface PSStackedViewRootController : UIViewController {
     UIViewController *rootViewController_;
     
     // properites
-    NSUInteger backMinWidth_;
-    NSUInteger backEmptyWidth_;    
+    NSUInteger leftInset_;
+    NSUInteger largeLeftInset_;    
     
     // stack state
     BOOL showingFullMenu_;
@@ -31,8 +30,8 @@ enum {
     NSMutableArray *viewControllers_;
     
     // internal drag state handling and other messy details
+    PSSVSnapOption lastDragOption_;
     NSInteger lastDragOffset_;
-    SVSnapOption lastDragOption_;
     BOOL lastDragDividedOne_;
     
     NSInteger lastVisibleIndexBeforeRotation_;
@@ -45,11 +44,13 @@ enum {
 // baseViewController is used to remove subviews if a previous controller invokes a new view. can be nil.
 - (void)pushViewController:(UIViewController *)viewController fromViewController:(UIViewController *)baseViewController animated:(BOOL)animated;
 
- // Returns the popped controller.
+// remove top view controller from stack, return it
 - (UIViewController *)popViewControllerAnimated:(BOOL)animated;
+
+// remove view controllers until 'viewController' is found
 - (NSArray *)popToViewController:(UIViewController *)viewController animated:(BOOL)animated;
 
-// can we collapse (=hide) viewControllers? Only collapses until screen width is used
+// can we collapse (= hide) view controllers? Only collapses until screen width is used
 - (NSUInteger)canCollapseStack;
 
 // can the stack be further expanded (are some views stacked?)
@@ -67,11 +68,14 @@ enum {
 // expands/collapses stack until entered index is topmost right
 - (void)displayViewControllerIndexOnRightMost:(NSUInteger)index animated:(BOOL)animated;
 
- // The top view controller on the stack.
+ // The top(last) view controller on the stack.
 @property(nonatomic, readonly, retain) UIViewController *topViewController;
+// first view controller
+@property(nonatomic, readonly, retain) UIViewController *firstViewController;
 
 // view controllers visible. NOT KVO compliant, is calculated on demand.
 @property(nonatomic, readonly, retain) NSSet *visibleViewControllers;
+
 @property(nonatomic, readonly, retain) NSSet *fullyVisibleViewControllers;
 
 // index of first currently visible view controller
@@ -86,10 +90,10 @@ enum {
 // toggle full menu / small menu
 @property(nonatomic, assign, getter=isShowingFullMenu, readonly) BOOL showingFullMenu;
 
-// width for menu icons only (left gap)
-@property(nonatomic, assign) NSUInteger backMinWidth;
+@property(nonatomic, readonly, assign) NSUInteger leftInset;
+- (void)setLeftInset:(NSUInteger)leftInset animated:(BOOL)animated;
 
-// width for menu icons + text
-@property(nonatomic, assign) NSUInteger backEmptyWidth;
+@property(nonatomic, readonly, assign) NSUInteger largeLeftInset;
+- (void)setLargeLeftInset:(NSUInteger)largeLeftInset animated:(BOOL)animated;
 
 @end

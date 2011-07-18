@@ -14,9 +14,19 @@
 
 #define kPSSVStackAnimationDuration 0.3
 #define kPSSVAssociatedBaseViewControllerKey @"kPSSVAssociatedBaseViewController"
+#define kPSSVAssociatedStackViewControllerKey @"kPSSVAssociatedStackViewController"
 
 @implementation UIViewController (PSStackedViewAdditions)
+
+// returns the containerView, where view controllers are embedded
 - (PSSVContainerView *)containerView; { return ([self.view.superview isKindOfClass:[PSSVContainerView class]] ? (PSSVContainerView *)self.view.superview : nil); }
+
+// returns the stack controller if the viewController is embedded
+- (PSStackedViewRootController *)stackController; {
+    PSStackedViewRootController *stackController = objc_getAssociatedObject(self, kPSSVAssociatedStackViewControllerKey);
+    return stackController;
+}
+
 @end
 
 @interface PSStackedViewRootController() <UIGestureRecognizerDelegate> 
@@ -30,8 +40,8 @@
 
 @implementation PSStackedViewRootController
 
-@synthesize backMinWidth = backMinWidth_;
-@synthesize backEmptyWidth = backEmptyWidth_;
+@synthesize leftInset = leftInset_;
+@synthesize largeLeftInset = largeLeftInset_;
 @synthesize viewControllers = viewControllers_;
 @synthesize showingFullMenu  = showingFullMenu_;
 @synthesize firstVisibleIndex = firstVisibleIndex_;
@@ -47,8 +57,8 @@
         
         // set some reasonble defaults
         showingFullMenu_ = YES;
-        backMinWidth_ = 60;
-        backEmptyWidth_ = 200;
+        leftInset_ = 60;
+        largeLeftInset_ = 200;
         
         // add a gesture recognizer to detect dragging to the guest controllers
         UIPanGestureRecognizer* panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanFrom:)];
@@ -82,50 +92,35 @@
 - (NSUInteger)totalStackWidth {
     NSUInteger totalStackWidth = 0;
     for (UIViewController *controller in self.viewControllers) {
-        if ([controller respondsToSelector:@selector(stackableMaxWidth)]) {
-            totalStackWidth += [(UIViewController<PSStackedViewDelegate> *)controller stackableMaxWidth];
-        }else {
-            totalStackWidth += controller.view.width;
-        }
+        totalStackWidth += controller.containerView.width;
     }
     return totalStackWidth;
 }
 
 // menu is only collapsable if stack is large enough
 - (BOOL)isMenuCollapsable {
-    NSUInteger screenWidth = [self screenWidth];
-    NSUInteger totalWidth = [self totalStackWidth];
-    
-    BOOL isMenuCollapsable = totalWidth + self.backEmptyWidth > screenWidth;
+    BOOL isMenuCollapsable = [self totalStackWidth] + self.largeLeftInset > [self screenWidth];
     return isMenuCollapsable;
 }
 
 // return current left border (how it *should* be)
 - (NSUInteger)leftBorder {
-    if (self.isShowingFullMenu) {
-        return self.backEmptyWidth;
-    }else {
-        return self.backMinWidth;
-    }
+    return self.isShowingFullMenu ? self.largeLeftInset : self.leftInset;
 }
 
 // minimal left border is depending on amount of VCs
 - (NSUInteger)minimalLeftBorder {
-    if ([self isMenuCollapsable]) {
-        return self.backMinWidth;
-    }else {
-        return self.backEmptyWidth;
-    }
+    return [self isMenuCollapsable] ? self.leftInset : self.largeLeftInset;
 }
 
-// if view controller is completely hidden behind other controller, its set to invisible to save resources
+// check if a view controller is visible or not
 - (BOOL)isViewControllerVisible:(UIViewController *)viewController completely:(BOOL)completely {
+    NSParameterAssert(viewController);
     NSUInteger screenWidth = [self screenWidth];
     
-    if ((viewController.containerView.left < screenWidth && !completely) || (completely && viewController.containerView.right <= screenWidth)) {
-        return YES;
-    }
-    return NO;
+    BOOL isVCVisible = ((viewController.containerView.left < screenWidth && !completely) ||
+                                  (completely && viewController.containerView.right <= screenWidth));
+    return isVCVisible;
 }
 
 // returns view controller that is displayed before viewController 
@@ -154,19 +149,6 @@
     return nextVC;
 }
 
-// first view controller in stack
-- (UIViewController *)firstViewController {
-    if ([self.viewControllers count]) {
-        return [self.viewControllers objectAtIndex:0];
-    }
-    return nil;
-}
-
-// last view controller in stack
-- (UIViewController *)lastViewController {
-    return [self.viewControllers lastObject];
-}
-
 // returns last visible view controller. this *can* be the last view controller in the stack, 
 // but also one of the previous ones if the user navigates back in the stack
 - (UIViewController *)lastVisibleViewControllerCompletelyVisible:(BOOL)completely {
@@ -192,9 +174,9 @@
     NSUInteger minCommonWidth = MIN(screenWidth, totalWidth);
     
     // are we at the end?
-    UIViewController *lastViewController = [self lastViewController];
-    if (lastViewController == [self lastVisibleViewControllerCompletelyVisible:YES]) {
-        if (minCommonWidth+[self minimalLeftBorder] <= lastViewController.containerView.right) {
+    UIViewController *topViewController = [self topViewController];
+    if (topViewController == [self lastVisibleViewControllerCompletelyVisible:YES]) {
+        if (minCommonWidth+[self minimalLeftBorder] <= topViewController.containerView.right) {
             snapPointAvailableAfterOffset = NO;
         }
     }
@@ -205,7 +187,7 @@
     }
     
     // not using [self canExand] here, as firstVisibleIndex is set while scrolling (menu!)
-    if ([self firstViewController].containerView.left > self.backEmptyWidth) {
+    if ([self firstViewController].containerView.left > self.largeLeftInset) {
         snapPointAvailableAfterOffset = NO;
     }
     
@@ -300,7 +282,11 @@
 #pragma mark - SVStackRootController (Public)
 
 - (UIViewController *)topViewController {
-    return [self lastViewController];
+    return [self.viewControllers lastObject];
+}
+
+- (UIViewController *)firstViewController {
+    return [self.viewControllers count] ? [self.viewControllers objectAtIndex:0] : nil;
 }
 
 - (NSSet *)visibleViewControllers {
@@ -348,14 +334,17 @@
     [viewController viewDidAppear:animated];    
     [viewControllers_ addObject:viewController];
     
+    // register stack controller
+    objc_setAssociatedObject(viewController, kPSSVAssociatedStackViewControllerKey, self, OBJC_ASSOCIATION_ASSIGN);
+    
     [self updateViewControllerMasksAndShadow];
     [self displayViewControllerIndexOnRightMost:[self.viewControllers count]-1 animated:animated];
 }
 
 - (UIViewController *)popViewControllerAnimated:(BOOL)animated; {
-    PSLog(@"popping controller: %@ (#%d total, animated:%d)", [self lastViewController], [self.viewControllers count], animated);
+    PSLog(@"popping controller: %@ (#%d total, animated:%d)", [self topViewController], [self.viewControllers count], animated);
     
-    UIViewController *lastController = [self lastViewController];
+    UIViewController *lastController = [self topViewController];
     if (lastController) {        
         
         PSSVContainerView *container = lastController.containerView;
@@ -378,6 +367,9 @@
         }
         
         [viewControllers_ removeLastObject];
+        
+        objc_setAssociatedObject(lastController, kPSSVAssociatedStackViewControllerKey, nil, OBJC_ASSOCIATION_ASSIGN);
+        
         [self updateViewControllerMasksAndShadow];
         
         // realign view controllers
@@ -625,6 +617,7 @@
         }
     }
     [self moveStackWithOffset:offset animated:NO userDragging:YES];
+
     
     // set up designated drag destination
     if (recognizer.state == UIGestureRecognizerStateBegan) {
@@ -672,6 +665,23 @@
     }
 }
 
+- (void)setLeftInset:(NSUInteger)leftInset {
+    [self setLeftInset:leftInset animated:NO];
+}
+
+- (void)setLeftInset:(NSUInteger)leftInset animated:(BOOL)animated; {
+    leftInset_ = leftInset;
+    [self alignStackAnimated:animated];
+}
+
+- (void)setLargeLeftInset:(NSUInteger)leftInset {
+    [self setLargeLeftInset:leftInset animated:NO];
+}
+
+- (void)setLargeLeftInset:(NSUInteger)leftInset animated:(BOOL)animated; {
+    largeLeftInset_ = leftInset;
+    [self alignStackAnimated:animated];
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - UIView
