@@ -51,19 +51,8 @@
 
 + (PSSVContainerView *)containerViewWithController:(UIViewController *)controller; {
     PSSVContainerView *view = [[[PSSVContainerView alloc] initWithFrame:controller.view.frame] autorelease];
-    view.controller = controller;
-    controller.view.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth; 
-    controller.view.left = 0;
-    controller.view.top = 0;
-    [view addSubview:controller.view];
+    view.controller = controller;    
     return view;
-}
-
-
-- (id)initWithFrame:(CGRect)frame {
-    if ((self = [super initWithFrame:frame])) {
-    }
-    return self;
 }
 
 - (void)dealloc {
@@ -74,6 +63,21 @@
     [rightShadowLayer_ release];
     [controller_ release];
     [super dealloc];
+}
+
+- (void)setController:(UIViewController *)aController {
+    if (controller_ != aController) {
+        if (controller_) {
+            [controller_.view removeFromSuperview];
+            [controller_ release];
+        }        
+        controller_ = [aController retain];
+        
+        // properly embed view
+        controller_.view.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth; 
+        controller_.view.frame = CGRectMake(0, 0, controller_.view.width, controller_.view.height);
+        [self addSubview:controller_.view];
+    }
 }
 
 
