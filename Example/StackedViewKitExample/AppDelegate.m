@@ -7,7 +7,7 @@
 //
 
 #import "AppDelegate.h"
-#import "ExampleStackRootController.h"
+#import "ExampleMenuRootController.h"
 
 @interface AppDelegate()
 @property (nonatomic, retain) PSStackedViewRootController *stackController;
@@ -24,7 +24,8 @@
     self.window.backgroundColor = [UIColor blackColor]; // really should be default
     
     // set root controller as stack controller
-    self.stackController = [[[ExampleStackRootController alloc] init] autorelease];
+    ExampleMenuRootController *menuController = [[[ExampleMenuRootController alloc] init] autorelease];
+    self.stackController = [[[PSStackedViewRootController alloc] initWithRootViewController:menuController] autorelease];
     self.window.rootViewController = self.stackController;
     [self.window makeKeyAndVisible];
 

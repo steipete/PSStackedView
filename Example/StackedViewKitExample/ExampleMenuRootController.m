@@ -1,30 +1,29 @@
 //
-//  ExampleStackRootController.m
+//  ExampleMenuRootController.m
 //  PSStackedViewExample
 //
-//  Created by Peter Steinberger on 7/14/11.
+//  Created by Peter Steinberger on 7/18/11.
 //  Copyright 2011 Peter Steinberger. All rights reserved.
 //
 
+#import "PSStackedView.h"
 #import "AppDelegate.h"
-#import "ExampleStackRootController.h"
 #import "MenuTableViewCell.h"
-
+#import "ExampleMenuRootController.h"
 #import "ExampleViewController1.h"
 #import "ExampleViewController2.h"
-
 #include <QuartzCore/QuartzCore.h>
 
 #define kMenuWidth 200
 #define kCellText @"CellText"
 #define kCellImage @"CellImage" 
 
-@interface ExampleStackRootController()
+@interface ExampleMenuRootController()
 @property (nonatomic, retain) UITableView *menuTable;
 @property (nonatomic, retain) NSArray *cellContents;
 @end
 
-@implementation ExampleStackRootController
+@implementation ExampleMenuRootController
 
 @synthesize menuTable = menuTable_;
 @synthesize cellContents = cellContents_;
@@ -112,22 +111,23 @@
 	return 0;
 }
 
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {    
-    UIViewController<PSStackedViewDelegate> *viewController = nil;
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {  
+    PSStackedViewRootController *stackController = XAppDelegate.stackController;
+    UIViewController*viewController = nil;
     if (indexPath.row == 0) {
         viewController = [[ExampleViewController1 alloc] initWithNibName:@"ExampleViewController1" bundle:nil];
-        ((ExampleViewController1 *)viewController).indexNumber = [self.viewControllers count];
+        ((ExampleViewController1 *)viewController).indexNumber = [stackController.viewControllers count];
     }else if(indexPath.row == 5) {
-        while ([self.viewControllers count]) {
-            [self popViewControllerAnimated:YES];
+        while ([stackController.viewControllers count]) {
+            [stackController popViewControllerAnimated:YES];
         }
     }else if(indexPath.row == 4) { // right
-        [self expandStack:1 animated:YES];
+        [stackController expandStack:1 animated:YES];
     }else if(indexPath.row == 3) {        
-        [self collapseStack:1 animated:YES];
+        [stackController collapseStack:1 animated:YES];
     }else {
         viewController = [[ExampleViewController2 alloc] initWithStyle:UITableViewStylePlain];     
-        ((ExampleViewController2 *)viewController).indexNumber = [self.viewControllers count];
+        ((ExampleViewController2 *)viewController).indexNumber = [stackController.viewControllers count];
     }
     
     if (viewController) {

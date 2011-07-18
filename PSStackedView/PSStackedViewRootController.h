@@ -19,6 +19,8 @@ enum {
 // root controller hosting all stacked controllers
 // override controller if you want to fill the background with content (e.g. a menu)
 @interface PSStackedViewRootController : UIViewController {
+    UIViewController *rootViewController_;
+    
     // properites
     NSUInteger backMinWidth_;
     NSUInteger backEmptyWidth_;    
@@ -35,6 +37,9 @@ enum {
     
     NSInteger lastVisibleIndexBeforeRotation_;
 }
+
+// the root controller gets the whole background view
+- (id)initWithRootViewController:(UIViewController *)rootViewController;
 
 // Uses a horizontal slide transition. Has no effect if the view controller is already in the stack.
 // baseViewController is used to remove subviews if a previous controller invokes a new view. can be nil.

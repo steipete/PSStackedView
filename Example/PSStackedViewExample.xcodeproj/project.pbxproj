@@ -16,11 +16,11 @@
 		78815F1D13CF3C110011B343 /* ExampleViewController1.xib in Resources */ = {isa = PBXBuildFile; fileRef = 78815F1C13CF3C110011B343 /* ExampleViewController1.xib */; };
 		7884393313CEF4B900D18A56 /* ExampleViewController1.m in Sources */ = {isa = PBXBuildFile; fileRef = 7884393113CEF4B900D18A56 /* ExampleViewController1.m */; };
 		7884393813CEF4C800D18A56 /* ExampleViewController2.m in Sources */ = {isa = PBXBuildFile; fileRef = 7884393613CEF4C800D18A56 /* ExampleViewController2.m */; };
-		7884393D13CEF7C700D18A56 /* ExampleStackRootController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7884393C13CEF7C700D18A56 /* ExampleStackRootController.m */; };
 		7884394013CEF82D00D18A56 /* background.png in Resources */ = {isa = PBXBuildFile; fileRef = 7884393F13CEF82D00D18A56 /* background.png */; };
 		788820C413D38CDA004A66A2 /* PSStackedViewRootController.m in Sources */ = {isa = PBXBuildFile; fileRef = 788820C113D38CDA004A66A2 /* PSStackedViewRootController.m */; };
 		788820C513D38CDA004A66A2 /* UIView+PSSizes.m in Sources */ = {isa = PBXBuildFile; fileRef = 788820C313D38CDA004A66A2 /* UIView+PSSizes.m */; };
 		788820D213D38FA3004A66A2 /* PSSVContainerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 788820D113D38FA3004A66A2 /* PSSVContainerView.m */; };
+		789A1CDA13D44C150005364E /* ExampleMenuRootController.m in Sources */ = {isa = PBXBuildFile; fileRef = 789A1CD913D44C150005364E /* ExampleMenuRootController.m */; };
 		78BA6A0F13CEFECF00DDA16E /* MenuTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 78BA6A0E13CEFECF00DDA16E /* MenuTableViewCell.m */; };
 		78BA6A1213CF032B00DDA16E /* glow.png in Resources */ = {isa = PBXBuildFile; fileRef = 78BA6A1113CF032B00DDA16E /* glow.png */; };
 		78BA6A1613CF05C200DDA16E /* 08-chat.png in Resources */ = {isa = PBXBuildFile; fileRef = 78BA6A1313CF05C200DDA16E /* 08-chat.png */; };
@@ -45,8 +45,6 @@
 		7884393113CEF4B900D18A56 /* ExampleViewController1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExampleViewController1.m; sourceTree = "<group>"; };
 		7884393513CEF4C800D18A56 /* ExampleViewController2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExampleViewController2.h; sourceTree = "<group>"; };
 		7884393613CEF4C800D18A56 /* ExampleViewController2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExampleViewController2.m; sourceTree = "<group>"; };
-		7884393B13CEF7C700D18A56 /* ExampleStackRootController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExampleStackRootController.h; sourceTree = "<group>"; };
-		7884393C13CEF7C700D18A56 /* ExampleStackRootController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExampleStackRootController.m; sourceTree = "<group>"; };
 		7884393F13CEF82D00D18A56 /* background.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = background.png; sourceTree = "<group>"; };
 		788820BD13D38CDA004A66A2 /* PSStackedView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PSStackedView.h; path = ../../PSStackedView/PSStackedView.h; sourceTree = "<group>"; };
 		788820BE13D38CDA004A66A2 /* PSStackedViewDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PSStackedViewDelegate.h; path = ../../PSStackedView/PSStackedViewDelegate.h; sourceTree = "<group>"; };
@@ -55,8 +53,10 @@
 		788820C113D38CDA004A66A2 /* PSStackedViewRootController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PSStackedViewRootController.m; path = ../../PSStackedView/PSStackedViewRootController.m; sourceTree = "<group>"; };
 		788820C213D38CDA004A66A2 /* UIView+PSSizes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIView+PSSizes.h"; path = "../../PSStackedView/UIView+PSSizes.h"; sourceTree = "<group>"; };
 		788820C313D38CDA004A66A2 /* UIView+PSSizes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIView+PSSizes.m"; path = "../../PSStackedView/UIView+PSSizes.m"; sourceTree = "<group>"; };
-		788820D013D38FA3004A66A2 /* PSSVContainerView.h */ = {isa = PBXFileReference; fileEncoding = 4; name = PSSVContainerView.h; path = ../../PSStackedView/PSSVContainerView.h; sourceTree = "<group>"; };
+		788820D013D38FA3004A66A2 /* PSSVContainerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PSSVContainerView.h; path = ../../PSStackedView/PSSVContainerView.h; sourceTree = "<group>"; };
 		788820D113D38FA3004A66A2 /* PSSVContainerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PSSVContainerView.m; path = ../../PSStackedView/PSSVContainerView.m; sourceTree = "<group>"; };
+		789A1CD813D44C150005364E /* ExampleMenuRootController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExampleMenuRootController.h; sourceTree = "<group>"; };
+		789A1CD913D44C150005364E /* ExampleMenuRootController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExampleMenuRootController.m; sourceTree = "<group>"; };
 		78BA6A0D13CEFECF00DDA16E /* MenuTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MenuTableViewCell.h; sourceTree = "<group>"; };
 		78BA6A0E13CEFECF00DDA16E /* MenuTableViewCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MenuTableViewCell.m; sourceTree = "<group>"; };
 		78BA6A1113CF032B00DDA16E /* glow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = glow.png; sourceTree = "<group>"; };
@@ -122,8 +122,8 @@
 				78815F1C13CF3C110011B343 /* ExampleViewController1.xib */,
 				7884393513CEF4C800D18A56 /* ExampleViewController2.h */,
 				7884393613CEF4C800D18A56 /* ExampleViewController2.m */,
-				7884393B13CEF7C700D18A56 /* ExampleStackRootController.h */,
-				7884393C13CEF7C700D18A56 /* ExampleStackRootController.m */,
+				789A1CD813D44C150005364E /* ExampleMenuRootController.h */,
+				789A1CD913D44C150005364E /* ExampleMenuRootController.m */,
 				78BA6A0D13CEFECF00DDA16E /* MenuTableViewCell.h */,
 				78BA6A0E13CEFECF00DDA16E /* MenuTableViewCell.m */,
 			);
@@ -242,11 +242,11 @@
 				787C22A213CEE5F400105064 /* AppDelegate.m in Sources */,
 				7884393313CEF4B900D18A56 /* ExampleViewController1.m in Sources */,
 				7884393813CEF4C800D18A56 /* ExampleViewController2.m in Sources */,
-				7884393D13CEF7C700D18A56 /* ExampleStackRootController.m in Sources */,
 				78BA6A0F13CEFECF00DDA16E /* MenuTableViewCell.m in Sources */,
 				788820C413D38CDA004A66A2 /* PSStackedViewRootController.m in Sources */,
 				788820C513D38CDA004A66A2 /* UIView+PSSizes.m in Sources */,
 				788820D213D38FA3004A66A2 /* PSSVContainerView.m in Sources */,
+				789A1CDA13D44C150005364E /* ExampleMenuRootController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

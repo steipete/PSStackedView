@@ -21,6 +21,7 @@
 
 @interface PSStackedViewRootController() <UIGestureRecognizerDelegate> 
 
+@property (nonatomic, retain) UIViewController *rootViewController;
 @property(nonatomic, assign) NSMutableArray* viewControllers;
 @property(nonatomic, assign) NSInteger firstVisibleIndex;
 @property(nonatomic, assign, getter=isShowingFullMenu) BOOL showingFullMenu;
@@ -34,13 +35,14 @@
 @synthesize viewControllers = viewControllers_;
 @synthesize showingFullMenu  = showingFullMenu_;
 @synthesize firstVisibleIndex = firstVisibleIndex_;
-
+@synthesize rootViewController = rootViewController_;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - NSObject
 
-- (id)init {
+- (id)initWithRootViewController:(UIViewController *)rootViewController; {
     if ((self = [super init])) {
+        rootViewController_ = [rootViewController retain];
         viewControllers_ = [[NSMutableArray alloc] init];
         
         // set some reasonble defaults
@@ -56,11 +58,13 @@
         [panRecognizer setCancelsTouchesInView:YES];
         [self.view addGestureRecognizer:panRecognizer];
         [panRecognizer release];
+        
     }
     return self;
 }
 
 - (void)dealloc {
+    [rootViewController_ release];
     [viewControllers_ release];
     [super dealloc];
 }
@@ -78,7 +82,9 @@
 - (NSUInteger)totalStackWidth {
     NSUInteger totalStackWidth = 0;
     for (UIViewController<PSStackedViewDelegate> *controller in self.viewControllers) {
-        totalStackWidth += [controller stackableMaxWidth];
+        if ([controller respondsToSelector:@selector(stackableMaxWidth)]) {
+            totalStackWidth += [controller stackableMaxWidth];
+        }
     }
     return totalStackWidth;
 }
@@ -636,6 +642,13 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    // embedding rootViewController
+    if (self.rootViewController) {
+        [self.view addSubview:self.rootViewController.view];
+        self.rootViewController.view.frame = self.view.bounds;
+        self.rootViewController.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    }
+    
     for (UIViewController *controller in self.viewControllers) {
         // forces view loading, calls viewDidLoad via system
         UIView *controllerView = controller.view;
@@ -652,7 +665,18 @@
     }
 }
 
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    [self.rootViewController viewDidAppear:animated];
+    
+    for (UIViewController *controller in self.viewControllers) {
+        [controller viewDidAppear:animated];
+    }   
+}
+
 - (void)viewWillDisappear:(BOOL)animated {
+    [self.rootViewController viewWillDisappear:animated];
+
     for (UIViewController *controller in self.viewControllers) {
         [controller viewWillDisappear:animated];
     }
@@ -660,8 +684,23 @@
     [super viewWillDisappear:animated];
 }
 
-- (void)viewDidUnload {
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+    [self.rootViewController viewDidDisappear:animated];
+    
     for (UIViewController *controller in self.viewControllers) {
+        [controller viewDidDisappear:animated];
+    }   
+}
+
+- (void)viewDidUnload {
+    [self.rootViewController.view removeFromSuperview];
+    self.rootViewController.view = nil;
+    [self.rootViewController viewDidUnload];
+    
+    for (UIViewController *controller in self.viewControllers) {
+        [controller.view removeFromSuperview];
+        controller.view = nil;
         [controller viewDidUnload];
     }
     
@@ -669,7 +708,11 @@
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation {
-    return YES; // we're on an iPad.
+    if (PSIsIpad()) {
+        return YES;
+    }else {
+        return toInterfaceOrientation != UIInterfaceOrientationPortraitUpsideDown;
+    }
 }
 
 // event relay
