@@ -63,6 +63,7 @@
     }
     
     [XAppDelegate.stackController pushViewController:viewController fromViewController:self animated:YES];
+    ((ExampleViewController1 *)viewController).indexNumber = [[XAppDelegate.stackController viewControllers] count] - 1;
 	[viewController release];
 }
 
