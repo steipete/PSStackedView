@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		78392A2E13D47F20000CAE6E /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 78392A2D13D47F20000CAE6E /* README.md */; };
 		787C229213CEE5F400105064 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 787C229113CEE5F400105064 /* UIKit.framework */; };
 		787C229413CEE5F400105064 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 787C229313CEE5F400105064 /* Foundation.framework */; };
 		787C229613CEE5F400105064 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 787C229513CEE5F400105064 /* CoreGraphics.framework */; };
@@ -30,6 +31,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		78392A2D13D47F20000CAE6E /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		787C228D13CEE5F400105064 /* StackedViewKit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StackedViewKit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		787C229113CEE5F400105064 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		787C229313CEE5F400105064 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -84,7 +86,7 @@
 		787C228213CEE5F400105064 = {
 			isa = PBXGroup;
 			children = (
-				78DE83D613D3271700D2BADD /* QuartzCore.framework */,
+				78392A2D13D47F20000CAE6E /* README.md */,
 				787C22DB13CEF1B200105064 /* PSStackedView */,
 				787C229713CEE5F400105064 /* PSStackedViewExample */,
 				787C229013CEE5F400105064 /* Frameworks */,
@@ -103,6 +105,7 @@
 		787C229013CEE5F400105064 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				78DE83D613D3271700D2BADD /* QuartzCore.framework */,
 				787C229113CEE5F400105064 /* UIKit.framework */,
 				787C229313CEE5F400105064 /* Foundation.framework */,
 				787C229513CEE5F400105064 /* CoreGraphics.framework */,
@@ -228,6 +231,7 @@
 				78BA6A1713CF05C200DDA16E /* 11-clock.png in Resources */,
 				78BA6A1813CF05C200DDA16E /* 15-tags.png in Resources */,
 				78815F1D13CF3C110011B343 /* ExampleViewController1.xib in Resources */,
+				78392A2E13D47F20000CAE6E /* README.md in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
