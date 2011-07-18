@@ -277,7 +277,7 @@
     if ([viewController respondsToSelector:@selector(stackableMaxWidth)]) {
         viewController.view.width = [(UIViewController<PSStackedViewDelegate> *)viewController stackableMaxWidth];
     }
-    viewController.view.height = self.view.height;
+    viewController.view.height = PSIsLandscape() ? self.view.width : self.view.height;
     
     // add to view stack!
     [viewController viewWillAppear:animated];
