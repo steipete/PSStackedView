@@ -27,6 +27,13 @@ enum {
     BOOL showingFullMenu_;
     NSInteger firstVisibleIndex_;
     NSMutableArray *viewControllers_;
+    
+    // internal drag state handling
+    NSInteger lastDragOffset_;
+    SVSnapOption lastDragOption_;
+    BOOL lastDragDividedOne_;
+    
+    NSInteger lastVisibleIndexBeforeRotation_;
 }
 
 // Uses a horizontal slide transition. Has no effect if the view controller is already in the stack.
@@ -35,8 +42,10 @@ enum {
  // Returns the popped controller.
 - (UIViewController *)popViewControllerAnimated:(BOOL)animated;
 
+// can we collapse (=hide) viewControllers? Only collapses until screen width is used
 - (NSUInteger)canCollapseStack;
 
+// can the stack be further expanded (are some views stacked?)
 - (NSUInteger)canExpandStack;
 
 // moves view controller stack to the left, potentially hiding older VCs (increases firstVisibleIndex)

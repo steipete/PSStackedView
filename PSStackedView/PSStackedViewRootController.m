@@ -17,14 +17,7 @@
 - (PSSVContainerView *)containerView; { return ([self.view.superview isKindOfClass:[PSSVContainerView class]] ? (PSSVContainerView *)self.view.superview : nil); }
 @end
 
-@interface PSStackedViewRootController() <UIGestureRecognizerDelegate> {
-    // internal drag state handling
-    NSInteger lastDragOffset_;
-    SVSnapOption lastDragOption_;
-    BOOL lastDragDividedOne_;
-    
-    NSInteger lastVisibleIndexBeforeRotation_;
-}
+@interface PSStackedViewRootController() <UIGestureRecognizerDelegate> 
 
 @property(nonatomic, assign) NSMutableArray* viewControllers;
 @property(nonatomic, assign) NSInteger firstVisibleIndex;
