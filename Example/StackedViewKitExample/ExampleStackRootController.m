@@ -13,6 +13,8 @@
 #import "ExampleViewController1.h"
 #import "ExampleViewController2.h"
 
+#include <QuartzCore/QuartzCore.h>
+
 #define kMenuWidth 200
 #define kCellText @"CellText"
 #define kCellImage @"CellImage" 
@@ -30,13 +32,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - NSObject
 
-- (id)init {
-    if ((self = [super init])) {
-        PSLog(@"Init example VC");
-    }
-    return self;
-}
-
 - (void)dealloc {
     [menuTable_ release];
     [cellContents_ release];
@@ -48,7 +43,12 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    PSLog(@"Init example VC VIEW");
+    PSLog(@"load example view, frame: %@", NSStringFromCGRect(self.view.frame));
+    
+#if 0
+    self.view.layer.borderColor = [UIColor greenColor].CGColor;
+    self.view.layer.borderWidth = 2.f;
+#endif
     
     // add example background
     self.view.backgroundColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"background"]];
@@ -74,18 +74,6 @@
     self.menuTable.dataSource = self;
     [self.view addSubview:self.menuTable];
     [self.menuTable reloadData];
-}
-
-- (void)viewWillAppear:(BOOL)animated {
-    [super viewWillAppear:animated];
-}
-
-- (void)viewWillDisappear:(BOOL)animated {
-    [super viewWillDisappear:animated];
-}
-
-- (void)viewDidUnload {
-    [super viewDidUnload];
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -135,13 +123,8 @@
         }
     }else if(indexPath.row == 4) { // right
         [self expandStack:1 animated:YES];
-    }else if(indexPath.row == 3) {
-        
-        // make menu an extra step
-//        if([self isMenuCollapsable] && self.isShowingFullMenu)
-        
+    }else if(indexPath.row == 3) {        
         [self collapseStack:1 animated:YES];
-        
     }else {
         viewController = [[ExampleViewController2 alloc] initWithStyle:UITableViewStylePlain];     
         ((ExampleViewController2 *)viewController).indexNumber = [self.viewControllers count];
