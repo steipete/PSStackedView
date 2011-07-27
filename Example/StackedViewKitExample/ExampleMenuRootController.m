@@ -43,7 +43,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     PSLog(@"load example view, frame: %@", NSStringFromCGRect(self.view.frame));
-    
+        
 #if 0
     self.view.layer.borderColor = [UIColor greenColor].CGColor;
     self.view.layer.borderWidth = 2.f;
@@ -97,8 +97,9 @@
     
 	cell.textLabel.text = [[cellContents_ objectAtIndex:indexPath.row] objectForKey:kCellText];
 	cell.imageView.image = [[cellContents_ objectAtIndex:indexPath.row] objectForKey:kCellImage];
-	
-	cell.glowView.hidden = indexPath.row != 3;
+	    
+    //if (indexPath.row == 5)
+    //    cell.enabled = NO;
     
     return cell;
 }
@@ -114,17 +115,25 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {  
     PSStackedViewRootController *stackController = XAppDelegate.stackController;
     UIViewController*viewController = nil;
+    
+    if (indexPath.row < 3) {
+        // Pop everything off the stack to start a with a fresh app feature
+        while ([stackController.viewControllers count]) {
+            [stackController popViewControllerAnimated:YES];
+        }
+    }
+    
     if (indexPath.row == 0) {
         viewController = [[ExampleViewController1 alloc] initWithNibName:@"ExampleViewController1" bundle:nil];
         ((ExampleViewController1 *)viewController).indexNumber = [stackController.viewControllers count];
+    }else if(indexPath.row == 3) {        
+        [stackController collapseStack:1 animated:YES];
+    }else if(indexPath.row == 4) { // right
+        [stackController expandStack:1 animated:YES];
     }else if(indexPath.row == 5) {
         while ([stackController.viewControllers count]) {
             [stackController popViewControllerAnimated:YES];
         }
-    }else if(indexPath.row == 4) { // right
-        [stackController expandStack:1 animated:YES];
-    }else if(indexPath.row == 3) {        
-        [stackController collapseStack:1 animated:YES];
     }else {
         viewController = [[ExampleViewController2 alloc] initWithStyle:UITableViewStylePlain];     
         ((ExampleViewController2 *)viewController).indexNumber = [stackController.viewControllers count];

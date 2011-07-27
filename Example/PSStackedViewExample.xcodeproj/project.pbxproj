@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3798AD7B13E0B299004C1E33 /* error.png in Resources */ = {isa = PBXBuildFile; fileRef = 3798AD7413E0B299004C1E33 /* error.png */; };
+		3798AD7D13E0B299004C1E33 /* error@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3798AD7613E0B299004C1E33 /* error@2x.png */; };
+		3798AD7E13E0B299004C1E33 /* NewGlow.png in Resources */ = {isa = PBXBuildFile; fileRef = 3798AD7813E0B299004C1E33 /* NewGlow.png */; };
+		3798AD8013E0B299004C1E33 /* NewGlow@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3798AD7A13E0B299004C1E33 /* NewGlow@2x.png */; };
 		78392A2E13D47F20000CAE6E /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 78392A2D13D47F20000CAE6E /* README.md */; };
 		787C229213CEE5F400105064 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 787C229113CEE5F400105064 /* UIKit.framework */; };
 		787C229413CEE5F400105064 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 787C229313CEE5F400105064 /* Foundation.framework */; };
@@ -31,6 +35,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		3798AD7413E0B299004C1E33 /* error.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = error.png; sourceTree = "<group>"; };
+		3798AD7613E0B299004C1E33 /* error@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "error@2x.png"; sourceTree = "<group>"; };
+		3798AD7813E0B299004C1E33 /* NewGlow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = NewGlow.png; sourceTree = "<group>"; };
+		3798AD7A13E0B299004C1E33 /* NewGlow@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "NewGlow@2x.png"; sourceTree = "<group>"; };
 		78392A2D13D47F20000CAE6E /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		787C228D13CEE5F400105064 /* StackedViewKit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StackedViewKit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		787C229113CEE5F400105064 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -83,6 +91,24 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3798AD7313E0B299004C1E33 /* error */ = {
+			isa = PBXGroup;
+			children = (
+				3798AD7413E0B299004C1E33 /* error.png */,
+				3798AD7613E0B299004C1E33 /* error@2x.png */,
+			);
+			path = error;
+			sourceTree = "<group>";
+		};
+		3798AD7713E0B299004C1E33 /* NewGlow */ = {
+			isa = PBXGroup;
+			children = (
+				3798AD7813E0B299004C1E33 /* NewGlow.png */,
+				3798AD7A13E0B299004C1E33 /* NewGlow@2x.png */,
+			);
+			path = NewGlow;
+			sourceTree = "<group>";
+		};
 		787C228213CEE5F400105064 = {
 			isa = PBXGroup;
 			children = (
@@ -165,6 +191,8 @@
 		7884393E13CEF82D00D18A56 /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				3798AD7313E0B299004C1E33 /* error */,
+				3798AD7713E0B299004C1E33 /* NewGlow */,
 				78BA6A1313CF05C200DDA16E /* 08-chat.png */,
 				78BA6A1413CF05C200DDA16E /* 11-clock.png */,
 				78BA6A1513CF05C200DDA16E /* 15-tags.png */,
@@ -232,6 +260,10 @@
 				78BA6A1813CF05C200DDA16E /* 15-tags.png in Resources */,
 				78815F1D13CF3C110011B343 /* ExampleViewController1.xib in Resources */,
 				78392A2E13D47F20000CAE6E /* README.md in Resources */,
+				3798AD7B13E0B299004C1E33 /* error.png in Resources */,
+				3798AD7D13E0B299004C1E33 /* error@2x.png in Resources */,
+				3798AD7E13E0B299004C1E33 /* NewGlow.png in Resources */,
+				3798AD8013E0B299004C1E33 /* NewGlow@2x.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

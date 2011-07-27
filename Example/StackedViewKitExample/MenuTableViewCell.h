@@ -10,8 +10,11 @@
 
 @interface MenuTableViewCell : UITableViewCell {
 	UIImageView *glowView;
+    UIImage *savedImage;
 }
 
 @property(nonatomic,retain) UIImageView *glowView;
+@property(nonatomic,retain) UIView *disabledView;
+@property(nonatomic) BOOL enabled;
 
 @end
