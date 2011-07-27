@@ -390,6 +390,9 @@
     }
     viewController.view.height = PSIsLandscape() ? self.view.width : self.view.height;
     
+    // Starting out in portrait, right side up, we see a 20 pixel gap (for status bar???)
+    viewController.view.top = 0.f;
+    
     // add to view stack!
     [viewController viewWillAppear:animated];
     
@@ -400,6 +403,9 @@
     container.width = viewController.view.width;
     container.autoresizingMask = UIViewAutoresizingFlexibleHeight; // width is not flexible!
     [self.view addSubview:container];
+    
+    // properly sizes the scroll view contents (for table view scrolling)
+    [container layoutIfNeeded];
     
     [viewController viewDidAppear:animated];    
     [viewControllers_ addObject:viewController];
