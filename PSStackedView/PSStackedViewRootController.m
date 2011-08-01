@@ -74,15 +74,6 @@
         leftInset_ = 60;
         largeLeftInset_ = 200;
         
-        // add a gesture recognizer to detect dragging to the guest controllers
-        UIPanGestureRecognizer *panRecognizer = [[[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanFrom:)] autorelease];
-        [panRecognizer setMaximumNumberOfTouches:1];
-        [panRecognizer setDelaysTouchesBegan:YES];
-        [panRecognizer setDelaysTouchesEnded:YES];
-        [panRecognizer setCancelsTouchesInView:YES];
-        [self.view addGestureRecognizer:panRecognizer];
-
-        
 #ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
         PSLog("Swizzling UIViewController.navigationController");
         Method origMethod = class_getInstanceMethod([UIViewController class], @selector(navigationController));
@@ -347,6 +338,194 @@
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark - Touch Handling
+
+- (void)stopStackAnimation {
+    // remove all current animations
+    //[self.view.layer removeAllAnimations];
+    [self.viewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        UIViewController *vc = (UIViewController *)obj;
+        CGRect currentPos = [[vc.containerView.layer presentationLayer] frame];
+        [vc.containerView.layer removeAllAnimations];
+        vc.containerView.frame = currentPos;
+    }];
+}
+
+// moves the stack to a specific offset. 
+- (void)moveStackWithOffset:(NSInteger)offset animated:(BOOL)animated userDragging:(BOOL)userDragging {
+    PSLog(@"moving stack on %d pixels (animated:%d, decellerating:%d)", offset, animated, userDragging);
+    
+    [self stopStackAnimation];
+    if (animated) {
+        [UIView beginAnimations:@"stackAnim" context:nil];
+        [UIView setAnimationDuration:kPSSVStackAnimationDuration];
+        [UIView setAnimationBeginsFromCurrentState:YES];
+    }
+    
+    // enumerate controllers from right to left
+    // scroll each controller until we begin to overlap!
+    __block BOOL isTopViewController = YES;
+    [self.viewControllers enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        UIViewController *currentViewController = (UIViewController *)obj;
+        UIViewController *leftViewController = [self previousViewController:currentViewController];
+        UIViewController *rightViewController = [self nextViewController:currentViewController];        
+        NSInteger minimalLeftInset = [self minimalLeftInset];
+        
+        // we just move the top view controller
+        NSInteger currentVCLeftPosition = currentViewController.containerView.left;
+        if (isTopViewController) {
+            currentVCLeftPosition += offset;
+        }else {
+            // make sure we're connected to the next controller!
+            currentVCLeftPosition = rightViewController.containerView.left - currentViewController.containerView.width;
+        }
+        
+        // prevent scrolling < minimal width (except for the top view controller - allow stupidness!)
+        if (currentVCLeftPosition < minimalLeftInset && (!userDragging || (userDragging && !isTopViewController))) {
+            currentVCLeftPosition = minimalLeftInset;
+        }
+        
+        // a previous view controller is not allowed to overlap the next view controller.
+        if (leftViewController && leftViewController.containerView.right > currentVCLeftPosition) {
+            NSInteger leftVCLeftPosition = currentVCLeftPosition - leftViewController.containerView.width;
+            if (leftVCLeftPosition < minimalLeftInset) {
+                leftVCLeftPosition = minimalLeftInset;
+            }
+            leftViewController.containerView.left = leftVCLeftPosition;
+        }
+        
+        currentViewController.containerView.left = currentVCLeftPosition;
+        
+        isTopViewController = NO; // there can only be one.
+    }];
+    
+    // update firstVisibleIndex
+#ifdef kPSSVStackedViewKitDebugEnabled
+    NSUInteger oldFirstVisibleIndex = self.firstVisibleIndex;
+#endif
+    
+    NSInteger minLeft = [self firstViewController].containerView.left;
+    for (UIViewController *vc in self.viewControllers) {
+        NSInteger vcLeft = vc.containerView.left;
+        if (minLeft < vcLeft) {
+            self.firstVisibleIndex = [self.viewControllers indexOfObject:vc]-1;
+            break;
+        }
+    }
+    
+    // don't get all too excited about the new index - it may be wrong! (e.g. too high stacking)
+    [self checkAndDecreaseFirstVisibleIndexIfPossible];
+    
+#ifdef kPSSVStackedViewKitDebugEnabled
+    if (oldFirstVisibleIndex != self.firstVisibleIndex) {
+        PSLog(@"updating firstVisibleIndex from %d to %d", oldFirstVisibleIndex, self.firstVisibleIndex);
+    }
+#endif
+    
+    if (animated) {
+        [UIView commitAnimations];
+    }
+}
+
+- (void)handlePanFrom:(CGPoint)translatedPoint state:(UIGestureRecognizerState)state {
+    
+    // reset last offset if gesture just started
+    if (state == UIGestureRecognizerStateBegan) {
+        lastDragOffset_ = translatedPoint.x;
+    }
+    
+    NSInteger offset = translatedPoint.x - lastDragOffset_;
+    
+    // if the move does not make sense (no snapping region), only use 1/2 offset
+    BOOL snapPointAvailable = [self snapPointAvailableAfterOffset:offset];
+    if (!snapPointAvailable) {
+        PSLog(@"offset dividing/2 in effect");
+        
+        // we only want to move full pixels - but if we drag slowly, 1 get divided to zero.
+        // so only omit every second event
+        if (offset == 1) {
+            if(!lastDragDividedOne_) {
+                lastDragDividedOne_ = YES;
+                offset = 0;
+            }else {
+                lastDragDividedOne_ = NO;
+            }
+        }else {
+            offset = offset/2;            
+        }
+    }
+    [self moveStackWithOffset:offset animated:NO userDragging:YES];
+    
+    // set up designated drag destination
+    if (state == UIGestureRecognizerStateBegan) {
+        if (offset > 0) {
+            lastDragOption_ = SVSnapOptionRight;
+        }else {
+            lastDragOption_ = SVSnapOptionLeft;
+        }
+    }else {
+        // if there's a continuous drag in one direction, keep designation - else use nearest to snap.
+        if ((lastDragOption_ == SVSnapOptionLeft && offset > 0) || (lastDragOption_ == SVSnapOptionRight && offset < 0)) {
+            lastDragOption_ = SVSnapOptionNearest;
+        }
+    }
+    
+    // save last point to calculate new offset
+    if (state == UIGestureRecognizerStateBegan || state == UIGestureRecognizerStateChanged) {
+        lastDragOffset_ = translatedPoint.x;
+    }
+    
+    // perform snapping after gesture ended
+    BOOL gestureEnded = state == UIGestureRecognizerStateEnded;
+    if (gestureEnded) {
+        
+        if (lastDragOption_ == SVSnapOptionRight) {
+            
+            // with manually snapping right, the index gets changed. revert that.
+            if (self.firstVisibleIndex+1 < [self.viewControllers count]) {
+                self.firstVisibleIndex++;
+                
+                // special condition: we dragged menu to border
+                if ([self firstViewController].containerView.left > [self minimalLeftInset]) {
+                    self.firstVisibleIndex--;
+                }
+            }
+            
+            [self expandStack:1 animated:YES];
+        }else if(lastDragOption_ == SVSnapOptionLeft) {
+            [self collapseStack:1 animated:YES];
+        }else {
+            [self alignStackAnimated:YES];
+        }
+    }
+}
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+    UITouch *touch = [touches anyObject];
+    CGPoint touchPoint = [touch locationInView:self.view];
+    [self stopStackAnimation];
+    [self handlePanFrom:touchPoint state:UIGestureRecognizerStateBegan];
+}
+
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
+    UITouch *touch = [touches anyObject];
+    CGPoint touchPoint = [touch locationInView:self.view];
+    [self handlePanFrom:touchPoint state:UIGestureRecognizerStateChanged];
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+    UITouch *touch = [touches anyObject];
+    CGPoint touchPoint = [touch locationInView:self.view];
+    [self handlePanFrom:touchPoint state:UIGestureRecognizerStateEnded];
+}
+
+- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
+    UITouch *touch = [touches anyObject];
+    CGPoint touchPoint = [touch locationInView:self.view];
+    [self handlePanFrom:touchPoint state:UIGestureRecognizerStateCancelled];
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - SVStackRootController (Public)
 
 - (UIViewController *)topViewController {
@@ -479,93 +658,6 @@
     }
     
     return array;
-}
-
-- (void)stopStackAnimation {
-    // remove all current animations
-    //[self.view.layer removeAllAnimations];
-    [self.viewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        UIViewController *vc = (UIViewController *)obj;
-        CGRect currentPos = [[vc.containerView.layer presentationLayer] frame];
-        [vc.containerView.layer removeAllAnimations];
-        vc.containerView.frame = currentPos;
-    }];
-}
-
-// moves the stack to a specific offset. 
-- (void)moveStackWithOffset:(NSInteger)offset animated:(BOOL)animated userDragging:(BOOL)userDragging {
-    PSLog(@"moving stack on %d pixels (animated:%d, decellerating:%d)", offset, animated, userDragging);
-    
-    [self stopStackAnimation];
-    if (animated) {
-        [UIView beginAnimations:@"stackAnim" context:nil];
-        [UIView setAnimationDuration:kPSSVStackAnimationDuration];
-        [UIView setAnimationBeginsFromCurrentState:YES];
-    }
-    
-    // enumerate controllers from right to left
-    // scroll each controller until we begin to overlap!
-    __block BOOL isTopViewController = YES;
-    [self.viewControllers enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        UIViewController *currentViewController = (UIViewController *)obj;
-        UIViewController *leftViewController = [self previousViewController:currentViewController];
-        UIViewController *rightViewController = [self nextViewController:currentViewController];        
-        NSInteger minimalLeftInset = [self minimalLeftInset];
-        
-        // we just move the top view controller
-        NSInteger currentVCLeftPosition = currentViewController.containerView.left;
-        if (isTopViewController) {
-            currentVCLeftPosition += offset;
-        }else {
-            // make sure we're connected to the next controller!
-            currentVCLeftPosition = rightViewController.containerView.left - currentViewController.containerView.width;
-        }
-        
-        // prevent scrolling < minimal width (except for the top view controller - allow stupidness!)
-        if (currentVCLeftPosition < minimalLeftInset && (!userDragging || (userDragging && !isTopViewController))) {
-            currentVCLeftPosition = minimalLeftInset;
-        }
-        
-        // a previous view controller is not allowed to overlap the next view controller.
-        if (leftViewController && leftViewController.containerView.right > currentVCLeftPosition) {
-            NSInteger leftVCLeftPosition = currentVCLeftPosition - leftViewController.containerView.width;
-            if (leftVCLeftPosition < minimalLeftInset) {
-                leftVCLeftPosition = minimalLeftInset;
-            }
-            leftViewController.containerView.left = leftVCLeftPosition;
-        }
-        
-        currentViewController.containerView.left = currentVCLeftPosition;
-        
-        isTopViewController = NO; // there can only be one.
-    }];
-    
-    // update firstVisibleIndex
-#ifdef kPSSVStackedViewKitDebugEnabled
-    NSUInteger oldFirstVisibleIndex = self.firstVisibleIndex;
-#endif
-    
-    NSInteger minLeft = [self firstViewController].containerView.left;
-    for (UIViewController *vc in self.viewControllers) {
-        NSInteger vcLeft = vc.containerView.left;
-        if (minLeft < vcLeft) {
-            self.firstVisibleIndex = [self.viewControllers indexOfObject:vc]-1;
-            break;
-        }
-    }
-    
-    // don't get all too excited about the new index - it may be wrong! (e.g. too high stacking)
-    [self checkAndDecreaseFirstVisibleIndexIfPossible];
-    
-#ifdef kPSSVStackedViewKitDebugEnabled
-    if (oldFirstVisibleIndex != self.firstVisibleIndex) {
-        PSLog(@"updating firstVisibleIndex from %d to %d", oldFirstVisibleIndex, self.firstVisibleIndex);
-    }
-#endif
-    
-    if (animated) {
-        [UIView commitAnimations];
-    }
 }
 
 // last visible index is calculated dynamically, depending on width of VCs
@@ -754,80 +846,6 @@ enum {
             lastDragOffset_ = 0; // clear last drag offset for the animation
             [self removeAnimationBlockerView];
         }break;
-    }
-}
-
-- (void)handlePanFrom:(UIPanGestureRecognizer *)recognizer {
-    CGPoint translatedPoint = [recognizer translationInView:self.view];
-    
-    // reset last offset if gesture just started
-    if (recognizer.state == UIGestureRecognizerStateBegan) {
-        lastDragOffset_ = 0;
-    }
-    
-    NSInteger offset = translatedPoint.x - lastDragOffset_;
-    
-    // if the move does not make sense (no snapping region), only use 1/2 offset
-    BOOL snapPointAvailable = [self snapPointAvailableAfterOffset:offset];
-    if (!snapPointAvailable) {
-        PSLog(@"offset dividing/2 in effect");
-        
-        // we only want to move full pixels - but if we drag slowly, 1 get divided to zero.
-        // so only omit every second event
-        if (offset == 1) {
-            if(!lastDragDividedOne_) {
-                lastDragDividedOne_ = YES;
-                offset = 0;
-            }else {
-                lastDragDividedOne_ = NO;
-            }
-        }else {
-            offset = offset/2;            
-        }
-    }
-    [self moveStackWithOffset:offset animated:NO userDragging:YES];
-    
-    // set up designated drag destination
-    if (recognizer.state == UIGestureRecognizerStateBegan) {
-        if (offset > 0) {
-            lastDragOption_ = SVSnapOptionRight;
-        }else {
-            lastDragOption_ = SVSnapOptionLeft;
-        }
-    }else {
-        // if there's a continuous drag in one direction, keep designation - else use nearest to snap.
-        if ((lastDragOption_ == SVSnapOptionLeft && offset > 0) || (lastDragOption_ == SVSnapOptionRight && offset < 0)) {
-            lastDragOption_ = SVSnapOptionNearest;
-        }
-    }
-    
-    // save last point to calculate new offset
-    if (recognizer.state == UIGestureRecognizerStateBegan || recognizer.state == UIGestureRecognizerStateChanged) {
-        lastDragOffset_ = translatedPoint.x;
-    }
-    
-    // perform snapping after gesture ended
-    BOOL gestureEnded = recognizer.state == UIGestureRecognizerStateEnded;
-    if (gestureEnded) {
-        
-        if (lastDragOption_ == SVSnapOptionRight) {
-            
-            // with manually snapping right, the index gets changed. revert that.
-            if (self.firstVisibleIndex+1 < [self.viewControllers count]) {
-                self.firstVisibleIndex++;
-                
-                // special condition: we dragged menu to border
-                if ([self firstViewController].containerView.left > [self minimalLeftInset]) {
-                    self.firstVisibleIndex--;
-                }
-            }
-            
-            [self expandStack:1 animated:YES];
-        }else if(lastDragOption_ == SVSnapOptionLeft) {
-            [self collapseStack:1 animated:YES];
-        }else {
-            [self alignStackAnimated:YES];
-        }
     }
 }
 
