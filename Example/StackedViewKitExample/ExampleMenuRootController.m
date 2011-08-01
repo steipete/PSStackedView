@@ -119,11 +119,11 @@
     PSStackedViewRootController *stackController = XAppDelegate.stackController;
     UIViewController*viewController = nil;
     
+    
     if (indexPath.row < 3) {
         // Pop everything off the stack to start a with a fresh app feature
-        while ([stackController.viewControllers count]) {
-            [stackController popViewControllerAnimated:YES];
-        }
+        // DISABLED FOR DEBUGGING
+        //[stackController popToRootViewControllerAnimated:YES];
     }
     
     if (indexPath.row == 0) {

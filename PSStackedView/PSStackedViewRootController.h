@@ -55,6 +55,9 @@ enum {
 // remove view controllers until 'viewController' is found
 - (NSArray *)popToViewController:(UIViewController *)viewController animated:(BOOL)animated;
 
+// removes all view controller
+- (NSArray *)popToRootViewControllerAnimated:(BOOL)animated;
+
 // can we collapse (= hide) view controllers? Only collapses until screen width is used
 - (NSUInteger)canCollapseStack;
 

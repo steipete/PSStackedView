@@ -454,6 +454,15 @@
     return lastController;
 }
 
+- (NSArray *)popToRootViewControllerAnimated:(BOOL)animated; {
+    NSMutableArray *array = [NSMutableArray array];
+    while ([self.viewControllers count] > 0) {
+        UIViewController *vc = [self popViewControllerAnimated:animated];
+        [array addObject:vc];
+    }
+    return array;
+}
+
 - (NSArray *)popToViewController:(UIViewController *)viewController animated:(BOOL)animated; {
     NSParameterAssert(viewController);
     
@@ -465,7 +474,8 @@
     
     NSMutableArray *array = [NSMutableArray array];
     while ([self.viewControllers count] > index) {
-        [self popViewControllerAnimated:animated];
+        UIViewController *vc = [self popViewControllerAnimated:animated];
+        [array addObject:vc];
     }
     
     return array;
