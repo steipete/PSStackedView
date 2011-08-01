@@ -7,6 +7,7 @@
 //
 
 #import "ExampleViewController1.h"
+#import "PSStackedView.h"
 
 @implementation ExampleViewController1
 
@@ -21,8 +22,13 @@
     return self;
 }
 
-
 #pragma mark - View lifecycle
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+
+    self.view.width = PSIsIpad() ? 300 : 150;
+}
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
     // Return YES for supported orientations
@@ -36,10 +42,6 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - PSStackedViewDelegate
-
-- (NSUInteger)stackableMaxWidth; {
-    return 300;
-}
 
 - (NSUInteger)stackableMinWidth; {
     return 100;

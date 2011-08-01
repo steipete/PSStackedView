@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 
 @protocol PSStackedViewDelegate <NSObject>
-
+@optional
 - (NSUInteger)stackableMaxWidth;
 - (NSUInteger)stackableMinWidth;
 

@@ -19,11 +19,6 @@
 #define kPSSVAssociatedBaseViewControllerKey @"kPSSVAssociatedBaseViewController"
 #define kPSSVAssociatedStackViewControllerKey @"kPSSVAssociatedStackViewController"
 
-// Swizzles UIViewController's navigationController property. DANGER, WILL ROBINSON!
-// Only swizzles if a PSStackedViewRootController is created, and also works in peaceful
-// coexistance to UINavigationController.
-#define ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
-
 @implementation UIViewController (PSStackedViewAdditions)
 
 // returns the containerView, where view controllers are embedded
@@ -62,6 +57,9 @@
 @synthesize showingFullMenu  = showingFullMenu_;
 @synthesize firstVisibleIndex = firstVisibleIndex_;
 @synthesize rootViewController = rootViewController_;
+#ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
+@synthesize navigationBar;
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - NSObject
@@ -77,13 +75,13 @@
         largeLeftInset_ = 200;
         
         // add a gesture recognizer to detect dragging to the guest controllers
-        UIPanGestureRecognizer* panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanFrom:)];
+        UIPanGestureRecognizer *panRecognizer = [[[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanFrom:)] autorelease];
         [panRecognizer setMaximumNumberOfTouches:1];
         [panRecognizer setDelaysTouchesBegan:YES];
         [panRecognizer setDelaysTouchesEnded:YES];
         [panRecognizer setCancelsTouchesInView:YES];
         [self.view addGestureRecognizer:panRecognizer];
-        [panRecognizer release];
+
         
 #ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
         PSLog("Swizzling UIViewController.navigationController");
@@ -473,11 +471,22 @@
     return array;
 }
 
+- (void)stopStackAnimation {
+    // remove all current animations
+    //[self.view.layer removeAllAnimations];
+    [self.viewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        UIViewController *vc = (UIViewController *)obj;
+        CGRect currentPos = [[vc.containerView.layer presentationLayer] frame];
+        [vc.containerView.layer removeAllAnimations];
+        vc.containerView.frame = currentPos;
+    }];
+}
 
 // moves the stack to a specific offset. 
 - (void)moveStackWithOffset:(NSInteger)offset animated:(BOOL)animated userDragging:(BOOL)userDragging {
     PSLog(@"moving stack on %d pixels (animated:%d, decellerating:%d)", offset, animated, userDragging);
     
+    [self stopStackAnimation];
     if (animated) {
         [UIView beginAnimations:@"stackAnim" context:nil];
         [UIView setAnimationDuration:kPSSVStackAnimationDuration];
@@ -568,6 +577,30 @@
     return lastVisibleIndex;
 }
 
+#define kPSSVAnimationBlockerViewTag 832242
+- (void)removeAnimationBlockerView {
+    UIView *animationBlockView = [self.view viewWithTag:kPSSVAnimationBlockerViewTag];
+    [animationBlockView removeFromSuperview];
+}
+
+- (void)removeAnimationBlockerViewAndStopAnimation {
+    [self removeAnimationBlockerView];
+    [self stopStackAnimation];
+}
+
+- (void)addAnimationBlockerView {
+    return;
+
+    if (![self.view viewWithTag:kPSSVAnimationBlockerViewTag]) {
+        UIControl *control = [[[UIControl alloc] initWithFrame:self.view.bounds] autorelease];
+        control.backgroundColor = [UIColor colorWithRed:1 green:0 blue:0 alpha:0.5];//clearColor];
+        [control addTarget:self action:@selector(removeAnimationBlockerViewAndStopAnimation) forControlEvents:UIControlEventTouchDown];
+        control.tag = kPSSVAnimationBlockerViewTag;
+        [self.view addSubview:control];
+    }
+}
+
+// bouncing is a three-way operation
 enum {
     PSSVBounceNone,
     PSSVBounceMoveToInitial,
@@ -611,40 +644,58 @@ enum {
     // calculate offset used only when we're bleeding over
     NSInteger snapOverOffset = 0; // > 0 = <--- ; we scrolled from right to left.
     NSUInteger firstVisibleIndex = [self firstVisibleIndex];
+    NSUInteger lastFullyVCIndex = [self.viewControllers indexOfObject:[self lastVisibleViewControllerCompletelyVisible:YES]];
+    BOOL bounceAtVeryEnd = NO;
     
     if (abs(lastDragOffset_) > 10 && bounce == PSSVBounceBleedOver) {
         snapOverOffset = lastDragOffset_ / 5.f;
         if (snapOverOffset > kPSSVMaxSnapOverOffset) {
             snapOverOffset = kPSSVMaxSnapOverOffset;
         }
-        PSLog(@"bouncing with offset: %d, firstIndex:%d, snapToLeft:%d", snapOverOffset, firstVisibleIndex, snapOverOffset<0);
+
+        // if we're dragging menu all the way out, bounce back in
+        PSLog(@"%@", NSStringFromCGRect(self.firstViewController.containerView.frame));
+        if (firstVisibleIndex == 0 && self.firstViewController.containerView.left >= self.leftInset && lastDragOption_ == SVSnapOptionRight) {
+            bounceAtVeryEnd = YES;
+        }else if(lastFullyVCIndex == [self.viewControllers count]-1 && lastDragOption_ == SVSnapOptionLeft) {
+            bounceAtVeryEnd = YES;
+        }
+
+        PSLog(@"bouncing with offset: %d, firstIndex:%d, snapToLeft:%d veryEnd:%d", snapOverOffset, firstVisibleIndex, snapOverOffset<0, bounceAtVeryEnd);
     }
         
     // iterate over all view controllers and snap them to their correct positions
     [self.viewControllers enumerateObjectsWithOptions:0 usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        UIViewController *currentViewController = (UIViewController *)obj;
-        UIViewController *leftViewController = [self previousViewController:currentViewController];
+        UIViewController *currentVC = (UIViewController *)obj;
+        UIViewController *leftVC = [self previousViewController:currentVC];
         
         if (idx <= self.firstVisibleIndex) {
             // collapsed = snap to menu
-            currentViewController.containerView.left = [self currentLeftInset];            
+            currentVC.containerView.left = [self currentLeftInset];
         }else {
             // connect vc to left vc's right!
-            currentViewController.containerView.left = leftViewController.containerView.right;
+            currentVC.containerView.left = leftVC.containerView.right;
         }
         
+        // menu drag to right case or swiping last vc towards menu
+        if (bounceAtVeryEnd) {
+            if (idx == firstVisibleIndex) {
+                currentVC.containerView.left -= snapOverOffset;
+            }
+        }
         // snap the leftmost view controller
-        if (snapOverOffset > 0 && idx == firstVisibleIndex) {
+        else if (snapOverOffset > 0 && idx == firstVisibleIndex) {
             // different snapping if we're at the first index (menu)
-            BOOL isOverMenu = firstVisibleIndex == 0 && currentViewController.view.left > self.leftInset;
-            currentViewController.containerView.left += snapOverOffset * (isOverMenu ? -1 : 1);
+            BOOL isOverMenu = firstVisibleIndex == 0 && currentVC.containerView.left > self.leftInset;
+            currentVC.containerView.left += snapOverOffset * (isOverMenu ? -1 : 1);
         }else if(snapOverOffset < 0 && idx == firstVisibleIndex+1) {
-            currentViewController.containerView.left += snapOverOffset;
+            currentVC.containerView.left += snapOverOffset;
         }
     }];
     
     if (animated) {
         [UIView commitAnimations];
+        [self addAnimationBlockerView];
     }    
 }
 
@@ -672,6 +723,7 @@ enum {
     // animation was stopped
     if (![finished boolValue]) {
         PSLog(@"animation didn't finish, stopping here at bounce option: %d", bounceOption);
+        [self removeAnimationBlockerView];
         return;
     }
 
@@ -690,6 +742,7 @@ enum {
         case PSSVBounceBack:
         default: {
             lastDragOffset_ = 0; // clear last drag offset for the animation
+            [self removeAnimationBlockerView];
         }break;
     }
 }

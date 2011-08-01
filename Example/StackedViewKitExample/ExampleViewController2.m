@@ -27,6 +27,13 @@
 
 #pragma mark - View lifecycle
 
+- (void)viewDidLoad {
+    [super viewDidLoad];
+
+    self.view.width = PSIsIpad() ? 250 : 100;
+}
+
+
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
     // Return YES for supported orientations
     return (interfaceOrientation == UIInterfaceOrientationPortrait);
@@ -76,10 +83,6 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - PSStackedViewDelegate
-
-- (NSUInteger)stackableMaxWidth; {
-    return 250;
-}
 
 - (NSUInteger)stackableMinWidth; {
     return 100;

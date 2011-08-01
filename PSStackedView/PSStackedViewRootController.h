@@ -9,6 +9,11 @@
 #import <UIKit/UIKit.h>
 #import "PSStackedViewDelegate.h"
 
+// Swizzles UIViewController's navigationController property. DANGER, WILL ROBINSON!
+// Only swizzles if a PSStackedViewRootController is created, and also works in peaceful
+// coexistance to UINavigationController.
+#define ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
+
 // grid snapping options
 enum {
     SVSnapOptionNearest,
@@ -95,5 +100,10 @@ enum {
 
 @property(nonatomic, readonly, assign) NSUInteger largeLeftInset;
 - (void)setLargeLeftInset:(NSUInteger)largeLeftInset animated:(BOOL)animated;
+
+// compatibility with UINavigationBar -- returns nil
+#ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
+@property(nonatomic, assign) UINavigationBar *navigationBar;
+#endif
 
 @end
