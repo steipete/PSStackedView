@@ -12,10 +12,11 @@
 #import <QuartzCore/QuartzCore.h>
 #import <objc/runtime.h>
 
-#define kPSSVStackAnimationDuration 0.3f
-#define kPSSVStackAnimationBounceDuration 0.4f
-#define kPSSVMaxSnapOverOffset 40
-#define kPSSVStackAnimationPopDuration 0.15f
+#define kPSSVStackAnimationSpeedModifier 1 // DEBUG!
+#define kPSSVStackAnimationDuration kPSSVStackAnimationSpeedModifier * 0.3f
+#define kPSSVStackAnimationBounceDuration kPSSVStackAnimationSpeedModifier * 0.3f
+#define kPSSVStackAnimationPopDuration kPSSVStackAnimationSpeedModifier * 0.15f
+#define kPSSVMaxSnapOverOffset 25
 #define kPSSVAssociatedBaseViewControllerKey @"kPSSVAssociatedBaseViewController"
 #define kPSSVAssociatedStackViewControllerKey @"kPSSVAssociatedStackViewController"
 
@@ -73,6 +74,14 @@
         showingFullMenu_ = YES;
         leftInset_ = 60;
         largeLeftInset_ = 200;
+        
+        // add a gesture recognizer to detect dragging to the guest controllers
+        UIPanGestureRecognizer *panRecognizer = [[[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanFrom:)] autorelease];
+        [panRecognizer setMaximumNumberOfTouches:1];
+        [panRecognizer setDelaysTouchesBegan:YES];
+        [panRecognizer setDelaysTouchesEnded:YES];
+        [panRecognizer setCancelsTouchesInView:YES];
+        [self.view addGestureRecognizer:panRecognizer];
         
 #ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
         PSLog("Swizzling UIViewController.navigationController");
@@ -347,7 +356,14 @@
         UIViewController *vc = (UIViewController *)obj;
         CGRect currentPos = [[vc.containerView.layer presentationLayer] frame];
         [vc.containerView.layer removeAllAnimations];
-        vc.containerView.frame = currentPos;
+        PSLog(@"Old: %@ New: %@", NSStringFromCGRect(vc.containerView.frame), NSStringFromCGRect(currentPos));
+//        vc.containerView.frame = currentPos;
+        
+        /*
+        CFTimeInterval pausedTime = [vc.containerView.layer convertTime:CACurrentMediaTime() fromLayer:nil];
+        vc.containerView.layer.speed = 0.0;
+        vc.containerView.layer.timeOffset = pausedTime;
+         */
     }];
 }
 
@@ -427,14 +443,16 @@
     }
 }
 
-- (void)handlePanFrom:(CGPoint)translatedPoint state:(UIGestureRecognizerState)state {
+- (void)handlePanFrom:(UIPanGestureRecognizer *)recognizer {
+    CGPoint translatedPoint = [recognizer translationInView:self.view];
     
     // reset last offset if gesture just started
-    if (state == UIGestureRecognizerStateBegan) {
-        lastDragOffset_ = translatedPoint.x;
+    if (recognizer.state == UIGestureRecognizerStateBegan) {
+        lastDragOffset_ = 0;
     }
     
     NSInteger offset = translatedPoint.x - lastDragOffset_;
+    UIGestureRecognizerState state = recognizer.state;
     
     // if the move does not make sense (no snapping region), only use 1/2 offset
     BOOL snapPointAvailable = [self snapPointAvailableAfterOffset:offset];
@@ -500,10 +518,11 @@
     }
 }
 
+/*
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
     UITouch *touch = [touches anyObject];
     CGPoint touchPoint = [touch locationInView:self.view];
-    [self stopStackAnimation];
+ //   [self stopStackAnimation];
     [self handlePanFrom:touchPoint state:UIGestureRecognizerStateBegan];
 }
 
@@ -523,7 +542,7 @@
     UITouch *touch = [touches anyObject];
     CGPoint touchPoint = [touch locationInView:self.view];
     [self handlePanFrom:touchPoint state:UIGestureRecognizerStateCancelled];
-}
+}*/
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - SVStackRootController (Public)
@@ -542,6 +561,10 @@
 
 - (NSSet *)fullyVisibleViewControllers {
     return [self visibleViewControllersSetFullyVisible:YES];
+}
+
+- (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated; {
+    [self pushViewController:viewController fromViewController:self.topViewController animated:animated];
 }
 
 - (void)pushViewController:(UIViewController *)viewController fromViewController:(UIViewController *)baseViewController animated:(BOOL)animated; {    
@@ -679,6 +702,7 @@
     return lastVisibleIndex;
 }
 
+/*
 #define kPSSVAnimationBlockerViewTag 832242
 - (void)removeAnimationBlockerView {
     UIView *animationBlockView = [self.view viewWithTag:kPSSVAnimationBlockerViewTag];
@@ -700,7 +724,7 @@
         control.tag = kPSSVAnimationBlockerViewTag;
         [self.view addSubview:control];
     }
-}
+}*/
 
 // bouncing is a three-way operation
 enum {
@@ -797,7 +821,7 @@ enum {
     
     if (animated) {
         [UIView commitAnimations];
-        [self addAnimationBlockerView];
+        //[self addAnimationBlockerView];
     }    
 }
 
@@ -825,7 +849,7 @@ enum {
     // animation was stopped
     if (![finished boolValue]) {
         PSLog(@"animation didn't finish, stopping here at bounce option: %d", bounceOption);
-        [self removeAnimationBlockerView];
+        //[self removeAnimationBlockerView];
         return;
     }
 
@@ -844,7 +868,7 @@ enum {
         case PSSVBounceBack:
         default: {
             lastDragOffset_ = 0; // clear last drag offset for the animation
-            [self removeAnimationBlockerView];
+            //[self removeAnimationBlockerView];
         }break;
     }
 }
