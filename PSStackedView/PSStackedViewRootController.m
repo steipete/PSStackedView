@@ -16,7 +16,7 @@
 #define kPSSVStackAnimationDuration kPSSVStackAnimationSpeedModifier * 0.3f
 #define kPSSVStackAnimationBounceDuration kPSSVStackAnimationSpeedModifier * 0.3f
 #define kPSSVStackAnimationPopDuration kPSSVStackAnimationSpeedModifier * 0.15f
-#define kPSSVMaxSnapOverOffset 25
+#define kPSSVMaxSnapOverOffset 10
 #define kPSSVAssociatedBaseViewControllerKey @"kPSSVAssociatedBaseViewController"
 #define kPSSVAssociatedStackViewControllerKey @"kPSSVAssociatedStackViewController"
 
@@ -1044,6 +1044,8 @@ enum {
 
 // event relay
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration; {
+    [rootViewController_ willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    
     for (UIViewController *controller in self.viewControllers) {
         [controller willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
     }
@@ -1053,6 +1055,8 @@ enum {
 
 // event relay
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation; {
+    [rootViewController_ didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+    
     for (UIViewController *controller in self.viewControllers) {
         [controller didRotateFromInterfaceOrientation:fromInterfaceOrientation];
     }    
@@ -1063,6 +1067,8 @@ enum {
 
 // event relay
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration; {
+    [rootViewController_ willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    
     for (UIViewController *controller in self.viewControllers) {
         [controller willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
     }
