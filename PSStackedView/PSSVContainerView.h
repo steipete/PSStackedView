@@ -27,7 +27,7 @@ enum {
 + (PSSVContainerView *)containerViewWithController:(UIViewController *)controller;
 
 /// limit to max width
-- (CGFloat)limitToMaxWidth;
+- (CGFloat)limitToMaxWidth:(CGFloat)maxWidth;
 
 - (void)addMaskToCorners:(UIRectCorner)corners;
 - (void)removeMask;

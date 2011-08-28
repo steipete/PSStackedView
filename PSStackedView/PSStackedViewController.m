@@ -138,6 +138,11 @@
     return [self isMenuCollapsable] ? self.leftInset : self.largeLeftInset;
 }
 
+- (CGFloat)maxControllerWidth {
+    CGFloat maxWidth = (PSIsLandscape() ? self.view.height : self.view.width) - self.leftInset;
+    return maxWidth;
+}
+
 // check if a view controller is visible or not
 - (BOOL)isViewControllerVisible:(UIViewController *)viewController completely:(BOOL)completely {
     NSParameterAssert(viewController);
@@ -261,8 +266,9 @@
 
 // iterates controllers and sets width (also, enlarges if requested width is larger than current width)
 - (void)updateViewControllerSizes {
+    CGFloat maxControllerView = [self maxControllerWidth];
     for (UIViewController *controller in self.viewControllers) {
-        [controller.containerView limitToMaxWidth];
+        [controller.containerView limitToMaxWidth:maxControllerView];
     }
 }
 
@@ -602,16 +608,17 @@
     // Starting out in portrait, right side up, we see a 20 pixel gap (for status bar???)
     viewController.view.top = 0.f;
     
-    // add to view stack!
-    [viewController viewWillAppear:animated];
-    
     // controller view is embedded into a container
     PSSVContainerView *container = [PSSVContainerView containerViewWithController:viewController];
     NSUInteger leftGap = [self totalStackWidth] + [self minimalLeftInset];    
     container.left = leftGap;
     container.width = viewController.view.width;
     container.autoresizingMask = UIViewAutoresizingFlexibleHeight; // width is not flexible!
-    [container limitToMaxWidth];
+    [container limitToMaxWidth:[self maxControllerWidth]];
+    PSLog(@"container frame: %@", NSStringFromCGRect(container.frame));
+
+    // relay willAppear and add to subview
+    [viewController viewWillAppear:animated];
     [self.view addSubview:container];
     
     // properly sizes the scroll view contents (for table view scrolling)

@@ -98,8 +98,7 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Public
 
-- (CGFloat)limitToMaxWidth; {
-   CGFloat maxWidth = PSIsLandscape() ? self.superview.height : self.superview.width;
+- (CGFloat)limitToMaxWidth:(CGFloat)maxWidth; {
 
     if (maxWidth && self.width > maxWidth) {
         self.width = maxWidth;
