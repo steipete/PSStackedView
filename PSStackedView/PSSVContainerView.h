@@ -17,6 +17,7 @@ enum {
 
 
 @interface PSSVContainerView : UIView {
+    CGFloat originalWidth_;
     UIViewController *controller_;
     CAGradientLayer *leftShadowLayer_;
     CAGradientLayer *innerShadowLayer_;
@@ -25,6 +26,8 @@ enum {
 
 + (PSSVContainerView *)containerViewWithController:(UIViewController *)controller;
 
+/// limit to max width
+- (CGFloat)limitToMaxWidth;
 
 - (void)addMaskToCorners:(UIRectCorner)corners;
 - (void)removeMask;

@@ -14,13 +14,15 @@
 #define kPSSVShadowWidth 80.f
 
 @interface PSSVContainerView ()
-@property (nonatomic, retain) CAGradientLayer *leftShadowLayer;
-@property (nonatomic, retain) CAGradientLayer *innerShadowLayer;
-@property (nonatomic, retain) CAGradientLayer *rightShadowLayer;
+@property(nonatomic, assign) CGFloat originalWidth;
+@property(nonatomic, retain) CAGradientLayer *leftShadowLayer;
+@property(nonatomic, retain) CAGradientLayer *innerShadowLayer;
+@property(nonatomic, retain) CAGradientLayer *rightShadowLayer;
 @end
 
 @implementation PSSVContainerView
 
+@synthesize originalWidth = originalWidth_;
 @synthesize controller = controller_;
 @synthesize leftShadowLayer = leftShadowLayer_;
 @synthesize innerShadowLayer = innerShadowLayer_;
@@ -79,6 +81,9 @@
     [super dealloc];
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark - UIView
+
 - (void)setFrame:(CGRect)frame {
     [super setFrame:frame];
 
@@ -90,6 +95,21 @@
     }
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark - Public
+
+- (CGFloat)limitToMaxWidth; {
+   CGFloat maxWidth = PSIsLandscape() ? self.superview.height : self.superview.width;
+
+    if (maxWidth && self.width > maxWidth) {
+        self.width = maxWidth;
+    }else if(self.originalWidth && self.width < self.originalWidth) {
+        self.width = MIN(maxWidth, self.originalWidth);
+    }
+    self.controller.view.width = self.width;
+    return self.width;
+}
+
 - (void)setController:(UIViewController *)aController {
     if (controller_ != aController) {
         if (controller_) {
@@ -99,6 +119,7 @@
         controller_ = [aController retain];
         
         // properly embed view
+        self.originalWidth = self.controller.view.width;
         controller_.view.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth; 
         controller_.view.frame = CGRectMake(0, 0, controller_.view.width, controller_.view.height);
         [self addSubview:controller_.view];
