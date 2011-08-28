@@ -475,7 +475,7 @@
         
         // we only want to move full pixels - but if we drag slowly, 1 get divided to zero.
         // so only omit every second event
-        if (offset == 1) {
+        if (abs(offset) == 1) {
             if(!lastDragDividedOne_) {
                 lastDragDividedOne_ = YES;
                 offset = 0;
@@ -1006,6 +1006,7 @@ enum {
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
+    [self.rootViewController viewWillAppear:animated];
     for (UIViewController *controller in self.viewControllers) {
         [controller viewWillAppear:animated];
     }
@@ -1013,27 +1014,26 @@ enum {
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    [self.rootViewController viewDidAppear:animated];
     
+    [self.rootViewController viewDidAppear:animated];
     for (UIViewController *controller in self.viewControllers) {
         [controller viewDidAppear:animated];
     }   
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
-    [self.rootViewController viewWillDisappear:animated];
+    [super viewWillDisappear:animated];
     
+    [self.rootViewController viewWillDisappear:animated];
     for (UIViewController *controller in self.viewControllers) {
         [controller viewWillDisappear:animated];
     }
-    
-    [super viewWillDisappear:animated];
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
     [super viewDidDisappear:animated];
-    [self.rootViewController viewDidDisappear:animated];
     
+    [self.rootViewController viewDidDisappear:animated];
     for (UIViewController *controller in self.viewControllers) {
         [controller viewDidDisappear:animated];
     }   
