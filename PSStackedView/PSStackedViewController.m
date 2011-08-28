@@ -220,9 +220,9 @@
 }
 
 // ensures index is on rightmost position
-- (void)displayViewControllerIndexOnRightMost:(NSUInteger)index animated:(BOOL)animated; {
+- (void)displayViewControllerIndexOnRightMost:(NSInteger)index animated:(BOOL)animated; {
     NSInteger indexOffset = index - self.lastVisibleIndex;
-    if (indexOffset > 0) {
+    if (indexOffset > 0 || (indexOffset == 0 && [self isMenuCollapsable])) {
         [self collapseStack:indexOffset animated:animated];
     }else if(indexOffset >= 0) {
         [self expandStack:indexOffset animated:animated];
@@ -697,7 +697,8 @@
 - (NSInteger)lastVisibleIndex {
     NSInteger lastVisibleIndex = self.firstVisibleIndex;
     
-    NSInteger screenSpaceLeft = [self screenWidth] - [self currentLeftInset];
+    NSUInteger currentLeftInset = [self currentLeftInset];
+    NSInteger screenSpaceLeft = [self screenWidth] - currentLeftInset;
     while (screenSpaceLeft > 0 && lastVisibleIndex < [self.viewControllers count]) {
         UIViewController *vc = [self.viewControllers objectAtIndex:lastVisibleIndex];
         screenSpaceLeft -= vc.containerView.width;
@@ -707,7 +708,9 @@
         }        
     }
     
-    lastVisibleIndex--; // compensate for last failure
+    if (lastVisibleIndex > 0) {
+        lastVisibleIndex--; // compensate for last failure
+    }
     
     return lastVisibleIndex;
 }
@@ -1053,13 +1056,13 @@ enum {
 
 // event relay
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration; {
+    lastVisibleIndexBeforeRotation_ = self.lastVisibleIndex;
+
     [rootViewController_ willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
     
     for (UIViewController *controller in self.viewControllers) {
         [controller willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
-    }
-    
-    lastVisibleIndexBeforeRotation_ = self.lastVisibleIndex;
+    }    
 }
 
 // event relay
@@ -1076,16 +1079,17 @@ enum {
 // event relay
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration; {
     [rootViewController_ willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-    
-    for (UIViewController *controller in self.viewControllers) {
-        [controller willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-    }
-    
+        
     [self updateViewControllerSizes];
     [self updateViewControllerMasksAndShadow];
     
     // enlarge/shrinken stack
     [self displayViewControllerIndexOnRightMost:lastVisibleIndexBeforeRotation_ animated:YES];
+    
+    // finally relay rotation events
+    for (UIViewController *controller in self.viewControllers) {
+        [controller willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
+    }
 }
 
 @end
