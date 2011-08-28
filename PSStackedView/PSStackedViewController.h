@@ -22,7 +22,7 @@ enum {
 } typedef PSSVSnapOption;
 
 /// StackController hosing a backside rootViewController and the stacked controllers
-@interface PSStackedViewRootController : UIViewController {
+@interface PSStackedViewController : UIViewController {
     UIViewController *rootViewController_;
     
     // properites

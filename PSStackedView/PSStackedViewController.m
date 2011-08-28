@@ -6,7 +6,7 @@
 //  Copyright 2011 Peter Steinberger. All rights reserved.
 //
 
-#import "PSStackedViewRootController.h"
+#import "PSStackedViewController.h"
 #import "PSStackedViewGlobal.h"
 #import "PSSVContainerView.h"
 #import <QuartzCore/QuartzCore.h>
@@ -26,8 +26,8 @@
 - (PSSVContainerView *)containerView; { return ([self.view.superview isKindOfClass:[PSSVContainerView class]] ? (PSSVContainerView *)self.view.superview : nil); }
 
 // returns the stack controller if the viewController is embedded
-- (PSStackedViewRootController *)stackController; {
-    PSStackedViewRootController *stackController = objc_getAssociatedObject(self, kPSSVAssociatedStackViewControllerKey);
+- (PSStackedViewController *)stackController; {
+    PSStackedViewController *stackController = objc_getAssociatedObject(self, kPSSVAssociatedStackViewControllerKey);
     return stackController;
 }
 
@@ -41,7 +41,7 @@
 }
 @end
 
-@interface PSStackedViewRootController() <UIGestureRecognizerDelegate> 
+@interface PSStackedViewController() <UIGestureRecognizerDelegate> 
 
 @property (nonatomic, retain) UIViewController *rootViewController;
 @property(nonatomic, assign) NSMutableArray* viewControllers;
@@ -50,7 +50,7 @@
 
 @end
 
-@implementation PSStackedViewRootController
+@implementation PSStackedViewController
 
 @synthesize leftInset = leftInset_;
 @synthesize largeLeftInset = largeLeftInset_;
@@ -78,9 +78,9 @@
         // add a gesture recognizer to detect dragging to the guest controllers
         UIPanGestureRecognizer *panRecognizer = [[[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanFrom:)] autorelease];
         [panRecognizer setMaximumNumberOfTouches:1];
-        [panRecognizer setDelaysTouchesBegan:YES];
-        [panRecognizer setDelaysTouchesEnded:YES];
-        [panRecognizer setCancelsTouchesInView:YES];
+        [panRecognizer setDelaysTouchesBegan:NO];
+        [panRecognizer setDelaysTouchesEnded:NO];
+        [panRecognizer setCancelsTouchesInView:NO];
         [self.view addGestureRecognizer:panRecognizer];
         
 #ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
@@ -144,7 +144,7 @@
     NSUInteger screenWidth = [self screenWidth];
     
     BOOL isVCVisible = ((viewController.containerView.left < screenWidth && !completely) ||
-                                  (completely && viewController.containerView.right <= screenWidth));
+                        (completely && viewController.containerView.right <= screenWidth));
     return isVCVisible;
 }
 
@@ -259,33 +259,41 @@
     }
 }
 
+// iterates controllers and sets width (also, enlarges if requested width is larger than current width)
+- (void)updateViewControllerSizes {
+    for (UIViewController *controller in self.viewControllers) {
+        [controller.containerView limitToMaxWidth];
+    }
+}
+
 // updates view containers
 - (void)updateViewControllerMasksAndShadow {
     // ensure no controller is larger than the screen width
     NSUInteger maxWidth = [self screenWidth] - [self minimalLeftInset];
     for (UIViewController *controller in self.viewControllers) {
         if(controller.view.width > maxWidth) {
-            PSLog(@"Warning! Resizing controller %@ (rect:%@)to fit max screen width of %d", controller, NSStringFromCGRect(controller.view.frame), maxWidth);
+            PSLog(@"Resizing controller %@ (rect:%@) to fit max screen width of %d", controller, NSStringFromCGRect(controller.view.frame), maxWidth);
             controller.view.width = maxWidth;
         }
     }
     
+    
     // only one!
     if ([self.viewControllers count] == 1) {
-        [[self firstViewController].containerView addMaskToCorners:UIRectCornerAllCorners];
+        //    [[self firstViewController].containerView addMaskToCorners:UIRectCornerAllCorners];
         [[self firstViewController].containerView addShadowToSides:PSSVSideLeft | PSSVSideRight];
     }else {
         // rounded corners on first and last controller
         [self.viewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             UIViewController *vc = (UIViewController *)obj;
             if (idx == 0) {
-                [vc.containerView addShadowToSides:PSSVSideLeft];
+                //          [vc.containerView addShadowToSides:PSSVSideLeft];
                 [vc.containerView addMaskToCorners:UIRectCornerBottomLeft | UIRectCornerTopLeft];
             }else if(idx == [self.viewControllers count]-1) {
-                [vc.containerView addMaskToCorners:UIRectCornerBottomRight | UIRectCornerTopRight];
+                //        [vc.containerView addMaskToCorners:UIRectCornerBottomRight | UIRectCornerTopRight];
                 [vc.containerView addShadowToSides:PSSVSideLeft | PSSVSideRight];
             }else {
-                [vc.containerView removeMask];
+                //      [vc.containerView removeMask];
                 [vc.containerView addShadowToSides:PSSVSideLeft | PSSVSideRight];
             }
         }];
@@ -357,12 +365,12 @@
         CGRect currentPos = [[vc.containerView.layer presentationLayer] frame];
         [vc.containerView.layer removeAllAnimations];
         PSLog(@"Old: %@ New: %@", NSStringFromCGRect(vc.containerView.frame), NSStringFromCGRect(currentPos));
-//        vc.containerView.frame = currentPos;
+        //        vc.containerView.frame = currentPos;
         
         /*
-        CFTimeInterval pausedTime = [vc.containerView.layer convertTime:CACurrentMediaTime() fromLayer:nil];
-        vc.containerView.layer.speed = 0.0;
-        vc.containerView.layer.timeOffset = pausedTime;
+         CFTimeInterval pausedTime = [vc.containerView.layer convertTime:CACurrentMediaTime() fromLayer:nil];
+         vc.containerView.layer.speed = 0.0;
+         vc.containerView.layer.timeOffset = pausedTime;
          */
     }];
 }
@@ -519,30 +527,30 @@
 }
 
 /*
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
-    UITouch *touch = [touches anyObject];
-    CGPoint touchPoint = [touch locationInView:self.view];
+ - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+ UITouch *touch = [touches anyObject];
+ CGPoint touchPoint = [touch locationInView:self.view];
  //   [self stopStackAnimation];
-    [self handlePanFrom:touchPoint state:UIGestureRecognizerStateBegan];
-}
-
-- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
-    UITouch *touch = [touches anyObject];
-    CGPoint touchPoint = [touch locationInView:self.view];
-    [self handlePanFrom:touchPoint state:UIGestureRecognizerStateChanged];
-}
-
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
-    UITouch *touch = [touches anyObject];
-    CGPoint touchPoint = [touch locationInView:self.view];
-    [self handlePanFrom:touchPoint state:UIGestureRecognizerStateEnded];
-}
-
-- (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
-    UITouch *touch = [touches anyObject];
-    CGPoint touchPoint = [touch locationInView:self.view];
-    [self handlePanFrom:touchPoint state:UIGestureRecognizerStateCancelled];
-}*/
+ [self handlePanFrom:touchPoint state:UIGestureRecognizerStateBegan];
+ }
+ 
+ - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
+ UITouch *touch = [touches anyObject];
+ CGPoint touchPoint = [touch locationInView:self.view];
+ [self handlePanFrom:touchPoint state:UIGestureRecognizerStateChanged];
+ }
+ 
+ - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+ UITouch *touch = [touches anyObject];
+ CGPoint touchPoint = [touch locationInView:self.view];
+ [self handlePanFrom:touchPoint state:UIGestureRecognizerStateEnded];
+ }
+ 
+ - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
+ UITouch *touch = [touches anyObject];
+ CGPoint touchPoint = [touch locationInView:self.view];
+ [self handlePanFrom:touchPoint state:UIGestureRecognizerStateCancelled];
+ }*/
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - SVStackRootController (Public)
@@ -588,6 +596,7 @@
     if ([viewController respondsToSelector:@selector(stackableMaxWidth)]) {
         viewController.view.width = [(UIViewController<PSStackedViewDelegate> *)viewController stackableMaxWidth];
     }
+    
     viewController.view.height = PSIsLandscape() ? self.view.width : self.view.height;
     
     // Starting out in portrait, right side up, we see a 20 pixel gap (for status bar???)
@@ -602,6 +611,7 @@
     container.left = leftGap;
     container.width = viewController.view.width;
     container.autoresizingMask = UIViewAutoresizingFlexibleHeight; // width is not flexible!
+    [container limitToMaxWidth];
     [self.view addSubview:container];
     
     // properly sizes the scroll view contents (for table view scrolling)
@@ -703,28 +713,28 @@
 }
 
 /*
-#define kPSSVAnimationBlockerViewTag 832242
-- (void)removeAnimationBlockerView {
-    UIView *animationBlockView = [self.view viewWithTag:kPSSVAnimationBlockerViewTag];
-    [animationBlockView removeFromSuperview];
-}
-
-- (void)removeAnimationBlockerViewAndStopAnimation {
-    [self removeAnimationBlockerView];
-    [self stopStackAnimation];
-}
-
-- (void)addAnimationBlockerView {
-    return;
-
-    if (![self.view viewWithTag:kPSSVAnimationBlockerViewTag]) {
-        UIControl *control = [[[UIControl alloc] initWithFrame:self.view.bounds] autorelease];
-        control.backgroundColor = [UIColor colorWithRed:1 green:0 blue:0 alpha:0.5];//clearColor];
-        [control addTarget:self action:@selector(removeAnimationBlockerViewAndStopAnimation) forControlEvents:UIControlEventTouchDown];
-        control.tag = kPSSVAnimationBlockerViewTag;
-        [self.view addSubview:control];
-    }
-}*/
+ #define kPSSVAnimationBlockerViewTag 832242
+ - (void)removeAnimationBlockerView {
+ UIView *animationBlockView = [self.view viewWithTag:kPSSVAnimationBlockerViewTag];
+ [animationBlockView removeFromSuperview];
+ }
+ 
+ - (void)removeAnimationBlockerViewAndStopAnimation {
+ [self removeAnimationBlockerView];
+ [self stopStackAnimation];
+ }
+ 
+ - (void)addAnimationBlockerView {
+ return;
+ 
+ if (![self.view viewWithTag:kPSSVAnimationBlockerViewTag]) {
+ UIControl *control = [[[UIControl alloc] initWithFrame:self.view.bounds] autorelease];
+ control.backgroundColor = [UIColor colorWithRed:1 green:0 blue:0 alpha:0.5];//clearColor];
+ [control addTarget:self action:@selector(removeAnimationBlockerViewAndStopAnimation) forControlEvents:UIControlEventTouchDown];
+ control.tag = kPSSVAnimationBlockerViewTag;
+ [self.view addSubview:control];
+ }
+ }*/
 
 // bouncing is a three-way operation
 enum {
@@ -740,7 +750,7 @@ enum {
         [UIView setAnimationBeginsFromCurrentState:YES];
         [UIView setAnimationDelegate:self];
         [UIView setAnimationDidStopSelector:@selector(bounceBack:finished:context:)];
-
+        
         // calculate remaining duration based on distance of overlapping
         UIViewController *overlappedVC = [self overlappedViewController];
         if (overlappedVC) {
@@ -756,15 +766,14 @@ enum {
         }
         
         [UIView setAnimationDuration:duration];
-
         
         if (bounce == PSSVBounceMoveToInitial) {
-            [UIView setAnimationCurve:UIViewAnimationCurveLinear];
+            [UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
         }else if(bounce == PSSVBounceBleedOver) {
             [UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
         }
     }
-        
+    
     PSLog(@"Begin aliging VCs. Last drag offset:%d direction:%d bounce:%d.", lastDragOffset_, lastDragOption_, bounce);
     
     // calculate offset used only when we're bleeding over
@@ -775,10 +784,10 @@ enum {
     
     if (abs(lastDragOffset_) > 10 && bounce == PSSVBounceBleedOver) {
         snapOverOffset = lastDragOffset_ / 5.f;
-        if (snapOverOffset > kPSSVMaxSnapOverOffset) {
-            snapOverOffset = kPSSVMaxSnapOverOffset;
+        if (abs(snapOverOffset) > kPSSVMaxSnapOverOffset) {
+            snapOverOffset = kPSSVMaxSnapOverOffset * (snapOverOffset > 0 ? 1 : -1);
         }
-
+        
         // if we're dragging menu all the way out, bounce back in
         PSLog(@"%@", NSStringFromCGRect(self.firstViewController.containerView.frame));
         if (firstVisibleIndex == 0 && self.firstViewController.containerView.left >= self.leftInset && lastDragOption_ == SVSnapOptionRight) {
@@ -786,10 +795,10 @@ enum {
         }else if(lastFullyVCIndex == [self.viewControllers count]-1 && lastDragOption_ == SVSnapOptionLeft) {
             bounceAtVeryEnd = YES;
         }
-
+        
         PSLog(@"bouncing with offset: %d, firstIndex:%d, snapToLeft:%d veryEnd:%d", snapOverOffset, firstVisibleIndex, snapOverOffset<0, bounceAtVeryEnd);
     }
-        
+    
     // iterate over all view controllers and snap them to their correct positions
     [self.viewControllers enumerateObjectsWithOptions:0 usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         UIViewController *currentVC = (UIViewController *)obj;
@@ -852,7 +861,7 @@ enum {
         //[self removeAnimationBlockerView];
         return;
     }
-
+    
     switch (bounceOption) {
         case PSSVBounceMoveToInitial: {
             // bleed over now!
@@ -863,7 +872,7 @@ enum {
             [self alignStackAnimated:YES duration:kPSSVStackAnimationBounceDuration/2.f bounceType:PSSVBounceBack];
         }break;
             
-        // we're done here
+            // we're done here
         case PSSVBounceNone:
         case PSSVBounceBack:
         default: {
@@ -1003,7 +1012,7 @@ enum {
 
 - (void)viewWillDisappear:(BOOL)animated {
     [self.rootViewController viewWillDisappear:animated];
-
+    
     for (UIViewController *controller in self.viewControllers) {
         [controller viewWillDisappear:animated];
     }
@@ -1059,10 +1068,9 @@ enum {
     
     for (UIViewController *controller in self.viewControllers) {
         [controller didRotateFromInterfaceOrientation:fromInterfaceOrientation];
-    }    
+    }        
     
-    // enlarge/shrinken stack
-    [self displayViewControllerIndexOnRightMost:lastVisibleIndexBeforeRotation_ animated:YES];
+    [self updateViewControllerMasksAndShadow];
 }
 
 // event relay
@@ -1072,7 +1080,12 @@ enum {
     for (UIViewController *controller in self.viewControllers) {
         [controller willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
     }
+    
+    [self updateViewControllerSizes];
     [self updateViewControllerMasksAndShadow];
+    
+    // enlarge/shrinken stack
+    [self displayViewControllerIndexOnRightMost:lastVisibleIndexBeforeRotation_ animated:YES];
 }
 
 @end

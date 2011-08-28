@@ -7,5 +7,5 @@
 //
 
 #import "PSStackedViewDelegate.h"
-#import "PSStackedViewRootController.h"
+#import "PSStackedViewController.h"
 #import "PSStackedViewGlobal.h"
