@@ -16,7 +16,7 @@
 #define kPSSVStackAnimationDuration kPSSVStackAnimationSpeedModifier * 0.3f
 #define kPSSVStackAnimationBounceDuration kPSSVStackAnimationSpeedModifier * 0.3f
 #define kPSSVStackAnimationPopDuration kPSSVStackAnimationSpeedModifier * 0.15f
-#define kPSSVMaxSnapOverOffset 10
+#define kPSSVMaxSnapOverOffset 15
 #define kPSSVAssociatedBaseViewControllerKey @"kPSSVAssociatedBaseViewController"
 #define kPSSVAssociatedStackViewControllerKey @"kPSSVAssociatedStackViewController"
 
@@ -306,15 +306,15 @@
     }
 }
 
-- (NSSet *)visibleViewControllersSetFullyVisible:(BOOL)fullyVisible; {
-    NSMutableSet *set = [NSMutableSet set];    
+- (NSArray *)visibleViewControllersSetFullyVisible:(BOOL)fullyVisible; {
+    NSMutableArray *array = [NSMutableArray array];    
     [self.viewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         if ([self isViewControllerVisible:obj completely:fullyVisible]) {
-            [set addObject:obj];
+            [array addObject:obj];
         }
     }];
     
-    return [[set copy] autorelease];
+    return [[array copy] autorelease];
 }
 
 
@@ -370,7 +370,7 @@
         UIViewController *vc = (UIViewController *)obj;
         CGRect currentPos = [[vc.containerView.layer presentationLayer] frame];
         [vc.containerView.layer removeAllAnimations];
-        PSLog(@"Old: %@ New: %@", NSStringFromCGRect(vc.containerView.frame), NSStringFromCGRect(currentPos));
+        //PSLog(@"Old: %@ New: %@", NSStringFromCGRect(vc.containerView.frame), NSStringFromCGRect(currentPos));
         //        vc.containerView.frame = currentPos;
         
         /*
@@ -569,11 +569,11 @@
     return [self.viewControllers count] ? [self.viewControllers objectAtIndex:0] : nil;
 }
 
-- (NSSet *)visibleViewControllers {
+- (NSArray *)visibleViewControllers {
     return [self visibleViewControllersSetFullyVisible:NO];
 }
 
-- (NSSet *)fullyVisibleViewControllers {
+- (NSArray *)fullyVisibleViewControllers {
     return [self visibleViewControllersSetFullyVisible:YES];
 }
 
@@ -746,6 +746,39 @@
  }
  }*/
 
+// returns +/- amount if grid is not aligned correctly
+// + if view is too far on the right, - if too far on the left
+- (CGFloat)gridOffsetByPixels {
+    CGFloat gridOffset = 0;
+    
+    CGFloat firstVCLeft = self.firstViewController.containerView.left;
+    
+    // easiest case, controller is > then wide menu
+    if (firstVCLeft > [self currentLeftInset] || firstVCLeft < [self currentLeftInset]) {
+        gridOffset = firstVCLeft - [self currentLeftInset];
+    }else {
+        UIViewController *overlappedVC = [self overlappedViewController];
+        if (overlappedVC) {
+            UIViewController *rightVC = [self nextViewController:overlappedVC];
+            PSLog(@"overlapping %@ with %@", NSStringFromCGRect(overlappedVC.containerView.frame), NSStringFromCGRect(rightVC.containerView.frame));
+            gridOffset = rightVC.containerView.left - overlappedVC.containerView.right;
+            
+            // if overlap destination is different, change sign
+            NSUInteger overlapVCIndex = [self.viewControllers indexOfObject:overlappedVC];
+            if (self.firstVisibleIndex > overlapVCIndex) {
+                gridOffset *= -1;
+            }
+        }
+    }
+    
+//    UIViewController *overlappedVC = [self overlappedViewController];
+//    UIViewController *firstVisibleViewController = [self.visibleViewControllers objectAtIndex:0];
+    
+    PSLog(@"gridOffset: %f", gridOffset);
+    return gridOffset;
+}
+
+
 // bouncing is a three-way operation
 enum {
     PSSVBounceNone,
@@ -757,9 +790,11 @@ enum {
 - (void)alignStackAnimated:(BOOL)animated duration:(CGFloat)duration bounceType:(PSSVBounceOption)bounce; {
     if (animated) {
         [UIView beginAnimations:@"kPSSVStackAnimation" context:[[NSNumber numberWithInt:bounce] retain]];
-        [UIView setAnimationBeginsFromCurrentState:YES];
+//        [UIView setAnimationBeginsFromCurrentState:YES];
         [UIView setAnimationDelegate:self];
         [UIView setAnimationDidStopSelector:@selector(bounceBack:finished:context:)];
+        
+        CGFloat gridOffset = [self gridOffsetByPixels];
         
         // calculate remaining duration based on distance of overlapping
         UIViewController *overlappedVC = [self overlappedViewController];
@@ -769,16 +804,18 @@ enum {
             CGFloat overlappingRatio = (overlappedVC.containerView.right - rightVC.containerView.left)/(CGFloat)overlappedVC.containerView.width;
             
             // now we need to know in what direct we're snapping too
-            if (lastDragOption_ == SVSnapOptionLeft) {
-                overlappingRatio = 1-overlappingRatio;
-            }
-            duration = duration * overlappingRatio;
+            //if (lastDragOption_ == SVSnapOptionLeft) {
+            //    overlappingRatio = 1-overlappingRatio;
+            //}
+            //duration = duration * overlappingRatio;
         }
         
         [UIView setAnimationDuration:duration];
         
         if (bounce == PSSVBounceMoveToInitial) {
             [UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
+            snapBackFromLeft_ = gridOffset < 0;
+
         }else if(bounce == PSSVBounceBleedOver) {
             [UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
         }
@@ -793,16 +830,21 @@ enum {
     BOOL bounceAtVeryEnd = NO;
     
     if (abs(lastDragOffset_) > 10 && bounce == PSSVBounceBleedOver) {
-        snapOverOffset = lastDragOffset_ / 5.f;
-        if (abs(snapOverOffset) > kPSSVMaxSnapOverOffset) {
-            snapOverOffset = kPSSVMaxSnapOverOffset * (snapOverOffset > 0 ? 1 : -1);
+        snapOverOffset = abs(lastDragOffset_ / 5.f);
+        if (snapOverOffset > kPSSVMaxSnapOverOffset) {
+            snapOverOffset = kPSSVMaxSnapOverOffset;
         }
+        
+        // positive/negative snap offset depending on snap back direction
+        snapOverOffset *= snapBackFromLeft_ ? 1 : -1;
+        
         
         // if we're dragging menu all the way out, bounce back in
         PSLog(@"%@", NSStringFromCGRect(self.firstViewController.containerView.frame));
-        if (firstVisibleIndex == 0 && self.firstViewController.containerView.left >= self.leftInset && lastDragOption_ == SVSnapOptionRight) {
+        CGFloat firstVCLeft = self.firstViewController.containerView.left;
+        if (firstVisibleIndex == 0 && !snapBackFromLeft_ && firstVCLeft >= self.largeLeftInset) {
             bounceAtVeryEnd = YES;
-        }else if(lastFullyVCIndex == [self.viewControllers count]-1 && lastDragOption_ == SVSnapOptionLeft) {
+        }else if(lastFullyVCIndex == [self.viewControllers count]-1 && snapBackFromLeft_ && lastFullyVCIndex > 0) {
             bounceAtVeryEnd = YES;
         }
         
@@ -825,15 +867,13 @@ enum {
         // menu drag to right case or swiping last vc towards menu
         if (bounceAtVeryEnd) {
             if (idx == firstVisibleIndex) {
-                currentVC.containerView.left -= snapOverOffset;
+                currentVC.containerView.left += snapOverOffset;
             }
         }
         // snap the leftmost view controller
         else if (snapOverOffset > 0 && idx == firstVisibleIndex) {
-            // different snapping if we're at the first index (menu)
-            BOOL isOverMenu = firstVisibleIndex == 0 && currentVC.containerView.left > self.leftInset;
-            currentVC.containerView.left += snapOverOffset * (isOverMenu ? -1 : 1);
-        }else if(snapOverOffset < 0 && idx == firstVisibleIndex+1) {
+            currentVC.containerView.left += snapOverOffset;
+        }else if(snapOverOffset < 0 && (idx == firstVisibleIndex+1 || [self.viewControllers count] == 1)) {
             currentVC.containerView.left += snapOverOffset;
         }
     }];
@@ -872,14 +912,15 @@ enum {
         return;
     }
     
+    CGFloat animationDuration = kPSSVStackAnimationBounceDuration/2.f;
     switch (bounceOption) {
         case PSSVBounceMoveToInitial: {
             // bleed over now!
-            [self alignStackAnimated:YES duration:kPSSVStackAnimationBounceDuration/2.f bounceType:PSSVBounceBleedOver];
+            [self alignStackAnimated:YES duration:animationDuration bounceType:PSSVBounceBleedOver];
         }break;
         case PSSVBounceBleedOver: {
             // now bounce back to origin
-            [self alignStackAnimated:YES duration:kPSSVStackAnimationBounceDuration/2.f bounceType:PSSVBounceBack];
+            [self alignStackAnimated:YES duration:animationDuration bounceType:PSSVBounceBack];
         }break;
             
             // we're done here

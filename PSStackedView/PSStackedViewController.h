@@ -36,6 +36,7 @@ enum {
     
     // internal drag state handling and other messy details
     PSSVSnapOption lastDragOption_;
+    BOOL snapBackFromLeft_;
     NSInteger lastDragOffset_;
     BOOL lastDragDividedOne_;
     
@@ -85,18 +86,18 @@ enum {
 @property(nonatomic, readonly, retain) UIViewController *firstViewController;
 
 /// view controllers visible. NOT KVO compliant, is calculated on demand.
-@property(nonatomic, readonly, retain) NSSet *visibleViewControllers;
+@property(nonatomic, readonly, retain) NSArray *visibleViewControllers;
 
-@property(nonatomic, readonly, retain) NSSet *fullyVisibleViewControllers;
+@property(nonatomic, readonly, retain) NSArray *fullyVisibleViewControllers;
 
-/// index of first currently visible view controller
+/// index of first currently visible view controller [state]
 @property(nonatomic, assign, readonly) NSInteger firstVisibleIndex;
 
-/// index of last currently visible view controller (calculated)
+/// index of last currently visible view controller [calculated]
 @property(nonatomic, assign, readonly) NSInteger lastVisibleIndex;
 
 /// array of all current view controllers, sorted
-@property(nonatomic, assign, readonly) NSArray* viewControllers;
+@property(nonatomic, assign, readonly) NSArray *viewControllers;
 
 /// toggle full menu / small menu
 @property(nonatomic, assign, getter=isShowingFullMenu, readonly) BOOL showingFullMenu;
