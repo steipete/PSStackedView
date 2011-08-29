@@ -10,7 +10,7 @@
 #import "ExampleMenuRootController.h"
 
 @interface AppDelegate()
-@property (nonatomic, retain) PSStackedViewRootController *stackController;
+@property (nonatomic, retain) PSStackedViewController *stackController;
 @end
 
 @implementation AppDelegate
@@ -25,7 +25,7 @@
     
     // set root controller as stack controller
     ExampleMenuRootController *menuController = [[[ExampleMenuRootController alloc] init] autorelease];
-    self.stackController = [[[PSStackedViewRootController alloc] initWithRootViewController:menuController] autorelease];
+    self.stackController = [[[PSStackedViewController alloc] initWithRootViewController:menuController] autorelease];
     self.window.rootViewController = self.stackController;
     [self.window makeKeyAndVisible];
 

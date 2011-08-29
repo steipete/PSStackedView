@@ -11,13 +11,13 @@
 
 #define XAppDelegate ((AppDelegate *)[[UIApplication sharedApplication] delegate])
 
-@class PSStackedViewRootController;
+@class PSStackedViewController;
 
 @interface AppDelegate : NSObject <UIApplicationDelegate> {
-    PSStackedViewRootController *stackController_;
+    PSStackedViewController *stackController_;
 }
 
 @property (nonatomic, retain) UIWindow *window;
-@property (nonatomic, retain, readonly) PSStackedViewRootController *stackController;
+@property (nonatomic, retain, readonly) PSStackedViewController *stackController;
 
 @end

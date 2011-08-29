@@ -116,7 +116,7 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {  
-    PSStackedViewRootController *stackController = XAppDelegate.stackController;
+    PSStackedViewController *stackController = XAppDelegate.stackController;
     UIViewController*viewController = nil;
     
     
