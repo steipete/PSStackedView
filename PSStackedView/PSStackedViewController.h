@@ -39,8 +39,6 @@ enum {
     BOOL snapBackFromLeft_;
     NSInteger lastDragOffset_;
     BOOL lastDragDividedOne_;
-    
-    NSInteger lastVisibleIndexBeforeRotation_;
 }
 
 /// the root controller gets the whole background view

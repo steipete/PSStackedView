@@ -12,11 +12,11 @@
 #import <QuartzCore/QuartzCore.h>
 #import <objc/runtime.h>
 
-#define kPSSVStackAnimationSpeedModifier 1 // DEBUG!
-#define kPSSVStackAnimationDuration kPSSVStackAnimationSpeedModifier * 0.3f
-#define kPSSVStackAnimationBounceDuration kPSSVStackAnimationSpeedModifier * 0.3f
+#define kPSSVStackAnimationSpeedModifier 1.f // DEBUG!
+#define kPSSVStackAnimationDuration kPSSVStackAnimationSpeedModifier * 0.25f
+#define kPSSVStackAnimationBounceDuration kPSSVStackAnimationSpeedModifier * 0.15f
 #define kPSSVStackAnimationPopDuration kPSSVStackAnimationSpeedModifier * 0.15f
-#define kPSSVMaxSnapOverOffset 15
+#define kPSSVMaxSnapOverOffset 12
 #define kPSSVAssociatedBaseViewControllerKey @"kPSSVAssociatedBaseViewController"
 #define kPSSVAssociatedStackViewControllerKey @"kPSSVAssociatedStackViewController"
 
@@ -616,7 +616,7 @@
     container.autoresizingMask = UIViewAutoresizingFlexibleHeight; // width is not flexible!
     [container limitToMaxWidth:[self maxControllerWidth]];
     PSLog(@"container frame: %@", NSStringFromCGRect(container.frame));
-
+    
     // relay willAppear and add to subview
     [viewController viewWillAppear:animated];
     [self.view addSubview:container];
@@ -761,18 +761,29 @@
         if (overlappedVC) {
             UIViewController *rightVC = [self nextViewController:overlappedVC];
             PSLog(@"overlapping %@ with %@", NSStringFromCGRect(overlappedVC.containerView.frame), NSStringFromCGRect(rightVC.containerView.frame));
-            gridOffset = rightVC.containerView.left - overlappedVC.containerView.right;
             
             // if overlap destination is different, change sign
             NSUInteger overlapVCIndex = [self.viewControllers indexOfObject:overlappedVC];
-            if (self.firstVisibleIndex > overlapVCIndex) {
-                gridOffset *= -1;
+            if (self.firstVisibleIndex <= overlapVCIndex) {
+                gridOffset = rightVC.containerView.left - overlappedVC.containerView.right;
+            }else {
+                gridOffset = (overlappedVC.containerView.left - rightVC.containerView.left) * -1;
+            }
+        }
+        if (abs(gridOffset) < 1) {
+            // we don't overlap, we have a total index offset!
+            NSArray *visibleViewController = self.visibleViewControllers;
+            if ([visibleViewController count]) {
+                UIViewController *firstVisibleVC = [visibleViewController objectAtIndex:0];
+                NSUInteger currentFirstVisibleIndex = [self.viewControllers indexOfObject:firstVisibleVC];
+                if (self.firstVisibleIndex > currentFirstVisibleIndex) {
+                    gridOffset = firstVisibleVC.containerView.width * -1;
+                }else if(self.firstVisibleIndex < currentFirstVisibleIndex) {
+                    gridOffset = firstVisibleVC.containerView.width;                    
+                }
             }
         }
     }
-    
-//    UIViewController *overlappedVC = [self overlappedViewController];
-//    UIViewController *firstVisibleViewController = [self.visibleViewControllers objectAtIndex:0];
     
     PSLog(@"gridOffset: %f", gridOffset);
     return gridOffset;
@@ -790,32 +801,21 @@ enum {
 - (void)alignStackAnimated:(BOOL)animated duration:(CGFloat)duration bounceType:(PSSVBounceOption)bounce; {
     if (animated) {
         [UIView beginAnimations:@"kPSSVStackAnimation" context:[[NSNumber numberWithInt:bounce] retain]];
-//        [UIView setAnimationBeginsFromCurrentState:YES];
+        [UIView setAnimationBeginsFromCurrentState:YES];
         [UIView setAnimationDelegate:self];
         [UIView setAnimationDidStopSelector:@selector(bounceBack:finished:context:)];
         
         CGFloat gridOffset = [self gridOffsetByPixels];
-        
-        // calculate remaining duration based on distance of overlapping
-        UIViewController *overlappedVC = [self overlappedViewController];
-        if (overlappedVC) {
-            UIViewController *rightVC = [self nextViewController:overlappedVC];
-            PSLog(@"overlapping %@ with %@", NSStringFromCGRect(overlappedVC.containerView.frame), NSStringFromCGRect(rightVC.containerView.frame));
-            CGFloat overlappingRatio = (overlappedVC.containerView.right - rightVC.containerView.left)/(CGFloat)overlappedVC.containerView.width;
-            
-            // now we need to know in what direct we're snapping too
-            //if (lastDragOption_ == SVSnapOptionLeft) {
-            //    overlappingRatio = 1-overlappingRatio;
-            //}
-            //duration = duration * overlappingRatio;
-        }
-        
         [UIView setAnimationDuration:duration];
         
         if (bounce == PSSVBounceMoveToInitial) {
-            [UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
+            [UIView setAnimationCurve:UIViewAnimationCurveLinear];
             snapBackFromLeft_ = gridOffset < 0;
-
+            
+            // some magic numbers to better reflect movement time
+            duration = abs(gridOffset)/200.f * duration * 0.4f + duration * 0.6f;
+            [UIView setAnimationDuration:duration];
+            
         }else if(bounce == PSSVBounceBleedOver) {
             [UIView setAnimationCurve:UIViewAnimationCurveEaseOut];
         }
@@ -1104,8 +1104,6 @@ enum {
 
 // event relay
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration; {
-    lastVisibleIndexBeforeRotation_ = self.lastVisibleIndex;
-
     [rootViewController_ willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
     
     for (UIViewController *controller in self.viewControllers) {
@@ -1127,12 +1125,9 @@ enum {
 // event relay
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration; {
     [rootViewController_ willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-        
-    [self updateViewControllerSizes];
-    [self updateViewControllerMasksAndShadow];
     
-    // enlarge/shrinken stack
-    [self displayViewControllerIndexOnRightMost:lastVisibleIndexBeforeRotation_ animated:YES];
+    [self updateViewControllerSizes];
+    [self updateViewControllerMasksAndShadow];    
     
     // finally relay rotation events
     for (UIViewController *controller in self.viewControllers) {
