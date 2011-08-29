@@ -129,7 +129,15 @@
     if (indexPath.row == 0) {
         viewController = [[ExampleViewController1 alloc] initWithNibName:@"ExampleViewController1" bundle:nil];
         ((ExampleViewController1 *)viewController).indexNumber = [stackController.viewControllers count];
-    }else if(indexPath.row == 3) {        
+    }else if(indexPath.row == 1) {
+        viewController = [[ExampleViewController2 alloc] initWithStyle:UITableViewStylePlain];     
+        ((ExampleViewController2 *)viewController).indexNumber = [stackController.viewControllers count];
+    }else if(indexPath.row == 2) { // Twitter style
+        viewController = [[ExampleViewController1 alloc] initWithNibName:@"ExampleViewController1" bundle:nil];
+        ((ExampleViewController1 *)viewController).indexNumber = [stackController.viewControllers count];
+        viewController.view.width = roundf((self.view.width - stackController.leftInset)/2);
+    }
+    else if(indexPath.row == 3) {        
         [stackController collapseStack:1 animated:YES];
     }else if(indexPath.row == 4) { // right
         [stackController expandStack:1 animated:YES];
@@ -137,9 +145,6 @@
         while ([stackController.viewControllers count]) {
             [stackController popViewControllerAnimated:YES];
         }
-    }else {
-        viewController = [[ExampleViewController2 alloc] initWithStyle:UITableViewStylePlain];     
-        ((ExampleViewController2 *)viewController).indexNumber = [stackController.viewControllers count];
     }
     
     if (viewController) {
