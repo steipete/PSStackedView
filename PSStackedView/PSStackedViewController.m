@@ -836,6 +836,11 @@
     return gridOffset;
 }
 
+/// detect if last drag offset is large enough that we should make a snap animation
+- (BOOL)shouldSnapAnimate {
+    BOOL shouldSnapAnimate = abs(lastDragOffset_) > 10;
+    return shouldSnapAnimate;
+}
 
 // bouncing is a three-way operation
 enum {
@@ -856,7 +861,11 @@ enum {
         [UIView setAnimationDuration:duration];
         
         if (bounce == PSSVBounceMoveToInitial) {
-            [UIView setAnimationCurve:UIViewAnimationCurveLinear];
+            if (![self shouldSnapAnimate]) {
+                [UIView setAnimationCurve:UIViewAnimationCurveEaseInOut];
+            }else {
+                [UIView setAnimationCurve:UIViewAnimationCurveLinear];
+            }
             snapBackFromLeft_ = gridOffset < 0;
             
             // some magic numbers to better reflect movement time
@@ -876,7 +885,7 @@ enum {
     NSUInteger lastFullyVCIndex = [self.viewControllers indexOfObject:[self lastVisibleViewControllerCompletelyVisible:YES]];
     BOOL bounceAtVeryEnd = NO;
     
-    if (abs(lastDragOffset_) > 10 && bounce == PSSVBounceBleedOver) {
+    if ([self shouldSnapAnimate] && bounce == PSSVBounceBleedOver) {
         snapOverOffset = abs(lastDragOffset_ / 5.f);
         if (snapOverOffset > kPSSVMaxSnapOverOffset) {
             snapOverOffset = kPSSVMaxSnapOverOffset;
@@ -953,24 +962,26 @@ enum {
         return;
     }
     
-    CGFloat animationDuration = kPSSVStackAnimationBounceDuration/2.f;
-    switch (bounceOption) {
-        case PSSVBounceMoveToInitial: {
-            // bleed over now!
-            [self alignStackAnimated:YES duration:animationDuration bounceType:PSSVBounceBleedOver];
-        }break;
-        case PSSVBounceBleedOver: {
-            // now bounce back to origin
-            [self alignStackAnimated:YES duration:animationDuration bounceType:PSSVBounceBack];
-        }break;
-            
-            // we're done here
-        case PSSVBounceNone:
-        case PSSVBounceBack:
-        default: {
-            lastDragOffset_ = 0; // clear last drag offset for the animation
-            //[self removeAnimationBlockerView];
-        }break;
+    if ([self shouldSnapAnimate]) {
+        CGFloat animationDuration = kPSSVStackAnimationBounceDuration/2.f;
+        switch (bounceOption) {
+            case PSSVBounceMoveToInitial: {
+                // bleed over now!
+                [self alignStackAnimated:YES duration:animationDuration bounceType:PSSVBounceBleedOver];
+            }break;
+            case PSSVBounceBleedOver: {
+                // now bounce back to origin
+                [self alignStackAnimated:YES duration:animationDuration bounceType:PSSVBounceBack];
+            }break;
+                
+                // we're done here
+            case PSSVBounceNone:
+            case PSSVBounceBack:
+            default: {
+                lastDragOffset_ = 0; // clear last drag offset for the animation
+                //[self removeAnimationBlockerView];
+            }break;
+        }
     }
 }
 
