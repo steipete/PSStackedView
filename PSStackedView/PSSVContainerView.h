@@ -6,7 +6,6 @@
 //  Copyright 2011 Peter Steinberger. All rights reserved.
 //
 
-#import "PSStackedViewDelegate.h"
 #import <UIKit/UIKit.h>
 #import <QuartzCore/QuartzCore.h>
 

@@ -206,7 +206,7 @@
     // are we at the end?
     UIViewController *topViewController = [self topViewController];
     if (topViewController == [self lastVisibleViewControllerCompletelyVisible:YES]) {
-        if (minCommonWidth+[self minimalLeftInset] <= topViewController.containerView.right) {
+        if (minCommonWidth + [self minimalLeftInset] <= topViewController.containerView.right) {
             snapPointAvailableAfterOffset = NO;
         }
     }
@@ -228,6 +228,9 @@
 - (void)displayViewControllerIndexOnRightMost:(NSInteger)index animated:(BOOL)animated; {
     NSInteger indexOffset = index - self.lastVisibleIndex;
     if (indexOffset > 0 || (indexOffset == 0 && [self isMenuCollapsable])) {
+        if (self.isShowingFullMenu && [self isMenuCollapsable]) {
+            indexOffset--;
+        }
         [self collapseStack:indexOffset animated:animated];
     }else if(indexOffset >= 0) {
         [self expandStack:indexOffset animated:animated];
@@ -438,7 +441,7 @@
     for (UIViewController *vc in self.viewControllers) {
         NSInteger vcLeft = vc.containerView.left;
         if (minLeft < vcLeft) {
-            self.firstVisibleIndex = [self.viewControllers indexOfObject:vc]-1;
+            self.firstVisibleIndex = [self.viewControllers indexOfObject:vc] - 1;
             break;
         }
     }
@@ -483,7 +486,7 @@
                 lastDragDividedOne_ = NO;
             }
         }else {
-            offset = offset/2;            
+            offset = roundf(offset/2.f);
         }
     }
     [self moveStackWithOffset:offset animated:NO userDragging:YES];
@@ -597,12 +600,7 @@
         objc_setAssociatedObject(viewController, kPSSVAssociatedBaseViewControllerKey, baseViewController, OBJC_ASSOCIATION_ASSIGN); // associate weak
     }
     
-    PSLog(@"pushing with index %d on stack: %@ (animated: %d)", [self.viewControllers count], viewController, animated);
-    
-    if ([viewController respondsToSelector:@selector(stackableMaxWidth)]) {
-        viewController.view.width = [(UIViewController<PSStackedViewDelegate> *)viewController stackableMaxWidth];
-    }
-    
+    PSLog(@"pushing with index %d on stack: %@ (animated: %d)", [self.viewControllers count], viewController, animated);    
     viewController.view.height = PSIsLandscape() ? self.view.width : self.view.height;
     
     // Starting out in portrait, right side up, we see a 20 pixel gap (for status bar???)
@@ -746,6 +744,69 @@
  }
  }*/
 
+/// calculates all rects for current visibleIndex orientation
+- (NSArray *)rectsForControllers {
+    NSMutableArray *frames = [NSMutableArray array];
+    
+    // TODO: currently calculates *all* objects, should cache!
+    __block CGFloat widthTotal = 0.f;
+    [self.viewControllers enumerateObjectsWithOptions:0 usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        UIViewController *currentVC = (UIViewController *)obj;
+        CGFloat leftPos;
+        CGRect leftRect = idx > 0 ? [[frames objectAtIndex:idx-1] CGRectValue] : CGRectZero;
+        
+        widthTotal += currentVC.containerView.width;
+        if (idx <= self.firstVisibleIndex) {
+            
+            // collapsed = snap to menu, or to right border (if there's place)
+            CGFloat freeWidthLeft = 0.f;
+            if (widthTotal >= [self screenWidth]) {
+                freeWidthLeft = [self screenWidth] - [self minimalLeftInset];
+                for (int i = idx; i < [self.viewControllers count] && freeWidthLeft > 0.f; i++) {
+                    UIViewController *nextVC = [self.viewControllers objectAtIndex:i];
+                    freeWidthLeft -= nextVC.containerView.width;
+                }
+            }
+            leftPos =[self currentLeftInset] + MAX(freeWidthLeft, 0.f);
+        }else {
+            // connect vc to left vc's right!
+            leftPos = leftRect.origin.x + leftRect.size.width;
+        }
+        
+        CGRect currentRect = CGRectMake(leftPos, currentVC.containerView.origin.y,
+                                        currentVC.containerView.size.width, currentVC.containerView.size.height);
+        [frames addObject:[NSValue valueWithCGRect:currentRect]];
+    }];
+    
+    return frames;
+}
+
+/// calculates the specific rect
+- (CGRect)rectForControllerAtIndex:(NSUInteger)index {
+    NSArray *frames = [self rectsForControllers];
+    return [[frames objectAtIndex:index] CGRectValue];
+}
+
+
+/// moves a rect around, recalculates following rects
+- (NSArray *)modifiedRects:(NSArray *)frames newLeft:(CGFloat)newLeft index:(NSUInteger)index {
+    NSMutableArray *modifiedFrames = [NSMutableArray arrayWithArray:frames];
+    
+    CGRect prevFrame;
+    for (int i = index; i < [modifiedFrames count]; i++) {
+        CGRect vcFrame = [[modifiedFrames objectAtIndex:i] CGRectValue];
+        if (i == index) {
+            vcFrame.origin.x = newLeft;
+        }else {
+            vcFrame.origin.x = prevFrame.origin.x + prevFrame.size.width;
+        }
+        [modifiedFrames replaceObjectAtIndex:i withObject:[NSValue valueWithCGRect:vcFrame]];
+        prevFrame = vcFrame;
+    }
+    
+    return modifiedFrames;
+}
+
 // returns +/- amount if grid is not aligned correctly
 // + if view is too far on the right, - if too far on the left
 - (CGFloat)gridOffsetByPixels {
@@ -757,32 +818,18 @@
     if (firstVCLeft > [self currentLeftInset] || firstVCLeft < [self currentLeftInset]) {
         gridOffset = firstVCLeft - [self currentLeftInset];
     }else {
+        NSUInteger targetIndex = self.firstVisibleIndex; // default, abs(gridOffset) < 1
+        
         UIViewController *overlappedVC = [self overlappedViewController];
         if (overlappedVC) {
             UIViewController *rightVC = [self nextViewController:overlappedVC];
+            targetIndex = [self.viewControllers indexOfObject:rightVC];
             PSLog(@"overlapping %@ with %@", NSStringFromCGRect(overlappedVC.containerView.frame), NSStringFromCGRect(rightVC.containerView.frame));
-            
-            // if overlap destination is different, change sign
-            NSUInteger overlapVCIndex = [self.viewControllers indexOfObject:overlappedVC];
-            if (self.firstVisibleIndex <= overlapVCIndex) {
-                gridOffset = rightVC.containerView.left - overlappedVC.containerView.right;
-            }else {
-                gridOffset = (overlappedVC.containerView.left - rightVC.containerView.left) * -1;
-            }
         }
-        if (abs(gridOffset) < 1) {
-            // we don't overlap, we have a total index offset!
-            NSArray *visibleViewController = self.visibleViewControllers;
-            if ([visibleViewController count]) {
-                UIViewController *firstVisibleVC = [visibleViewController objectAtIndex:0];
-                NSUInteger currentFirstVisibleIndex = [self.viewControllers indexOfObject:firstVisibleVC];
-                if (self.firstVisibleIndex > currentFirstVisibleIndex) {
-                    gridOffset = firstVisibleVC.containerView.width * -1;
-                }else if(self.firstVisibleIndex < currentFirstVisibleIndex) {
-                    gridOffset = firstVisibleVC.containerView.width;                    
-                }
-            }
-        }
+        
+        UIViewController *targetVCController = [self.viewControllers objectAtIndex:targetIndex];
+        CGRect targetVCFrame = [self rectForControllerAtIndex:targetIndex];
+        gridOffset = targetVCFrame.origin.x - targetVCController.containerView.left;
     }
     
     PSLog(@"gridOffset: %f", gridOffset);
@@ -852,29 +899,23 @@ enum {
     }
     
     // iterate over all view controllers and snap them to their correct positions
+    __block NSArray *frames = [self rectsForControllers];
     [self.viewControllers enumerateObjectsWithOptions:0 usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         UIViewController *currentVC = (UIViewController *)obj;
-        UIViewController *leftVC = [self previousViewController:currentVC];
-        
-        if (idx <= self.firstVisibleIndex) {
-            // collapsed = snap to menu
-            currentVC.containerView.left = [self currentLeftInset];
-        }else {
-            // connect vc to left vc's right!
-            currentVC.containerView.left = leftVC.containerView.right;
-        }
+        CGRect currentFrame = [[frames objectAtIndex:idx] CGRectValue];
+
+        currentVC.containerView.left = currentFrame.origin.x;
         
         // menu drag to right case or swiping last vc towards menu
         if (bounceAtVeryEnd) {
             if (idx == firstVisibleIndex) {
-                currentVC.containerView.left += snapOverOffset;
+                frames = [self modifiedRects:frames newLeft:currentVC.containerView.left + snapOverOffset index:idx];
             }
         }
         // snap the leftmost view controller
-        else if (snapOverOffset > 0 && idx == firstVisibleIndex) {
-            currentVC.containerView.left += snapOverOffset;
-        }else if(snapOverOffset < 0 && (idx == firstVisibleIndex+1 || [self.viewControllers count] == 1)) {
-            currentVC.containerView.left += snapOverOffset;
+        else if ((snapOverOffset > 0 && idx == firstVisibleIndex) || (snapOverOffset < 0 && (idx == firstVisibleIndex+1))
+                 || [self.viewControllers count] == 1) {
+            frames = [self modifiedRects:frames newLeft:currentVC.containerView.left + snapOverOffset index:idx];
         }
     }];
     
@@ -1104,6 +1145,8 @@ enum {
 
 // event relay
 - (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration; {
+    lastVisibleIndexBeforeRotation_ = self.lastVisibleIndex;
+    
     [rootViewController_ willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
     
     for (UIViewController *controller in self.viewControllers) {
@@ -1128,6 +1171,9 @@ enum {
     
     [self updateViewControllerSizes];
     [self updateViewControllerMasksAndShadow];    
+    
+    // enlarge/shrinken stack
+    [self displayViewControllerIndexOnRightMost:lastVisibleIndexBeforeRotation_ animated:YES];
     
     // finally relay rotation events
     for (UIViewController *controller in self.viewControllers) {
