@@ -1201,7 +1201,7 @@ enum {
 #pragma mark - UIGestureRecognizerDelegate
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
-    if ([touch.view isKindOfClass:[UISlider class]]) {
+    if ([touch.view isKindOfClass:[UIControl class]]) {
         // prevent recognizing touches on the slider
         return NO;
     }
