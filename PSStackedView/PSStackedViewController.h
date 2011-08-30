@@ -24,6 +24,7 @@ enum {
 /// StackController hosing a backside rootViewController and the stacked controllers
 @interface PSStackedViewController : UIViewController {
     UIViewController *rootViewController_;
+    UIPanGestureRecognizer *panRecognizer_;
     
     // properites
     NSUInteger leftInset_;

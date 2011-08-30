@@ -42,12 +42,11 @@
 @end
 
 @interface PSStackedViewController() <UIGestureRecognizerDelegate> 
-
-@property (nonatomic, retain) UIViewController *rootViewController;
+@property(nonatomic, retain) UIViewController *rootViewController;
+@property(nonatomic, retain) UIPanGestureRecognizer *panRecognizer;
 @property(nonatomic, assign) NSMutableArray* viewControllers;
 @property(nonatomic, assign) NSInteger firstVisibleIndex;
 @property(nonatomic, assign, getter=isShowingFullMenu) BOOL showingFullMenu;
-
 @end
 
 @implementation PSStackedViewController
@@ -58,6 +57,7 @@
 @synthesize showingFullMenu  = showingFullMenu_;
 @synthesize firstVisibleIndex = firstVisibleIndex_;
 @synthesize rootViewController = rootViewController_;
+@synthesize panRecognizer = panRecognizer_;
 #ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
 @synthesize navigationBar;
 #endif
@@ -79,9 +79,11 @@
         UIPanGestureRecognizer *panRecognizer = [[[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanFrom:)] autorelease];
         [panRecognizer setMaximumNumberOfTouches:1];
         [panRecognizer setDelaysTouchesBegan:NO];
-        [panRecognizer setDelaysTouchesEnded:NO];
+        [panRecognizer setDelaysTouchesEnded:YES];
         [panRecognizer setCancelsTouchesInView:YES];
+        panRecognizer.delegate = self;
         [self.view addGestureRecognizer:panRecognizer];
+        self.panRecognizer = panRecognizer;
         
 #ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
         PSLog("Swizzling UIViewController.navigationController");
@@ -94,11 +96,13 @@
 }
 
 - (void)dealloc {
+    panRecognizer_.delegate = nil;
     // remove all view controllers the hard way
     while ([self.viewControllers count]) {
         [self popViewControllerAnimated:NO];
     }
     
+    [panRecognizer_ release];
     [rootViewController_ release];
     [viewControllers_ release];
     [super dealloc];
@@ -1190,6 +1194,18 @@ enum {
     for (UIViewController *controller in self.viewControllers) {
         [controller willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
     }
+}
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark - UIGestureRecognizerDelegate
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
+    if ([touch.view isKindOfClass:[UISlider class]]) {
+        // prevent recognizing touches on the slider
+        return NO;
+    }
+    return YES;
 }
 
 @end
