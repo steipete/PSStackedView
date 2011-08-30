@@ -11,7 +11,8 @@
 #import "UIView+PSSizes.h"
 
 #define kPSSVCornerRadius 6.f
-#define kPSSVShadowWidth 80.f
+#define kPSSVShadowWidth 60.f
+#define kPSSVShadowAlpha 0.5f
 
 @interface PSSVContainerView ()
 @property(nonatomic, assign) CGFloat originalWidth;
@@ -37,7 +38,7 @@
 	CAGradientLayer *newShadow = [[[CAGradientLayer alloc] init] autorelease];
     newShadow.startPoint = CGPointMake(0, 0.5);
     newShadow.endPoint = CGPointMake(1.0, 0.5);
-	CGColorRef darkColor  = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:0.3].CGColor;
+	CGColorRef darkColor  = [UIColor colorWithWhite:0.0f alpha:kPSSVShadowAlpha].CGColor;
 	CGColorRef lightColor = [UIColor clearColor].CGColor;
 	newShadow.colors = [NSArray arrayWithObjects:
                         (id)(inverse ? lightColor : darkColor),
@@ -183,11 +184,10 @@
     
     if (sides) {
         if (!self.innerShadowLayer) {
-            
             CAGradientLayer *innerShadow = [[[CAGradientLayer alloc] init] autorelease];
             CGRect newShadowFrame = CGRectMake(kPSSVCornerRadius, 0, self.width-kPSSVCornerRadius*2, self.controller.view.height);
             innerShadow.frame = newShadowFrame;
-            CGColorRef darkColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:0.5].CGColor;
+            CGColorRef darkColor = [UIColor colorWithWhite:0.0f alpha:kPSSVShadowAlpha].CGColor;
             innerShadow.colors = [NSArray arrayWithObjects:(id)darkColor, (id)darkColor, nil];
             self.innerShadowLayer = innerShadow;
         }
