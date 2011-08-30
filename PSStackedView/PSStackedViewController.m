@@ -80,7 +80,7 @@
         [panRecognizer setMaximumNumberOfTouches:1];
         [panRecognizer setDelaysTouchesBegan:NO];
         [panRecognizer setDelaysTouchesEnded:NO];
-        [panRecognizer setCancelsTouchesInView:NO];
+        [panRecognizer setCancelsTouchesInView:YES];
         [self.view addGestureRecognizer:panRecognizer];
         
 #ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
