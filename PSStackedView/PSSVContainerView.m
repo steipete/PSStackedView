@@ -187,7 +187,7 @@
             CAGradientLayer *innerShadow = [[[CAGradientLayer alloc] init] autorelease];
             CGRect newShadowFrame = CGRectMake(kPSSVCornerRadius, 0, self.width-kPSSVCornerRadius*2, self.controller.view.height);
             innerShadow.frame = newShadowFrame;
-            CGColorRef darkColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:0.3].CGColor;
+            CGColorRef darkColor = [UIColor colorWithRed:0.0 green:0.0 blue:0.0 alpha:0.5].CGColor;
             innerShadow.colors = [NSArray arrayWithObjects:(id)darkColor, (id)darkColor, nil];
             self.innerShadowLayer = innerShadow;
         }
