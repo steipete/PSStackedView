@@ -99,6 +99,9 @@ enum {
 /// array of all current view controllers, sorted
 @property(nonatomic, assign, readonly) NSArray *viewControllers;
 
+/// pangesture recognizer used
+@property(nonatomic, retain) UIPanGestureRecognizer *panRecognizer;
+
 /// toggle full menu / small menu
 @property(nonatomic, assign, getter=isShowingFullMenu, readonly) BOOL showingFullMenu;
 

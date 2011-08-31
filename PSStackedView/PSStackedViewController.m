@@ -43,7 +43,6 @@
 
 @interface PSStackedViewController() <UIGestureRecognizerDelegate> 
 @property(nonatomic, retain) UIViewController *rootViewController;
-@property(nonatomic, retain) UIPanGestureRecognizer *panRecognizer;
 @property(nonatomic, assign) NSMutableArray* viewControllers;
 @property(nonatomic, assign) NSInteger firstVisibleIndex;
 @property(nonatomic, assign, getter=isShowingFullMenu) BOOL showingFullMenu;
