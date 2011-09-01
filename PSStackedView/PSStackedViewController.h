@@ -80,6 +80,9 @@ enum {
 /// expands/collapses stack until entered index is topmost right
 - (void)displayViewControllerIndexOnRightMost:(NSInteger)index animated:(BOOL)animated;
 
+/// expands/collapses stack until entered controller is topmost right
+- (void)displayViewControllerOnRightMost:(UIViewController *)vc animated:(BOOL)animated;
+
 /// The top(last) view controller on the stack.
 @property(nonatomic, readonly, retain) UIViewController *topViewController;
 /// first view controller

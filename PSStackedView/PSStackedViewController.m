@@ -227,6 +227,10 @@
     return snapPointAvailableAfterOffset;
 }
 
+- (void)displayViewControllerOnRightMost:(UIViewController *)vc animated:(BOOL)animated; {
+    [self displayViewControllerIndexOnRightMost:[self.viewControllers indexOfObject:vc] animated:animated];
+}
+
 // ensures index is on rightmost position
 - (void)displayViewControllerIndexOnRightMost:(NSInteger)index animated:(BOOL)animated; {
     NSInteger indexOffset = index - self.lastVisibleIndex;
@@ -374,7 +378,7 @@
     //[self.view.layer removeAllAnimations];
     [self.viewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         UIViewController *vc = (UIViewController *)obj;
-        CGRect currentPos = [[vc.containerView.layer presentationLayer] frame];
+        //CGRect currentPos = [[vc.containerView.layer presentationLayer] frame];
         [vc.containerView.layer removeAllAnimations];
         //PSLog(@"Old: %@ New: %@", NSStringFromCGRect(vc.containerView.frame), NSStringFromCGRect(currentPos));
         //        vc.containerView.frame = currentPos;
