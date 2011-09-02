@@ -14,7 +14,7 @@
 
 #define kPSSVStackAnimationSpeedModifier 1.f // DEBUG!
 #define kPSSVStackAnimationDuration kPSSVStackAnimationSpeedModifier * 0.25f
-#define kPSSVStackAnimationBounceDuration kPSSVStackAnimationSpeedModifier * 0.15f
+#define kPSSVStackAnimationBounceDuration kPSSVStackAnimationSpeedModifier * 0.22f
 #define kPSSVStackAnimationPopDuration kPSSVStackAnimationSpeedModifier * 0.15f
 #define kPSSVMaxSnapOverOffset 12
 #define kPSSVAssociatedBaseViewControllerKey @"kPSSVAssociatedBaseViewController"
@@ -774,7 +774,7 @@
                     freeWidthLeft -= nextVC.containerView.width;
                 }
             }
-            leftPos =[self currentLeftInset] + MAX(freeWidthLeft, 0.f);
+            leftPos = [self currentLeftInset] + MAX(freeWidthLeft, 0.f);
         }else {
             // connect vc to left vc's right!
             leftPos = leftRect.origin.x + leftRect.size.width;
@@ -836,7 +836,7 @@
         
         UIViewController *targetVCController = [self.viewControllers objectAtIndex:targetIndex];
         CGRect targetVCFrame = [self rectForControllerAtIndex:targetIndex];
-        gridOffset = targetVCFrame.origin.x - targetVCController.containerView.left;
+        gridOffset = targetVCController.containerView.left - targetVCFrame.origin.x;
     }
     
     PSLog(@"gridOffset: %f", gridOffset);
@@ -907,7 +907,7 @@ enum {
         CGFloat firstVCLeft = self.firstViewController.containerView.left;
         if (firstVisibleIndex == 0 && !snapBackFromLeft_ && firstVCLeft >= self.largeLeftInset) {
             bounceAtVeryEnd = YES;
-        }else if(lastFullyVCIndex == [self.viewControllers count]-1 && snapBackFromLeft_ && lastFullyVCIndex > 0) {
+        }else if(lastFullyVCIndex == [self.viewControllers count]-1 && lastFullyVCIndex > 0) { //&& snapBackFromLeft_ 
             bounceAtVeryEnd = YES;
         }
         
@@ -918,10 +918,10 @@ enum {
     __block NSArray *frames = [self rectsForControllers];
     [self.viewControllers enumerateObjectsWithOptions:0 usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         UIViewController *currentVC = (UIViewController *)obj;
-        CGRect currentFrame = [[frames objectAtIndex:idx] CGRectValue];
-
-        currentVC.containerView.left = currentFrame.origin.x;
         
+        CGRect currentFrame = [[frames objectAtIndex:idx] CGRectValue];
+        currentVC.containerView.left = currentFrame.origin.x;
+
         // menu drag to right case or swiping last vc towards menu
         if (bounceAtVeryEnd) {
             if (idx == firstVisibleIndex) {
@@ -933,6 +933,10 @@ enum {
                  || [self.viewControllers count] == 1) {
             frames = [self modifiedRects:frames newLeft:currentVC.containerView.left + snapOverOffset index:idx];
         }
+        
+        // set again (maybe changed)
+        currentFrame = [[frames objectAtIndex:idx] CGRectValue];
+        currentVC.containerView.left = currentFrame.origin.x;
     }];
     
     if (animated) {
