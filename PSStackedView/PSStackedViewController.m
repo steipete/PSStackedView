@@ -199,12 +199,76 @@
 }
 
 
+/// calculates all rects for current visibleIndex orientation
+- (NSArray *)rectsForControllers {
+    NSMutableArray *frames = [NSMutableArray array];
+    
+    // TODO: currently calculates *all* objects, should cache!
+    __block CGFloat widthTotal = 0.f;
+    [self.viewControllers enumerateObjectsWithOptions:0 usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        UIViewController *currentVC = (UIViewController *)obj;
+        CGFloat leftPos;
+        CGRect leftRect = idx > 0 ? [[frames objectAtIndex:idx-1] CGRectValue] : CGRectZero;
+        
+        widthTotal += currentVC.containerView.width;
+        if (idx <= self.firstVisibleIndex) {
+            
+            // collapsed = snap to menu, or to right border (if there's place)
+            CGFloat freeWidthLeft = 0.f;
+            if (widthTotal >= [self screenWidth]) {
+                freeWidthLeft = [self screenWidth] - [self minimalLeftInset];
+                for (int i = idx; i < [self.viewControllers count] && freeWidthLeft > 0.f; i++) {
+                    UIViewController *nextVC = [self.viewControllers objectAtIndex:i];
+                    freeWidthLeft -= nextVC.containerView.width;
+                }
+            }
+            leftPos = [self currentLeftInset] + MAX(freeWidthLeft, 0.f);
+        }else {
+            // connect vc to left vc's right!
+            leftPos = leftRect.origin.x + leftRect.size.width;
+        }
+        
+        CGRect currentRect = CGRectMake(leftPos, currentVC.containerView.origin.y,
+                                        currentVC.containerView.size.width, currentVC.containerView.size.height);
+        [frames addObject:[NSValue valueWithCGRect:currentRect]];
+    }];
+    
+    return frames;
+}
+
+/// calculates the specific rect
+- (CGRect)rectForControllerAtIndex:(NSUInteger)index {
+    NSArray *frames = [self rectsForControllers];
+    return [[frames objectAtIndex:index] CGRectValue];
+}
+
+
+/// moves a rect around, recalculates following rects
+- (NSArray *)modifiedRects:(NSArray *)frames newLeft:(CGFloat)newLeft index:(NSUInteger)index {
+    NSMutableArray *modifiedFrames = [NSMutableArray arrayWithArray:frames];
+    
+    CGRect prevFrame;
+    for (int i = index; i < [modifiedFrames count]; i++) {
+        CGRect vcFrame = [[modifiedFrames objectAtIndex:i] CGRectValue];
+        if (i == index) {
+            vcFrame.origin.x = newLeft;
+        }else {
+            vcFrame.origin.x = prevFrame.origin.x + prevFrame.size.width;
+        }
+        [modifiedFrames replaceObjectAtIndex:i withObject:[NSValue valueWithCGRect:vcFrame]];
+        prevFrame = vcFrame;
+    }
+    
+    return modifiedFrames;
+}
+
 // at some point, dragging does not make any more sense
 - (BOOL)snapPointAvailableAfterOffset:(NSInteger)offset {
     BOOL snapPointAvailableAfterOffset = YES;
     NSUInteger screenWidth = [self screenWidth];
     NSUInteger totalWidth = [self totalStackWidth];
     NSUInteger minCommonWidth = MIN(screenWidth, totalWidth);
+//    NSArray *frames = [self rectsForControllers];
     
     // are we at the end?
     UIViewController *topViewController = [self topViewController];
@@ -444,14 +508,25 @@
     NSUInteger oldFirstVisibleIndex = self.firstVisibleIndex;
 #endif
     
+    NSUInteger newFirstVisibleIndex;
     NSInteger minLeft = [self firstViewController].containerView.left;
     for (UIViewController *vc in self.viewControllers) {
         NSInteger vcLeft = vc.containerView.left;
         if (minLeft < vcLeft) {
-            self.firstVisibleIndex = [self.viewControllers indexOfObject:vc] - 1;
+            newFirstVisibleIndex = [self.viewControllers indexOfObject:vc] - 1;
             break;
         }
     }
+    
+    // special case, if we have overlapping controllers!
+    // in this case underlying controllers are visible, but they are overlapped by another controller
+    //NSArray *frames = [self rectsForControllers];
+    UIViewController *lastViewController = [self lastVisibleViewControllerCompletelyVisible:YES];
+    if (lastViewController.containerView.right <= [self screenWidth]) {
+        newFirstVisibleIndex = [self.viewControllers indexOfObject:lastViewController];
+    }
+    
+    self.firstVisibleIndex = newFirstVisibleIndex;
     
     // don't get all too excited about the new index - it may be wrong! (e.g. too high stacking)
     [self checkAndDecreaseFirstVisibleIndexIfPossible];
@@ -751,69 +826,6 @@
  }
  }*/
 
-/// calculates all rects for current visibleIndex orientation
-- (NSArray *)rectsForControllers {
-    NSMutableArray *frames = [NSMutableArray array];
-    
-    // TODO: currently calculates *all* objects, should cache!
-    __block CGFloat widthTotal = 0.f;
-    [self.viewControllers enumerateObjectsWithOptions:0 usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-        UIViewController *currentVC = (UIViewController *)obj;
-        CGFloat leftPos;
-        CGRect leftRect = idx > 0 ? [[frames objectAtIndex:idx-1] CGRectValue] : CGRectZero;
-        
-        widthTotal += currentVC.containerView.width;
-        if (idx <= self.firstVisibleIndex) {
-            
-            // collapsed = snap to menu, or to right border (if there's place)
-            CGFloat freeWidthLeft = 0.f;
-            if (widthTotal >= [self screenWidth]) {
-                freeWidthLeft = [self screenWidth] - [self minimalLeftInset];
-                for (int i = idx; i < [self.viewControllers count] && freeWidthLeft > 0.f; i++) {
-                    UIViewController *nextVC = [self.viewControllers objectAtIndex:i];
-                    freeWidthLeft -= nextVC.containerView.width;
-                }
-            }
-            leftPos = [self currentLeftInset] + MAX(freeWidthLeft, 0.f);
-        }else {
-            // connect vc to left vc's right!
-            leftPos = leftRect.origin.x + leftRect.size.width;
-        }
-        
-        CGRect currentRect = CGRectMake(leftPos, currentVC.containerView.origin.y,
-                                        currentVC.containerView.size.width, currentVC.containerView.size.height);
-        [frames addObject:[NSValue valueWithCGRect:currentRect]];
-    }];
-    
-    return frames;
-}
-
-/// calculates the specific rect
-- (CGRect)rectForControllerAtIndex:(NSUInteger)index {
-    NSArray *frames = [self rectsForControllers];
-    return [[frames objectAtIndex:index] CGRectValue];
-}
-
-
-/// moves a rect around, recalculates following rects
-- (NSArray *)modifiedRects:(NSArray *)frames newLeft:(CGFloat)newLeft index:(NSUInteger)index {
-    NSMutableArray *modifiedFrames = [NSMutableArray arrayWithArray:frames];
-    
-    CGRect prevFrame;
-    for (int i = index; i < [modifiedFrames count]; i++) {
-        CGRect vcFrame = [[modifiedFrames objectAtIndex:i] CGRectValue];
-        if (i == index) {
-            vcFrame.origin.x = newLeft;
-        }else {
-            vcFrame.origin.x = prevFrame.origin.x + prevFrame.size.width;
-        }
-        [modifiedFrames replaceObjectAtIndex:i withObject:[NSValue valueWithCGRect:vcFrame]];
-        prevFrame = vcFrame;
-    }
-    
-    return modifiedFrames;
-}
-
 // returns +/- amount if grid is not aligned correctly
 // + if view is too far on the right, - if too far on the left
 - (CGFloat)gridOffsetByPixels {
@@ -908,6 +920,7 @@ enum {
         if (firstVisibleIndex == 0 && !snapBackFromLeft_ && firstVCLeft >= self.largeLeftInset) {
             bounceAtVeryEnd = YES;
         }else if(lastFullyVCIndex == [self.viewControllers count]-1 && lastFullyVCIndex > 0) { //&& snapBackFromLeft_ 
+            
             bounceAtVeryEnd = YES;
         }
         
