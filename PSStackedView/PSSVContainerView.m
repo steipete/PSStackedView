@@ -79,6 +79,7 @@
         transparentView_.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         transparentView_.backgroundColor = [UIColor blackColor];
         transparentView_.alpha = 0.f;
+        transparentView_.userInteractionEnabled = NO;
         [self addSubview:transparentView_];
     }
     return self;
