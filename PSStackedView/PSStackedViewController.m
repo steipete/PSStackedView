@@ -14,11 +14,14 @@
 
 #define kPSSVStackAnimationSpeedModifier 1.f // DEBUG!
 #define kPSSVStackAnimationDuration kPSSVStackAnimationSpeedModifier * 0.25f
-#define kPSSVStackAnimationBounceDuration kPSSVStackAnimationSpeedModifier * 0.22f
+#define kPSSVStackAnimationBounceDuration kPSSVStackAnimationSpeedModifier * 0.20f
 #define kPSSVStackAnimationPopDuration kPSSVStackAnimationSpeedModifier * 0.15f
-#define kPSSVMaxSnapOverOffset 12
+#define kPSSVMaxSnapOverOffset 20
 #define kPSSVAssociatedBaseViewControllerKey @"kPSSVAssociatedBaseViewController"
 #define kPSSVAssociatedStackViewControllerKey @"kPSSVAssociatedStackViewController"
+
+// reduces alpha over overlapped view controllers. 1.f would totally black-out on complete overlay
+#define kAlphaReductRatio 1.7f
 
 @implementation UIViewController (PSStackedViewAdditions)
 
@@ -46,6 +49,7 @@
 @property(nonatomic, assign) NSMutableArray* viewControllers;
 @property(nonatomic, assign) NSInteger firstVisibleIndex;
 @property(nonatomic, assign, getter=isShowingFullMenu) BOOL showingFullMenu;
+- (UIViewController *)overlappedViewController;
 @end
 
 @implementation PSStackedViewController
@@ -357,7 +361,6 @@
         }
     }
     
-    
     // only one!
     if ([self.viewControllers count] == 1) {
         //    [[self firstViewController].containerView addMaskToCorners:UIRectCornerAllCorners];
@@ -377,6 +380,22 @@
                 [vc.containerView addShadowToSides:PSSVSideLeft | PSSVSideRight];
             }
         }];
+    }
+        
+    // update alpha mask
+    UIViewController *overlappedVC = [self overlappedViewController];
+    if (overlappedVC) {
+        UIViewController *rightVC = [self nextViewController:overlappedVC];
+        PSLog(@"overlapping %@ with %@", NSStringFromCGRect(overlappedVC.containerView.frame), NSStringFromCGRect(rightVC.containerView.frame));
+
+        CGFloat overlapRatio = abs(overlappedVC.containerView.right - rightVC.containerView.left)/(CGFloat)overlappedVC.containerView.width;
+        overlappedVC.containerView.darkRatio = overlapRatio/kAlphaReductRatio;
+    }
+    // reset alpha ratio everywhere else
+    for (UIViewController *vc in self.viewControllers) {
+        if (vc != overlappedVC) {
+            vc.containerView.darkRatio = 0.0f;
+        }
     }
 }
 
@@ -503,6 +522,8 @@
         isTopViewController = NO; // there can only be one.
     }];
     
+    [self updateViewControllerMasksAndShadow];
+    
     // update firstVisibleIndex
 #ifdef kPSSVStackedViewKitDebugEnabled
     NSUInteger oldFirstVisibleIndex = self.firstVisibleIndex;
@@ -517,15 +538,12 @@
             break;
         }
     }
-    
     // special case, if we have overlapping controllers!
     // in this case underlying controllers are visible, but they are overlapped by another controller
-    //NSArray *frames = [self rectsForControllers];
     UIViewController *lastViewController = [self lastVisibleViewControllerCompletelyVisible:YES];
     if (lastViewController.containerView.right <= [self screenWidth]) {
         newFirstVisibleIndex = [self.viewControllers indexOfObject:lastViewController];
-    }
-    
+    }    
     self.firstVisibleIndex = newFirstVisibleIndex;
     
     // don't get all too excited about the new index - it may be wrong! (e.g. too high stacking)
@@ -951,6 +969,8 @@ enum {
         currentFrame = [[frames objectAtIndex:idx] CGRectValue];
         currentVC.containerView.left = currentFrame.origin.x;
     }];
+    
+    [self updateViewControllerMasksAndShadow];
     
     if (animated) {
         [UIView commitAnimations];

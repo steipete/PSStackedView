@@ -19,6 +19,7 @@
 @property(nonatomic, retain) CAGradientLayer *leftShadowLayer;
 @property(nonatomic, retain) CAGradientLayer *innerShadowLayer;
 @property(nonatomic, retain) CAGradientLayer *rightShadowLayer;
+@property(nonatomic, retain) UIView *transparentView;
 @end
 
 @implementation PSSVContainerView
@@ -28,6 +29,7 @@
 @synthesize leftShadowLayer = leftShadowLayer_;
 @synthesize innerShadowLayer = innerShadowLayer_;
 @synthesize rightShadowLayer = rightShadowLayer_;
+@synthesize transparentView = transparentView_;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
@@ -71,6 +73,17 @@
     return view;
 }
 
+- (id)initWithFrame:(CGRect)frame {
+    if ((self = [super initWithFrame:frame])) {
+        transparentView_ = [[UIView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
+        transparentView_.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        transparentView_.backgroundColor = [UIColor blackColor];
+        transparentView_.alpha = 0.f;
+        [self addSubview:transparentView_];
+    }
+    return self;
+}
+
 - (void)dealloc {
     //PSLog(@"removing mask/shadow from %@", self.controller);
     [self removeMask];
@@ -78,6 +91,7 @@
     [leftShadowLayer_ release];
     [innerShadowLayer_ release];
     [rightShadowLayer_ release];
+    [transparentView_ release];
     [controller_ release];
     [super dealloc];
 }
@@ -123,6 +137,7 @@
         controller_.view.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth; 
         controller_.view.frame = CGRectMake(0, 0, controller_.view.width, controller_.view.height);
         [self addSubview:controller_.view];
+        [self bringSubviewToFront:transparentView_];
     }
 }
 
@@ -202,6 +217,14 @@
 - (void)removeShadow; {
     [self.leftShadowLayer removeFromSuperlayer];
     [self.rightShadowLayer removeFromSuperlayer];
+}
+
+- (void)setDarkRatio:(CGFloat)darkRatio {
+    transparentView_.alpha = darkRatio;
+}
+
+- (CGFloat)darkRatio {
+    return transparentView_.alpha;
 }
 
 @end

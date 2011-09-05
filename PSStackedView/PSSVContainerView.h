@@ -16,6 +16,7 @@ enum {
 
 
 @interface PSSVContainerView : UIView {
+    UIView *transparentView_;
     CGFloat originalWidth_;
     UIViewController *controller_;
     CAGradientLayer *leftShadowLayer_;
@@ -35,5 +36,8 @@ enum {
 - (void)removeShadow;
 
 @property(nonatomic, retain) UIViewController *controller;
+
+/// darken down the view if it's not fully visible
+@property(nonatomic, assign) CGFloat darkRatio;
 
 @end
