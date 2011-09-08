@@ -21,7 +21,7 @@
 #define kPSSVAssociatedStackViewControllerKey @"kPSSVAssociatedStackViewController"
 
 // reduces alpha over overlapped view controllers. 1.f would totally black-out on complete overlay
-#define kAlphaReductRatio 1.7f
+#define kAlphaReductRatio 2.f
 
 @implementation UIViewController (PSStackedViewAdditions)
 
