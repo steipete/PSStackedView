@@ -86,7 +86,7 @@
 }
 
 - (void)dealloc {
-    //PSLog(@"removing mask/shadow from %@", self.controller);
+    //PSSVLog(@"removing mask/shadow from %@", self.controller);
     [self removeMask];
     [self removeShadow];
     [leftShadowLayer_ release];
