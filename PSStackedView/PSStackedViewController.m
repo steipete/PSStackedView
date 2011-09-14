@@ -982,16 +982,8 @@ enum {
          *   1) scroll to correct position
          *   2) bleed over
          *   3) snap back to correct position
-         */
-        
-        // animation was stopped
-        if (!finished) {
-            PSSVLog(@"animation didn't finish, stopping here at bounce option: %d", bounce);
-            //[self removeAnimationBlockerView];
-            return;
-        }
-        
-        if ([self shouldSnapAnimate]) {
+         */        
+        if (finished && [self shouldSnapAnimate]) {
             CGFloat animationDuration = kPSSVStackAnimationBounceDuration/2.f;
             switch (bounce) {
                 case PSSVBounceMoveToInitial: {
