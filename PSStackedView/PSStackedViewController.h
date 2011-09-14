@@ -62,6 +62,9 @@ enum {
 /// removes all view controller
 - (NSArray *)popToRootViewControllerAnimated:(BOOL)animated;
 
+/// return all controllers of certain class
+- (NSArray *)controllersForClass:(Class)theClass;
+
 /// can we collapse (= hide) view controllers? Only collapses until screen width is used
 - (NSUInteger)canCollapseStack;
 
