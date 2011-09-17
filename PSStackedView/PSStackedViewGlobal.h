@@ -8,6 +8,13 @@
 
 #import "UIView+PSSizes.h"
 
+// Swizzles UIViewController's navigationController property. DANGER, WILL ROBINSON!
+// Only swizzles if a PSStackedViewRootController is created, and also works in peaceful
+// coexistance to UINavigationController.
+//#define ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
+
+#define kPSSVAssociatedStackViewControllerKey @"kPSSVAssociatedStackViewController"
+
 enum {
     PSSVLogLevelNothing,
     PSSVLogLevelError,    

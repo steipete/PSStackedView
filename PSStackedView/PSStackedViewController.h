@@ -7,12 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "PSStackedViewGlobal.h"
 #import "PSStackedViewDelegate.h"
-
-// Swizzles UIViewController's navigationController property. DANGER, WILL ROBINSON!
-// Only swizzles if a PSStackedViewRootController is created, and also works in peaceful
-// coexistance to UINavigationController.
-//#define ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
 
 /// grid snapping options
 enum {
@@ -23,6 +19,7 @@ enum {
 
 /// StackController hosing a backside rootViewController and the stacked controllers
 @interface PSStackedViewController : UIViewController {
+    id<PSStackedViewDelegate> delegate_;
     UIViewController *rootViewController_;
     UIPanGestureRecognizer *panRecognizer_;
     
@@ -41,6 +38,13 @@ enum {
     NSInteger lastDragOffset_;
     BOOL lastDragDividedOne_;
     NSInteger lastVisibleIndexBeforeRotation_;
+    
+    struct {
+        unsigned int delegateWillInsertViewController:1;
+        unsigned int delegateDidInsertViewController:1;
+        unsigned int delegateWillRemoveViewController:1;
+        unsigned int delegateDidRemoveViewController:1;        
+    }delegateFlags_;
 }
 
 /// the root controller gets the whole background view
@@ -85,6 +89,14 @@ enum {
 
 /// expands/collapses stack until entered controller is topmost right
 - (void)displayViewControllerOnRightMost:(UIViewController *)vc animated:(BOOL)animated;
+
+/// return view controllers that follow a certain view controller. Helper function.
+- (NSArray *)viewControllersAfterViewController:(UIViewController *)viewController;
+
+/// index of current view controller. Supports search within UINavigationControllers.
+- (NSInteger)indexOfViewController:(UIViewController *)viewController;
+
+@property(nonatomic, assign) id<PSStackedViewDelegate> delegate;
 
 /// The top(last) view controller on the stack.
 @property(nonatomic, readonly, retain) UIViewController *topViewController;

@@ -9,40 +9,23 @@
 #import "PSStackedViewController.h"
 #import "PSStackedViewGlobal.h"
 #import "PSSVContainerView.h"
+#import "UIViewController+PSStackedView.h"
 #import <QuartzCore/QuartzCore.h>
 #import <objc/runtime.h>
 
 #define kPSSVStackAnimationSpeedModifier 1.f // DEBUG!
 #define kPSSVStackAnimationDuration kPSSVStackAnimationSpeedModifier * 0.25f
 #define kPSSVStackAnimationBounceDuration kPSSVStackAnimationSpeedModifier * 0.20f
+#define kPSSVStackAnimationPushDuration kPSSVStackAnimationSpeedModifier * 0.15f
 #define kPSSVStackAnimationPopDuration kPSSVStackAnimationSpeedModifier * 0.15f
 #define kPSSVMaxSnapOverOffset 20
 #define kPSSVAssociatedBaseViewControllerKey @"kPSSVAssociatedBaseViewController"
-#define kPSSVAssociatedStackViewControllerKey @"kPSSVAssociatedStackViewController"
 
 // reduces alpha over overlapped view controllers. 1.f would totally black-out on complete overlay
 #define kAlphaReductRatio 2.f
 
-@implementation UIViewController (PSStackedViewAdditions)
-
-// returns the containerView, where view controllers are embedded
-- (PSSVContainerView *)containerView; { return ([self.view.superview isKindOfClass:[PSSVContainerView class]] ? (PSSVContainerView *)self.view.superview : nil); }
-
-// returns the stack controller if the viewController is embedded
-- (PSStackedViewController *)stackController; {
-    PSStackedViewController *stackController = objc_getAssociatedObject(self, kPSSVAssociatedStackViewControllerKey);
-    return stackController;
-}
-
-// to maintain minimal changes for your app, we can do some clever swizzling here.
-- (UINavigationController *)navigationControllerSwizzled {
-    if (!self.navigationControllerSwizzled) {
-        return (UINavigationController *)self.stackController;
-    }else {
-        return self.navigationController;
-    }
-}
-@end
+// prevents me getting crazy
+typedef void(^PSSVSimpleBlock)(void);
 
 @interface PSStackedViewController() <UIGestureRecognizerDelegate> 
 @property(nonatomic, retain) UIViewController *rootViewController;
@@ -61,6 +44,7 @@
 @synthesize firstVisibleIndex = firstVisibleIndex_;
 @synthesize rootViewController = rootViewController_;
 @synthesize panRecognizer = panRecognizer_;
+@synthesize delegate = delegate_;
 #ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
 @synthesize navigationBar;
 #endif
@@ -88,6 +72,8 @@
         [self.view addGestureRecognizer:panRecognizer];
         self.panRecognizer = panRecognizer;
         
+        
+        
 #ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
         PSSVLog("Swizzling UIViewController.navigationController");
         Method origMethod = class_getInstanceMethod([UIViewController class], @selector(navigationController));
@@ -99,8 +85,9 @@
 }
 
 - (void)dealloc {
+    delegate_ = nil;
     panRecognizer_.delegate = nil;
-    // remove all view controllers the hard way
+    // remove all view controllers the hard way (w/o calling delegate)
     while ([self.viewControllers count]) {
         [self popViewControllerAnimated:NO];
     }
@@ -109,6 +96,44 @@
     [rootViewController_ release];
     [viewControllers_ release];
     [super dealloc];
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark - Delegate
+
+- (void)setDelegate:(id<PSStackedViewDelegate>)delegate {
+    if (delegate != delegate_) {
+        delegate_ = delegate;
+        
+        delegateFlags_.delegateWillInsertViewController = [delegate respondsToSelector:@selector(stackedView:willInsertViewController:)];
+        delegateFlags_.delegateDidInsertViewController = [delegate respondsToSelector:@selector(stackedView:didInsertViewController:)];
+        delegateFlags_.delegateWillRemoveViewController = [delegate respondsToSelector:@selector(stackedView:willRemoveViewController:)];
+        delegateFlags_.delegateDidRemoveViewController = [delegate respondsToSelector:@selector(stackedView:didRemoveViewController:)];
+    }
+}
+
+- (void)delegateWillInsertViewController:(UIViewController *)viewController {
+    if (delegateFlags_.delegateWillInsertViewController) {
+        [self.delegate stackedView:self willInsertViewController:viewController];
+    }
+}
+
+- (void)delegateDidInsertViewController:(UIViewController *)viewController {
+    if (delegateFlags_.delegateDidInsertViewController) {
+        [self.delegate stackedView:self didInsertViewController:viewController];
+    }
+}
+
+- (void)delegateWillRemoveViewController:(UIViewController *)viewController {
+    if (delegateFlags_.delegateWillRemoveViewController) {
+        [self.delegate stackedView:self willRemoveViewController:viewController];
+    }
+}
+
+- (void)delegateDidRemoveViewController:(UIViewController *)viewController {
+    if (delegateFlags_.delegateDidRemoveViewController) {
+        [self.delegate stackedView:self didRemoveViewController:viewController];
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -164,7 +189,7 @@
 - (UIViewController *)previousViewController:(UIViewController *)viewController {
     NSParameterAssert(viewController);
     
-    NSUInteger vcIndex = [self.viewControllers indexOfObject:viewController];
+    NSUInteger vcIndex = [self indexOfViewController:viewController];
     UIViewController *prevVC = nil;
     if (vcIndex > 0) {
         prevVC = [self.viewControllers objectAtIndex:vcIndex-1];
@@ -177,7 +202,7 @@
 - (UIViewController *)nextViewController:(UIViewController *)viewController {
     NSParameterAssert(viewController);
     
-    NSUInteger vcIndex = [self.viewControllers indexOfObject:viewController];
+    NSUInteger vcIndex = [self indexOfViewController:viewController];
     UIViewController *nextVC = nil;
     if (vcIndex + 1 < [self.viewControllers count]) {
         nextVC = [self.viewControllers objectAtIndex:vcIndex+1];
@@ -295,8 +320,8 @@
     return snapPointAvailableAfterOffset;
 }
 
-- (void)displayViewControllerOnRightMost:(UIViewController *)vc animated:(BOOL)animated; {
-    [self displayViewControllerIndexOnRightMost:[self.viewControllers indexOfObject:vc] animated:animated];
+- (void)displayViewControllerOnRightMost:(UIViewController *)vc animated:(BOOL)animated {
+    [self displayViewControllerIndexOnRightMost:[self indexOfViewController:vc] animated:animated];
 }
 
 // ensures index is on rightmost position
@@ -360,7 +385,7 @@
             controller.view.width = maxWidth;
         }
     }
-    
+        
     // only one!
     if ([self.viewControllers count] == 1) {
         //    [[self firstViewController].containerView addMaskToCorners:UIRectCornerAllCorners];
@@ -417,7 +442,7 @@
     NSParameterAssert(rightViewController);
     
     // figure out which controller is the top one
-    if ([self.viewControllers indexOfObject:rightViewController] < [self.viewControllers indexOfObject:leftViewController]) {
+    if ([self indexOfViewController:rightViewController] < [self indexOfViewController:leftViewController]) {
         PSSVLog(@"overlapping check flipped! fixing that...");
         UIViewController *tmp = rightViewController;
         rightViewController = leftViewController;
@@ -534,7 +559,7 @@
     for (UIViewController *vc in self.viewControllers) {
         NSInteger vcLeft = vc.containerView.left;
         if (minLeft < vcLeft) {
-            newFirstVisibleIndex = [self.viewControllers indexOfObject:vc] - 1;
+            newFirstVisibleIndex = [self indexOfViewController:vc] - 1;
             break;
         }
     }
@@ -542,7 +567,7 @@
     // in this case underlying controllers are visible, but they are overlapped by another controller
     UIViewController *lastViewController = [self lastVisibleViewControllerCompletelyVisible:YES];
     if (lastViewController.containerView.right <= [self screenWidth]) {
-        newFirstVisibleIndex = [self.viewControllers indexOfObject:lastViewController];
+        newFirstVisibleIndex = [self indexOfViewController:lastViewController];
     }    
     self.firstVisibleIndex = newFirstVisibleIndex;
     
@@ -664,6 +689,19 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - SVStackRootController (Public)
 
+- (NSInteger)indexOfViewController:(UIViewController *)viewController {
+    __block NSUInteger index = [self.viewControllers indexOfObject:viewController];
+    if (index == NSNotFound) {
+        [self.viewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            if ([obj isKindOfClass:[UINavigationController class]] && ((UINavigationController *)obj).topViewController == viewController) {
+                index = idx;
+                *stop = YES;
+            }
+        }];
+    }
+    return index;
+}
+
 - (UIViewController *)topViewController {
     return [self.viewControllers lastObject];
 }
@@ -685,7 +723,6 @@
 }
 
 - (void)pushViewController:(UIViewController *)viewController fromViewController:(UIViewController *)baseViewController animated:(BOOL)animated; {    
-    
     // figure out where to push, and if we need to get rid of some viewControllers
     if (baseViewController) {
         [self.viewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
@@ -703,8 +740,20 @@
     PSSVLog(@"pushing with index %d on stack: %@ (animated: %d)", [self.viewControllers count], viewController, animated);    
     viewController.view.height = PSIsLandscape() ? self.view.width : self.view.height;
     
+    // get predefined stack width; query topViewController if we have a UINavigationController
+    CGFloat stackWidth = viewController.stackWidth;
+    if (stackWidth == 0.f && [viewController isKindOfClass:[UINavigationController class]]) {
+        UIViewController *topVC = ((UINavigationController *)viewController).topViewController;
+        stackWidth = topVC.stackWidth;
+    }
+    if (stackWidth > 0.f) {
+        viewController.view.width = stackWidth;
+    }
+    
     // Starting out in portrait, right side up, we see a 20 pixel gap (for status bar???)
     viewController.view.top = 0.f;
+    
+    [self delegateWillInsertViewController:viewController];
     
     // controller view is embedded into a container
     PSSVContainerView *container = [PSSVContainerView containerViewWithController:viewController];
@@ -714,13 +763,27 @@
     container.autoresizingMask = UIViewAutoresizingFlexibleHeight; // width is not flexible!
     [container limitToMaxWidth:[self maxControllerWidth]];
     PSSVLog(@"container frame: %@", NSStringFromCGRect(container.frame));
-    
+        
     // relay willAppear and add to subview
     [viewController viewWillAppear:animated];
+
+    if (animated) {
+        container.alpha = 0.f;
+        container.transform = CGAffineTransformMakeScale(1.2, 1.2); // large but fade in
+    }
+    
     [self.view addSubview:container];
+    
+    if (animated) {
+        [UIView animateWithDuration:kPSSVStackAnimationPushDuration delay:0.f options:UIViewAnimationOptionAllowUserInteraction animations:^{
+            container.alpha = 1.f;
+            container.transform = CGAffineTransformIdentity;
+        } completion:nil];
+    }
     
     // properly sizes the scroll view contents (for table view scrolling)
     [container layoutIfNeeded];
+    //container.width = viewController.view.width; // sync width (after it may has changed in layoutIfNeeded)
     
     [viewController viewDidAppear:animated];    
     [viewControllers_ addObject:viewController];
@@ -730,6 +793,7 @@
     
     [self updateViewControllerMasksAndShadow];
     [self displayViewControllerIndexOnRightMost:[self.viewControllers count]-1 animated:animated];
+    [self delegateDidInsertViewController:viewController];
 }
 
 - (UIViewController *)popViewControllerAnimated:(BOOL)animated; {
@@ -737,27 +801,35 @@
     
     UIViewController *lastController = [self topViewController];
     if (lastController) {        
-        
-        PSSVContainerView *container = lastController.containerView;
+        [self delegateWillRemoveViewController:lastController];
         
         // remove from view stack!
+        PSSVContainerView *container = lastController.containerView;
         [lastController viewWillDisappear:animated];
         
-        if (animated) {
-            [UIView animateWithDuration:kPSSVStackAnimationDuration delay:0.f options:UIViewAnimationOptionBeginFromCurrentState animations:^(void) {
-                lastController.containerView.alpha = 0.f;
-            } completion:^(BOOL finished) {
-                if (finished) {
-                    [container removeFromSuperview];
-                    [lastController viewDidDisappear:animated];
-                }
-            }];
-        }else {
+        PSSVSimpleBlock finishBlock = ^{
             [container removeFromSuperview];
             [lastController viewDidDisappear:animated];
+            [self delegateDidRemoveViewController:lastController];
+        };
+        
+        if (animated) { // kPSSVStackAnimationDuration
+            [UIView animateWithDuration:kPSSVStackAnimationPopDuration delay:0.f options:UIViewAnimationOptionBeginFromCurrentState animations:^(void) {
+                lastController.containerView.alpha = 0.f;
+                lastController.containerView.transform = CGAffineTransformMakeScale(0.8, 0.8); // make smaller while fading out
+            } completion:^(BOOL finished) {
+                // even with duration = 0, this doesn't fire instantly but on a future runloop with NSFireDelayedPerform, thus ugly double-check
+                if (finished) {
+                    finishBlock();
+                }
+            }];
         }
         
         [viewControllers_ removeLastObject];
+        
+        if(!animated) {
+            finishBlock();
+        }
         
         // save current stack controller as an associated object.
         objc_setAssociatedObject(lastController, kPSSVAssociatedStackViewControllerKey, nil, OBJC_ASSOCIATION_ASSIGN);
@@ -780,22 +852,32 @@
     return array;
 }
 
+// get view controllers that are in stack _after_ current view controller
+- (NSArray *)viewControllersAfterViewController:(UIViewController *)viewController {
+    NSParameterAssert(viewController);
+    NSUInteger index = [self indexOfViewController:viewController];
+    if (NSNotFound == index) {
+        return nil;
+    }
+    NSArray *array = [self.viewControllers subarrayWithRange:NSMakeRange(index, [self.viewControllers count] - index)];
+    return array;
+}
+
 - (NSArray *)popToViewController:(UIViewController *)viewController animated:(BOOL)animated; {
     NSParameterAssert(viewController);
     
-    NSUInteger index = [self.viewControllers indexOfObject:viewController];
+    NSUInteger index = [self indexOfViewController:viewController];
     if (NSNotFound == index) {
         return nil;
     }
     PSSVLog(@"popping to index %d, from %d", index, [self.viewControllers count]);
     
-    NSMutableArray *array = [NSMutableArray array];
-    while ([self.viewControllers count] > index) {
-        UIViewController *vc = [self popViewControllerAnimated:animated];
-        [array addObject:vc];
-    }
+    NSArray *controllersToRemove = [self viewControllersAfterViewController:viewController];
+    [controllersToRemove enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        [self popViewControllerAnimated:animated];
+    }];
     
-    return array;
+    return controllersToRemove;
 }
 
 - (NSArray *)controllersForClass:(Class)theClass {
@@ -867,7 +949,7 @@
         UIViewController *overlappedVC = [self overlappedViewController];
         if (overlappedVC) {
             UIViewController *rightVC = [self nextViewController:overlappedVC];
-            targetIndex = [self.viewControllers indexOfObject:rightVC];
+            targetIndex = [self indexOfViewController:rightVC];
             PSSVLog(@"overlapping %@ with %@", NSStringFromCGRect(overlappedVC.containerView.frame), NSStringFromCGRect(rightVC.containerView.frame));
         }
         
@@ -919,7 +1001,7 @@ enum {
         // calculate offset used only when we're bleeding over
         NSInteger snapOverOffset = 0; // > 0 = <--- ; we scrolled from right to left.
         NSUInteger firstVisibleIndex = [self firstVisibleIndex];
-        NSUInteger lastFullyVCIndex = [self.viewControllers indexOfObject:[self lastVisibleViewControllerCompletelyVisible:YES]];
+        NSUInteger lastFullyVCIndex = [self indexOfViewController:[self lastVisibleViewControllerCompletelyVisible:YES]];
         BOOL bounceAtVeryEnd = NO;
         
         if ([self shouldSnapAnimate] && bounce == PSSVBounceBleedOver) {

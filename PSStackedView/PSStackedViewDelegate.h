@@ -8,6 +8,20 @@
 
 #import <Foundation/Foundation.h>
 
+@class PSStackedViewController;
+
 @protocol PSStackedViewDelegate <NSObject>
-// delegate for events, maybe later
+
+/// viewController will be inserted
+- (void)stackedView:(PSStackedViewController *)stackedView willInsertViewController:(UIViewController *)viewController;
+
+/// viewController has been inserted
+- (void)stackedView:(PSStackedViewController *)stackedView didInsertViewController:(UIViewController *)viewController;
+
+/// viewController will be removed
+- (void)stackedView:(PSStackedViewController *)stackedView willRemoveViewController:(UIViewController *)viewController;
+
+/// viewController has been removed
+- (void)stackedView:(PSStackedViewController *)stackedView didRemoveViewController:(UIViewController *)viewController;
+
 @end
