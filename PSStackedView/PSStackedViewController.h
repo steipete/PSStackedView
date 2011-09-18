@@ -28,8 +28,7 @@ enum {
     NSUInteger largeLeftInset_;    
     
     // stack state
-    BOOL showingFullMenu_;
-    NSInteger firstVisibleIndex_;
+    CGFloat floatIndex_;
     NSMutableArray *viewControllers_;
     
     // internal drag state handling and other messy details
@@ -76,10 +75,10 @@ enum {
 - (NSUInteger)canExpandStack;
 
 /// moves view controller stack to the left, potentially hiding older VCs (increases firstVisibleIndex)
-- (NSUInteger)collapseStack:(NSUInteger)steps animated:(BOOL)animated;
+- (NSUInteger)collapseStack:(NSInteger)steps animated:(BOOL)animated;
 
 /// move view controller stack to the right, showing older VCs (decreases firstVisibleIndex)
-- (NSUInteger)expandStack:(NSUInteger)steps animated:(BOOL)animated;
+- (NSUInteger)expandStack:(NSInteger)steps animated:(BOOL)animated;
 
 /// align stack to nearest grid
 - (void)alignStackAnimated:(BOOL)animated;
@@ -103,12 +102,15 @@ enum {
 /// first view controller
 @property(nonatomic, readonly, retain) UIViewController *firstViewController;
 
+/// represents current state via floating point. shows edge attaches, menu docking, etc
+@property(nonatomic, readonly, assign) CGFloat floatIndex;
+
 /// view controllers visible. NOT KVO compliant, is calculated on demand.
 @property(nonatomic, readonly, retain) NSArray *visibleViewControllers;
 
 @property(nonatomic, readonly, retain) NSArray *fullyVisibleViewControllers;
 
-/// index of first currently visible view controller [state]
+/// index of first currently visible view controller [calculated]
 @property(nonatomic, assign, readonly) NSInteger firstVisibleIndex;
 
 /// index of last currently visible view controller [calculated]
@@ -121,7 +123,7 @@ enum {
 @property(nonatomic, retain) UIPanGestureRecognizer *panRecognizer;
 
 /// toggle full menu / small menu
-@property(nonatomic, assign, getter=isShowingFullMenu, readonly) BOOL showingFullMenu;
+//@property(nonatomic, assign, getter=isShowingFullMenu, readonly) BOOL showingFullMenu;
 
 /// left inset thats always visible. Defaults to 60.
 @property(nonatomic, assign) NSUInteger leftInset;
