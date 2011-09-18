@@ -864,7 +864,12 @@ enum {
             UIViewController *baseVC = objc_getAssociatedObject(obj, kPSSVAssociatedBaseViewControllerKey);
             if (baseVC == baseViewController) {
                 PSSVLog(@"BaseViewController found on index: %d", idx);
-                [self popToViewController:(UIViewController *)obj animated:animated];
+                UIViewController *parentVC = [self previousViewController:obj];
+                if (parentVC) {
+                    [self popToViewController:parentVC animated:animated];
+                }else {
+                    [self popToRootViewControllerAnimated:animated];
+                }
                 *stop = YES;
             }
         }];
@@ -993,7 +998,13 @@ enum {
     if (NSNotFound == index) {
         return nil;
     }
-    NSArray *array = [self.viewControllers subarrayWithRange:NSMakeRange(index, [self.viewControllers count] - index)];
+    
+    NSArray *array = nil;
+    // don't remove view controller we've been called with
+    if ([self.viewControllers count] > index + 1) {
+        array = [self.viewControllers subarrayWithRange:NSMakeRange(index + 1, [self.viewControllers count] - index - 1)];
+    }
+    
     return array;
 }
 
