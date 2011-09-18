@@ -16,8 +16,8 @@
 #define kPSSVStackAnimationSpeedModifier 1.f // DEBUG!
 #define kPSSVStackAnimationDuration kPSSVStackAnimationSpeedModifier * 0.25f
 #define kPSSVStackAnimationBounceDuration kPSSVStackAnimationSpeedModifier * 0.20f
-#define kPSSVStackAnimationPushDuration kPSSVStackAnimationSpeedModifier * 0.15f
-#define kPSSVStackAnimationPopDuration kPSSVStackAnimationSpeedModifier * 0.15f
+#define kPSSVStackAnimationPushDuration kPSSVStackAnimationSpeedModifier * 0.25f
+#define kPSSVStackAnimationPopDuration kPSSVStackAnimationSpeedModifier * 0.25f
 #define kPSSVMaxSnapOverOffset 20
 #define kPSSVAssociatedBaseViewControllerKey @"kPSSVAssociatedBaseViewController"
 
