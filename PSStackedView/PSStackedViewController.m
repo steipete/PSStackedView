@@ -469,7 +469,9 @@ enum {
 
 // ensures index is on rightmost position
 - (void)displayViewControllerIndexOnRightMost:(NSInteger)index animated:(BOOL)animated; {
-    NSInteger indexOffset = ceilf(index - self.floatIndex + EPSILON);
+    // add epsilon to round indexes like 1.0 to 2.0, also -1.0 to -2.0
+    CGFloat floatIndexOffset = index - self.floatIndex;
+    NSInteger indexOffset = ceilf(floatIndexOffset + (floatIndexOffset > 0 ? EPSILON : -EPSILON));
     if (indexOffset > 0) {
         [self collapseStack:indexOffset animated:animated];
     }else if(indexOffset < 0) {
@@ -905,7 +907,7 @@ enum {
     PSSVLog(@"container frame: %@", NSStringFromCGRect(container.frame));
     
     // relay willAppear and add to subview
-    [viewController viewWillAppear:animated];
+    IF_PRE_IOS5([viewController viewWillAppear:animated];)
     
     if (animated) {
         container.alpha = 0.f;
@@ -925,7 +927,7 @@ enum {
     [container layoutIfNeeded];
     //container.width = viewController.view.width; // sync width (after it may has changed in layoutIfNeeded)
     
-    [viewController viewDidAppear:animated];    
+    IF_PRE_IOS5([viewController viewDidAppear:animated];)
     [viewControllers_ addObject:viewController];
     
     // register stack controller
