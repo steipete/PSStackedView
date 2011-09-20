@@ -145,10 +145,28 @@ typedef void(^PSSVSimpleBlock)(void);
     return firstVisibleIndex;
 }
 
+- (CGRect)viewRect {
+    // self.view.frame not used, it's wrong in viewWillAppear
+    CGRect viewRect = [[UIScreen mainScreen] applicationFrame];
+    return viewRect;
+}
+
 // return screen width
-- (NSUInteger)screenWidth {
-    NSUInteger screenWidth = PSIsLandscape() ? self.view.height : self.view.width;
+- (CGFloat)screenWidth {
+    CGRect viewRect = [self viewRect];
+    CGFloat screenWidth = PSIsLandscape() ? viewRect.size.height : viewRect.size.width;
     return screenWidth;
+}
+
+- (CGFloat)screenHeight {
+    CGRect viewRect = [self viewRect];
+    NSUInteger screenHeight = PSIsLandscape() ? viewRect.size.width : viewRect.size.height;
+    return screenHeight;
+}
+
+- (CGFloat)maxControllerWidth {
+    CGFloat maxWidth = [self screenWidth] - self.leftInset;
+    return maxWidth;
 }
 
 // total stack width if completely expanded
@@ -174,11 +192,6 @@ typedef void(^PSSVSimpleBlock)(void);
 // minimal left border is depending on amount of VCs
 - (NSUInteger)minimalLeftInset {
     return [self isMenuCollapsable] ? self.leftInset : self.largeLeftInset;
-}
-
-- (CGFloat)maxControllerWidth {
-    CGFloat maxWidth = (PSIsLandscape() ? self.view.height : self.view.width) - self.leftInset;
-    return maxWidth;
 }
 
 // check if a view controller is visible or not
@@ -463,8 +476,13 @@ enum {
     return snapPointAvailableAfterOffset;
 }
 
-- (void)displayViewControllerOnRightMost:(UIViewController *)vc animated:(BOOL)animated {
-    [self displayViewControllerIndexOnRightMost:[self indexOfViewController:vc] animated:animated];
+- (BOOL)displayViewControllerOnRightMost:(UIViewController *)vc animated:(BOOL)animated {
+    NSUInteger index = [self indexOfViewController:vc];
+    if (index != NSNotFound) {
+        [self displayViewControllerIndexOnRightMost:index animated:animated];
+        return YES;
+    }
+    return NO;
 }
 
 // ensures index is on rightmost position
@@ -507,6 +525,8 @@ enum {
 
 // updates view containers
 - (void)updateViewControllerMasksAndShadow {
+    //[self updateViewControllerSizes];
+    /*
     // ensure no controller is larger than the screen width
     NSUInteger maxWidth = [self screenWidth] - [self minimalLeftInset];
     for (UIViewController *controller in self.viewControllers) {
@@ -514,12 +534,12 @@ enum {
             PSSVLog(@"Resizing controller %@ (rect:%@) to fit max screen width of %d", controller, NSStringFromCGRect(controller.view.frame), maxWidth);
             controller.view.width = maxWidth;
         }
-    }
+    }*/
     
     // only one!
     if ([self.viewControllers count] == 1) {
         //    [[self firstViewController].containerView addMaskToCorners:UIRectCornerAllCorners];
-        [[self firstViewController].containerView addShadowToSides:PSSVSideLeft | PSSVSideRight];
+        self.firstViewController.containerView.shadow = PSSVSideLeft | PSSVSideRight;
     }else {
         // rounded corners on first and last controller
         [self.viewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
@@ -529,10 +549,10 @@ enum {
                 [vc.containerView addMaskToCorners:UIRectCornerBottomLeft | UIRectCornerTopLeft];
             }else if(idx == [self.viewControllers count]-1) {
                 //        [vc.containerView addMaskToCorners:UIRectCornerBottomRight | UIRectCornerTopRight];
-                [vc.containerView addShadowToSides:PSSVSideLeft | PSSVSideRight];
+                vc.containerView.shadow = PSSVSideLeft | PSSVSideRight;
             }else {
                 //      [vc.containerView removeMask];
-                [vc.containerView addShadowToSides:PSSVSideLeft | PSSVSideRight];
+                vc.containerView.shadow = PSSVSideLeft | PSSVSideRight;
             }
         }];
     }
@@ -540,7 +560,7 @@ enum {
     // update alpha mask
     CGFloat overlapRatio = [self overlapRatio];
     UIViewController *overlappedVC = [self overlappedViewController];
-    overlappedVC.containerView.darkRatio = overlapRatio/kAlphaReductRatio;
+    overlappedVC.containerView.darkRatio = MIN(overlapRatio, 1.f)/kAlphaReductRatio;
     
     // reset alpha ratio everywhere else
     for (UIViewController *vc in self.viewControllers) {
@@ -829,12 +849,15 @@ enum {
 - (NSInteger)indexOfViewController:(UIViewController *)viewController {
     __block NSUInteger index = [self.viewControllers indexOfObject:viewController];
     if (index == NSNotFound) {
-        [self.viewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            if ([obj isKindOfClass:[UINavigationController class]] && ((UINavigationController *)obj).topViewController == viewController) {
-                index = idx;
-                *stop = YES;
-            }
-        }];
+        index = [self.viewControllers indexOfObject:viewController.navigationController];
+        if (index == NSNotFound) {
+            [self.viewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                if ([obj isKindOfClass:[UINavigationController class]] && ((UINavigationController *)obj).topViewController == viewController) {
+                    index = idx;
+                    *stop = YES;
+                }
+            }];
+        }
     }
     return index;
 }
@@ -880,7 +903,7 @@ enum {
     }
     
     PSSVLog(@"pushing with index %d on stack: %@ (animated: %d)", [self.viewControllers count], viewController, animated);    
-    viewController.view.height = PSIsLandscape() ? self.view.width : self.view.height;
+    viewController.view.height = [self screenHeight];
     
     // get predefined stack width; query topViewController if we have a UINavigationController
     CGFloat stackWidth = viewController.stackWidth;
@@ -947,11 +970,12 @@ enum {
         
         // remove from view stack!
         PSSVContainerView *container = lastController.containerView;
-        [lastController viewWillDisappear:animated];
+        
+        IF_PRE_IOS5([lastController viewWillDisappear:animated];)
         
         PSSVSimpleBlock finishBlock = ^{
             [container removeFromSuperview];
-            [lastController viewDidDisappear:animated];
+            IF_PRE_IOS5([lastController viewDidDisappear:animated];)
             [self delegateDidRemoveViewController:lastController];
         };
         
@@ -1055,7 +1079,7 @@ enum {
     
     return lastVisibleIndex;
 }
-
+    
 /*
  #define kPSSVAnimationBlockerViewTag 832242
  - (void)removeAnimationBlockerView {
@@ -1379,6 +1403,13 @@ enum {
     for (UIViewController *controller in self.viewControllers) {
         [controller viewWillAppear:animated];
     }
+    
+    //NSLog(@"!!!!!!!!!!!!!!!!!!!!!! %@, %@", NSStringFromCGRect(self.view.frame), NSStringFromCGRect([[UIScreen mainScreen] applicationFrame]));    
+    
+    // enlarge/shrinken stack
+    [self updateViewControllerSizes];
+    [self updateViewControllerMasksAndShadow];    
+    [self alignStackAnimated:NO];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -1387,7 +1418,14 @@ enum {
     [self.rootViewController viewDidAppear:animated];
     for (UIViewController *controller in self.viewControllers) {
         [controller viewDidAppear:animated];
-    }   
+    }
+
+    /*
+    // enlarge/shrinken stack
+    [self updateViewControllerSizes];
+    [self updateViewControllerMasksAndShadow];    
+    [self alignStackAnimated:YES];
+     */
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -1460,7 +1498,6 @@ enum {
     [self updateViewControllerMasksAndShadow];    
     
     // enlarge/shrinken stack
-    //[self displayViewControllerIndexOnRightMost:lastVisibleIndexBeforeRotation_ animated:YES];
     [self alignStackAnimated:YES];
     
     // finally relay rotation events
@@ -1468,7 +1505,6 @@ enum {
         [controller willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
     }
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - UIGestureRecognizerDelegate

@@ -24,6 +24,7 @@
 
 @implementation PSSVContainerView
 
+@synthesize shadow = shadow_;
 @synthesize originalWidth = originalWidth_;
 @synthesize controller = controller_;
 @synthesize leftShadowLayer = leftShadowLayer_;
@@ -88,7 +89,7 @@
 - (void)dealloc {
     //PSSVLog(@"removing mask/shadow from %@", self.controller);
     [self removeMask];
-    [self removeShadow];
+    self.shadow = PSSVSideNone; // TODO needed?
     [leftShadowLayer_ release];
     [innerShadowLayer_ release];
     [rightShadowLayer_ release];
@@ -115,13 +116,22 @@
 #pragma mark - Public
 
 - (CGFloat)limitToMaxWidth:(CGFloat)maxWidth; {
-
+    BOOL widthChanged = NO;
+    
     if (maxWidth && self.width > maxWidth) {
         self.width = maxWidth;
+        widthChanged = YES;
     }else if(self.originalWidth && self.width < self.originalWidth) {
         self.width = MIN(maxWidth, self.originalWidth);
+        widthChanged = YES;
     }
     self.controller.view.width = self.width;
+    
+    // update shadow layers for new width
+    if (widthChanged) {
+        [self updateContainer];
+    }
+    
     return self.width;
 }
 
@@ -169,14 +179,20 @@
     self.controller.view.layer.mask = nil;
 }
 
-- (void)addShadowToSides:(PSSVSide)sides; {
-    if (sides & PSSVSideLeft) {
+- (void)updateContainer {
+    // re-set shadow property
+    self.shadow = shadow_;
+}
+
+- (void)setShadow:(PSSVSide)shadow {
+    shadow_ = shadow;
+    
+    if (shadow & PSSVSideLeft) {
         if (!self.leftShadowLayer) {
             CAGradientLayer *leftShadow = [self shadowAsInverse:YES];
-            CGRect newShadowFrame = CGRectMake(-kPSSVShadowWidth, 0, kPSSVShadowWidth+kPSSVCornerRadius, self.controller.view.height);
-            leftShadow.frame = newShadowFrame;
             self.leftShadowLayer = leftShadow;
         }
+        self.leftShadowLayer.frame = CGRectMake(-kPSSVShadowWidth, 0, kPSSVShadowWidth+kPSSVCornerRadius, self.controller.view.height);;
         if ([self.layer.sublayers indexOfObjectIdenticalTo:self.leftShadowLayer] != 0) {
             [self.layer insertSublayer:self.leftShadowLayer atIndex:0];
         }
@@ -184,13 +200,12 @@
         [self.leftShadowLayer removeFromSuperlayer];
     }
     
-    if (sides & PSSVSideRight) {
+    if (shadow & PSSVSideRight) {
         if (!self.rightShadowLayer) {
             CAGradientLayer *rightShadow = [self shadowAsInverse:NO];
-            CGRect newShadowFrame = CGRectMake(self.width-kPSSVCornerRadius, 0, kPSSVShadowWidth, self.controller.view.height);
-            rightShadow.frame = newShadowFrame;
             self.rightShadowLayer = rightShadow;
         }
+        self.rightShadowLayer.frame = CGRectMake(self.width-kPSSVCornerRadius, 0, kPSSVShadowWidth, self.controller.view.height);
         if ([self.layer.sublayers indexOfObjectIdenticalTo:self.rightShadowLayer] != 0) {
             [self.layer insertSublayer:self.rightShadowLayer atIndex:0];
         }
@@ -198,26 +213,20 @@
         [self.rightShadowLayer removeFromSuperlayer];
     }
     
-    if (sides) {
+    if (shadow) {
         if (!self.innerShadowLayer) {
             CAGradientLayer *innerShadow = [[[CAGradientLayer alloc] init] autorelease];
-            CGRect newShadowFrame = CGRectMake(kPSSVCornerRadius, 0, self.width-kPSSVCornerRadius*2, self.controller.view.height);
-            innerShadow.frame = newShadowFrame;
             CGColorRef darkColor = [UIColor colorWithWhite:0.0f alpha:kPSSVShadowAlpha].CGColor;
             innerShadow.colors = [NSArray arrayWithObjects:(id)darkColor, (id)darkColor, nil];
             self.innerShadowLayer = innerShadow;
         }
+        self.innerShadowLayer.frame = CGRectMake(kPSSVCornerRadius, 0, self.width-kPSSVCornerRadius*2, self.controller.view.height);
         if ([self.layer.sublayers indexOfObjectIdenticalTo:self.innerShadowLayer] != 0) {
             [self.layer insertSublayer:self.innerShadowLayer atIndex:0];
         }
     }else {
         [self.innerShadowLayer removeFromSuperlayer];
     }
-}
-
-- (void)removeShadow; {
-    [self.leftShadowLayer removeFromSuperlayer];
-    [self.rightShadowLayer removeFromSuperlayer];
 }
 
 - (void)setDarkRatio:(CGFloat)darkRatio {

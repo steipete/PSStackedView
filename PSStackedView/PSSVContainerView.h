@@ -10,6 +10,7 @@
 #import <QuartzCore/QuartzCore.h>
 
 enum {
+    PSSVSideNone = 0x0,
     PSSVSideRight = 0x01,
     PSSVSideLeft = 0x02
 }typedef PSSVSide;
@@ -18,6 +19,7 @@ enum {
 @interface PSSVContainerView : UIView {
     UIView *transparentView_;
     CGFloat originalWidth_;
+    PSSVSide shadow_;
     UIViewController *controller_;
     CAGradientLayer *leftShadowLayer_;
     CAGradientLayer *innerShadowLayer_;
@@ -32,8 +34,11 @@ enum {
 - (void)addMaskToCorners:(UIRectCorner)corners;
 - (void)removeMask;
 
-- (void)addShadowToSides:(PSSVSide)sides;
-- (void)removeShadow;
+/// update shadow
+- (void)updateContainer;
+
+/// set shadow sides
+@property(nonatomic, assign) PSSVSide shadow;
 
 @property(nonatomic, retain) UIViewController *controller;
 
