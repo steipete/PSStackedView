@@ -95,10 +95,15 @@ enum {
 /// index of current view controller. Supports search within UINavigationControllers.
 - (NSInteger)indexOfViewController:(UIViewController *)viewController;
 
+/// event delegate
 @property(nonatomic, assign) id<PSStackedViewDelegate> delegate;
+
+/// root view controller, always displayed behind stack
+@property(nonatomic, retain, readonly) UIViewController *rootViewController;
 
 /// The top(last) view controller on the stack.
 @property(nonatomic, readonly, retain) UIViewController *topViewController;
+
 /// first view controller
 @property(nonatomic, readonly, retain) UIViewController *firstViewController;
 
