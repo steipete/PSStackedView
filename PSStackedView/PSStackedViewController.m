@@ -45,6 +45,7 @@ typedef void(^PSSVSimpleBlock)(void);
 @synthesize rootViewController = rootViewController_;
 @synthesize panRecognizer = panRecognizer_;
 @synthesize delegate = delegate_;
+@synthesize reduceAnimations = reduceAnimations_;
 @dynamic firstVisibleIndex;
 
 #ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
@@ -524,18 +525,7 @@ enum {
 }
 
 // updates view containers
-- (void)updateViewControllerMasksAndShadow {
-    //[self updateViewControllerSizes];
-    /*
-    // ensure no controller is larger than the screen width
-    NSUInteger maxWidth = [self screenWidth] - [self minimalLeftInset];
-    for (UIViewController *controller in self.viewControllers) {
-        if(controller.view.width > maxWidth) {
-            PSSVLog(@"Resizing controller %@ (rect:%@) to fit max screen width of %d", controller, NSStringFromCGRect(controller.view.frame), maxWidth);
-            controller.view.width = maxWidth;
-        }
-    }*/
-    
+- (void)updateViewControllerMasksAndShadow {   
     // only one!
     if ([self.viewControllers count] == 1) {
         //    [[self firstViewController].containerView addMaskToCorners:UIRectCornerAllCorners];
@@ -545,8 +535,7 @@ enum {
         [self.viewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             UIViewController *vc = (UIViewController *)obj;
             if (idx == 0) {
-                //          [vc.containerView addShadowToSides:PSSVSideLeft];
-                [vc.containerView addMaskToCorners:UIRectCornerBottomLeft | UIRectCornerTopLeft];
+                //[vc.containerView addMaskToCorners:UIRectCornerBottomLeft | UIRectCornerTopLeft];
             }else if(idx == [self.viewControllers count]-1) {
                 //        [vc.containerView addMaskToCorners:UIRectCornerBottomRight | UIRectCornerTopRight];
                 vc.containerView.shadow = PSSVSideLeft | PSSVSideRight;
@@ -632,16 +621,7 @@ enum {
     //[self.view.layer removeAllAnimations];
     [self.viewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
         UIViewController *vc = (UIViewController *)obj;
-        //CGRect currentPos = [[vc.containerView.layer presentationLayer] frame];
         [vc.containerView.layer removeAllAnimations];
-        //PSSVLog(@"Old: %@ New: %@", NSStringFromCGRect(vc.containerView.frame), NSStringFromCGRect(currentPos));
-        //        vc.containerView.frame = currentPos;
-        
-        /*
-         CFTimeInterval pausedTime = [vc.containerView.layer convertTime:CACurrentMediaTime() fromLayer:nil];
-         vc.containerView.layer.speed = 0.0;
-         vc.containerView.layer.timeOffset = pausedTime;
-         */
     }];
 }
 
@@ -739,14 +719,14 @@ enum {
 
 - (void)handlePanFrom:(UIPanGestureRecognizer *)recognizer {
     CGPoint translatedPoint = [recognizer translationInView:self.view];
+    UIGestureRecognizerState state = recognizer.state;
     
     // reset last offset if gesture just started
-    if (recognizer.state == UIGestureRecognizerStateBegan) {
+    if (state == UIGestureRecognizerStateBegan) {
         lastDragOffset_ = 0;
     }
     
     NSInteger offset = translatedPoint.x - lastDragOffset_;
-    UIGestureRecognizerState state = recognizer.state;
     
     // if the move does not make sense (no snapping region), only use 1/2 offset
     BOOL snapPointAvailable = [self snapPointAvailableAfterOffset:offset];
@@ -793,55 +773,15 @@ enum {
         
         if (lastDragOption_ == SVSnapOptionRight) {
             self.floatIndex = [self nearestValidFloatIndex:self.floatIndex round:PSSVRoundDown];
-            /*
-            // with manually snapping right, the index gets changed. revert that.
-            if (self.firstVisibleIndex + 1 < [self.viewControllers count]) {
-                self.firstVisibleIndex++;
-                
-                // special condition: we dragged menu to border
-                if ([self firstViewController].containerView.left > [self minimalLeftInset]) {
-                    self.firstVisibleIndex--;
-                }
-            }
-            
-            [self expandStack:1 animated:YES];*/
         }else if(lastDragOption_ == SVSnapOptionLeft) {
-//            [self collapseStack:1 animated:YES];
             self.floatIndex = [self nearestValidFloatIndex:self.floatIndex round:PSSVRoundUp];
         }else {
             self.floatIndex = [self nearestValidFloatIndex:self.floatIndex round:PSSVRoundNearest];
         }
         
         [self alignStackAnimated:YES];
-
     }
 }
-
-/*
- - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
- UITouch *touch = [touches anyObject];
- CGPoint touchPoint = [touch locationInView:self.view];
- //   [self stopStackAnimation];
- [self handlePanFrom:touchPoint state:UIGestureRecognizerStateBegan];
- }
- 
- - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event {
- UITouch *touch = [touches anyObject];
- CGPoint touchPoint = [touch locationInView:self.view];
- [self handlePanFrom:touchPoint state:UIGestureRecognizerStateChanged];
- }
- 
- - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
- UITouch *touch = [touches anyObject];
- CGPoint touchPoint = [touch locationInView:self.view];
- [self handlePanFrom:touchPoint state:UIGestureRecognizerStateEnded];
- }
- 
- - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event {
- UITouch *touch = [touches anyObject];
- CGPoint touchPoint = [touch locationInView:self.view];
- [self handlePanFrom:touchPoint state:UIGestureRecognizerStateCancelled];
- }*/
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - SVStackRootController (Public)
@@ -959,6 +899,14 @@ enum {
     [self updateViewControllerMasksAndShadow];
     [self displayViewControllerIndexOnRightMost:[self.viewControllers count]-1 animated:animated];
     [self delegateDidInsertViewController:viewController];
+}
+
+- (BOOL)popViewController:(UIViewController *)controller animated:(BOOL)animated {
+    if (controller != self.topViewController) {
+        return NO;
+    }else {
+        return [self popViewControllerAnimated:animated] == controller;
+    }
 }
 
 - (UIViewController *)popViewControllerAnimated:(BOOL)animated; {
@@ -1079,30 +1027,6 @@ enum {
     
     return lastVisibleIndex;
 }
-    
-/*
- #define kPSSVAnimationBlockerViewTag 832242
- - (void)removeAnimationBlockerView {
- UIView *animationBlockView = [self.view viewWithTag:kPSSVAnimationBlockerViewTag];
- [animationBlockView removeFromSuperview];
- }
- 
- - (void)removeAnimationBlockerViewAndStopAnimation {
- [self removeAnimationBlockerView];
- [self stopStackAnimation];
- }
- 
- - (void)addAnimationBlockerView {
- return;
- 
- if (![self.view viewWithTag:kPSSVAnimationBlockerViewTag]) {
- UIControl *control = [[[UIControl alloc] initWithFrame:self.view.bounds] autorelease];
- control.backgroundColor = [UIColor colorWithRed:1 green:0 blue:0 alpha:0.5];//clearColor];
- [control addTarget:self action:@selector(removeAnimationBlockerViewAndStopAnimation) forControlEvents:UIControlEventTouchDown];
- control.tag = kPSSVAnimationBlockerViewTag;
- [self.view addSubview:control];
- }
- }*/
 
 // returns +/- amount if grid is not aligned correctly
 // + if view is too far on the right, - if too far on the left
@@ -1148,6 +1072,7 @@ enum {
 }typedef PSSVBounceOption;
 
 - (void)alignStackAnimated:(BOOL)animated duration:(CGFloat)duration bounceType:(PSSVBounceOption)bounce; {
+    animated = animated && !self.isReducingAnimations; // don't animate if set
     self.floatIndex = [self nearestValidFloatIndex:self.floatIndex]; // round to nearest correct index
     UIViewAnimationCurve animationCurve = UIViewAnimationCurveEaseInOut;
     if (animated) {
@@ -1262,7 +1187,6 @@ enum {
 }
 
 - (void)alignStackAnimated:(BOOL)animated; {
-//    [self checkAndDecreaseFirstVisibleIndexIfPossible];
     [self alignStackAnimated:animated duration:kPSSVStackAnimationDuration bounceType:PSSVBounceMoveToInitial];
 }
 
@@ -1294,16 +1218,6 @@ enum {
         self.floatIndex = MAX(newFloatIndex, self.floatIndex);
     }
     
-    /*
-     NSUInteger maxCollapseStackCount = [self canCollapseStack];
-     if (steps > maxCollapseStackCount) {
-     steps = maxCollapseStackCount;
-     }
-     
-     // hide older VCs, show newer ones
-     self.firstVisibleIndex += steps;
-     */
-    
     [self alignStackAnimated:animated];
     return steps;
 }
@@ -1332,26 +1246,6 @@ enum {
     }
 
     self.floatIndex = MIN(newFloatIndex, self.floatIndex);
-    
-    /*
-    if (steps > 0) {
-        if (self.firstVisibleIndex < steps) {
-            steps = self.firstVisibleIndex;
-            PSSVLog(@"Warn! steps are too high! adjusting to %d", steps);
-        }
-        
-        NSUInteger maxExpandStackCount = [self canExpandStack];
-        if (steps > maxExpandStackCount) {
-            steps = maxExpandStackCount;
-        }
-        
-        if (steps == 0 && self.firstVisibleIndex == 0) {
-            self.showingFullMenu = YES;
-        }else {
-            // show older VCs!
-            self.firstVisibleIndex -= steps;
-        }
-    }*/
     
     [self alignStackAnimated:animated];
     return steps; 
@@ -1404,8 +1298,6 @@ enum {
         [controller viewWillAppear:animated];
     }
     
-    //NSLog(@"!!!!!!!!!!!!!!!!!!!!!! %@, %@", NSStringFromCGRect(self.view.frame), NSStringFromCGRect([[UIScreen mainScreen] applicationFrame]));    
-    
     // enlarge/shrinken stack
     [self updateViewControllerSizes];
     [self updateViewControllerMasksAndShadow];    
@@ -1419,13 +1311,6 @@ enum {
     for (UIViewController *controller in self.viewControllers) {
         [controller viewDidAppear:animated];
     }
-
-    /*
-    // enlarge/shrinken stack
-    [self updateViewControllerSizes];
-    [self updateViewControllerMasksAndShadow];    
-    [self alignStackAnimated:YES];
-     */
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -1487,18 +1372,26 @@ enum {
         [controller didRotateFromInterfaceOrientation:fromInterfaceOrientation];
     }        
     
-    [self updateViewControllerMasksAndShadow];
+    if (self.isReducingAnimations) {
+        [self updateViewControllerSizes];
+        [self updateViewControllerMasksAndShadow];    
+        
+        // enlarge/shrinken stack
+        [self alignStackAnimated:NO];
+    }
 }
 
 // event relay
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration; {
     [rootViewController_ willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
     
-    [self updateViewControllerSizes];
-    [self updateViewControllerMasksAndShadow];    
-    
-    // enlarge/shrinken stack
-    [self alignStackAnimated:YES];
+    if (!self.isReducingAnimations) {
+        [self updateViewControllerSizes];
+        [self updateViewControllerMasksAndShadow];    
+        
+        // enlarge/shrinken stack
+        [self alignStackAnimated:YES];
+    }
     
     // finally relay rotation events
     for (UIViewController *controller in self.viewControllers) {

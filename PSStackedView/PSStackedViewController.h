@@ -25,7 +25,8 @@ enum {
     
     // properites
     NSUInteger leftInset_;
-    NSUInteger largeLeftInset_;    
+    NSUInteger largeLeftInset_;
+    BOOL reduceAnimations_;
     
     // stack state
     CGFloat floatIndex_;
@@ -58,6 +59,9 @@ enum {
 
 /// remove top view controller from stack, return it
 - (UIViewController *)popViewControllerAnimated:(BOOL)animated;
+
+/// remove specific view controller. returns false if controller is not on top of stack
+- (BOOL)popViewController:(UIViewController *)controller animated:(BOOL)animated;
 
 /// remove view controllers until 'viewController' is found
 - (NSArray *)popToViewController:(UIViewController *)viewController animated:(BOOL)animated;
@@ -127,8 +131,9 @@ enum {
 /// pangesture recognizer used
 @property(nonatomic, retain) UIPanGestureRecognizer *panRecognizer;
 
-/// toggle full menu / small menu
-//@property(nonatomic, assign, getter=isShowingFullMenu, readonly) BOOL showingFullMenu;
+/// enable if you show another object in fullscreen, but stacked view still thinks it's displayed
+/// reduces animations to a minimum to get smoother reactions on frontmost view.
+@property(nonatomic, assign, getter=isReducingAnimations) BOOL reduceAnimations;
 
 /// left inset thats always visible. Defaults to 60.
 @property(nonatomic, assign) NSUInteger leftInset;
