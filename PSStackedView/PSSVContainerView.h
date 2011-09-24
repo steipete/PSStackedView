@@ -31,6 +31,9 @@ enum {
 /// limit to max width
 - (CGFloat)limitToMaxWidth:(CGFloat)maxWidth;
 
+/// add rounded masks. 
+/// currently unused, because this needs offscreen-rendering, which is crazy slow
+/// as a workaround, fake te rounded corners yourself
 - (void)addMaskToCorners:(UIRectCorner)corners;
 - (void)removeMask;
 
@@ -40,6 +43,7 @@ enum {
 /// set shadow sides
 @property(nonatomic, assign) PSSVSide shadow;
 
+/// view controller that is being incapsulated
 @property(nonatomic, retain) UIViewController *controller;
 
 /// darken down the view if it's not fully visible

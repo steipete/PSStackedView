@@ -76,12 +76,6 @@
 
 - (id)initWithFrame:(CGRect)frame {
     if ((self = [super initWithFrame:frame])) {
-        transparentView_ = [[UIView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width, frame.size.height)];
-        transparentView_.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-        transparentView_.backgroundColor = [UIColor blackColor];
-        transparentView_.alpha = 0.f;
-        transparentView_.userInteractionEnabled = NO;
-        [self addSubview:transparentView_];
     }
     return self;
 }
@@ -230,7 +224,23 @@
 }
 
 - (void)setDarkRatio:(CGFloat)darkRatio {
+    BOOL isTransparent = darkRatio > 0.01f;
+    
+    if (isTransparent && !transparentView_) {
+        transparentView_ = [[UIView alloc] initWithFrame:CGRectMake(0.f, 0.f, self.width, self.height)];
+        transparentView_.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        transparentView_.backgroundColor = [UIColor blackColor];
+        transparentView_.alpha = 0.f;
+        transparentView_.userInteractionEnabled = NO;
+        [self addSubview:transparentView_];
+    }
+    
     transparentView_.alpha = darkRatio;
+    if (isTransparent) {
+        [self addSubview:transparentView_];
+    }else {
+        [transparentView_ removeFromSuperview];
+    }
 }
 
 - (CGFloat)darkRatio {
