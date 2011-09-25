@@ -74,14 +74,7 @@
     return view;
 }
 
-- (id)initWithFrame:(CGRect)frame {
-    if ((self = [super initWithFrame:frame])) {
-    }
-    return self;
-}
-
 - (void)dealloc {
-    //PSSVLog(@"removing mask/shadow from %@", self.controller);
     [self removeMask];
     self.shadow = PSSVSideNone; // TODO needed?
     [leftShadowLayer_ release];
