@@ -15,15 +15,6 @@
 
 #define kPSSVAssociatedStackViewControllerKey @"kPSSVAssociatedStackViewController"
 
-enum {
-    PSSVLogLevelNothing,
-    PSSVLogLevelError,    
-    PSSVLogLevelInfo,
-    PSSVLogLevelVerbose
-}typedef PSSVLogLevel;
-
-extern PSSVLogLevel kPSSVDebugLogLevel; // defaults to PSSVLogLevelError
-
 #define kPSSVStackedViewKitDebugEnabled
 
 #define PSIsIpad() ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad)
@@ -63,9 +54,9 @@ __VA_ARGS__ \
 }
 
 #ifndef kCFCoreFoundationVersionNumber_iPhoneOS_5_0
-#define kCFCoreFoundationVersionNumber_iPhoneOS_5_0 666.1
+#define kCFCoreFoundationVersionNumber_iPhoneOS_5_0 674.0
 #endif
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 50000
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 40000
 #define IF_IOS5_OR_GREATER(...) \
 if (kCFCoreFoundationVersionNumber >= kCFCoreFoundationVersionNumber_iPhoneOS_5_0) \
 { \

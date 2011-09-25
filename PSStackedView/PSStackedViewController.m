@@ -6,9 +6,7 @@
 //  Copyright 2011 Peter Steinberger. All rights reserved.
 //
 
-#import "PSStackedViewController.h"
-#import "PSStackedViewGlobal.h"
-#import "PSSVContainerView.h"
+#import "PSStackedView.h"
 #import "UIViewController+PSStackedView.h"
 #import <QuartzCore/QuartzCore.h>
 #import <objc/runtime.h>
@@ -684,7 +682,7 @@ enum {
         // calculate float index
         NSUInteger newFirstVisibleIndex = lastViewController ? [self indexOfViewController:lastViewController] : 0;         
         CGFloat floatIndex = [self nearestValidFloatIndex:newFirstVisibleIndex]; // absolut value
-                
+        
         CGFloat overlapRatio = 0.f;
         UIViewController *overlappedVC = [self overlappedViewController];
         if (overlappedVC) {
@@ -692,7 +690,7 @@ enum {
             PSSVLog(@"overlapping %@ with %@", NSStringFromCGRect(overlappedVC.containerView.frame), NSStringFromCGRect(rightVC.containerView.frame));
             overlapRatio = fabsf(overlappedVC.containerView.right - rightVC.containerView.left)/(overlappedVC.containerView.right - ([self screenWidth] - rightVC.containerView.width));
         }
-
+        
         // only update ratio if < 1 (else we move sth else)
         if (overlapRatio <= 1.f && overlapRatio > 0.f) {
             floatIndex += 0.5f + overlapRatio*0.5f; // fully overlapped = the .5 ratio!
@@ -946,7 +944,7 @@ enum {
         
         // save current stack controller as an associated object.
         objc_setAssociatedObject(lastController, kPSSVAssociatedStackViewControllerKey, nil, OBJC_ASSOCIATION_ASSIGN);
-
+        
         // realign view controllers
         [self updateViewControllerMasksAndShadow];
         [self alignStackAnimated:animated];
@@ -1212,7 +1210,7 @@ enum {
         newFloatIndex = [self nextFloatIndex:newFloatIndex];
         steps--;
     }
-
+    
     if (newFloatIndex > 0.f) {
         self.floatIndex = MAX(newFloatIndex, self.floatIndex);
     }
@@ -1243,7 +1241,7 @@ enum {
         newFloatIndex = [self prevFloatIndex:newFloatIndex];
         steps--;
     }
-
+    
     self.floatIndex = MIN(newFloatIndex, self.floatIndex);
     
     [self alignStackAnimated:animated];
@@ -1367,17 +1365,17 @@ enum {
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation; {
     [rootViewController_ didRotateFromInterfaceOrientation:fromInterfaceOrientation];
     
-    for (UIViewController *controller in self.viewControllers) {
-        [controller didRotateFromInterfaceOrientation:fromInterfaceOrientation];
-    }        
-    
     if (self.isReducingAnimations) {
         [self updateViewControllerSizes];
-        [self updateViewControllerMasksAndShadow];    
-        
-        // enlarge/shrinken stack
-        [self alignStackAnimated:NO];
+        [self updateViewControllerMasksAndShadow];
     }
+        
+    for (UIViewController *controller in self.viewControllers) {
+        [controller didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+    }
+    
+    // ensure we're correctly aligned (may be messed up in willAnimate, if panRecognizer is still active)
+    [self alignStackAnimated:!self.isReducingAnimations];
 }
 
 // event relay
@@ -1387,15 +1385,15 @@ enum {
     if (!self.isReducingAnimations) {
         [self updateViewControllerSizes];
         [self updateViewControllerMasksAndShadow];    
-        
-        // enlarge/shrinken stack
-        [self alignStackAnimated:YES];
     }
-    
+        
     // finally relay rotation events
     for (UIViewController *controller in self.viewControllers) {
         [controller willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
     }
+    
+    // enlarge/shrinken stack
+    [self alignStackAnimated:!self.isReducingAnimations];
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////

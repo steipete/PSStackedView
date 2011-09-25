@@ -6,6 +6,6 @@
 //  Copyright (c) 2011 Peter Steinberger. All rights reserved.
 //
 
-#import "PSStackedViewGlobal.h"
+#import "PSStackedView.h"
 
 PSSVLogLevel kPSSVDebugLogLevel = PSSVLogLevelError;

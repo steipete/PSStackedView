@@ -8,6 +8,14 @@
 
 #import "PSStackedViewDelegate.h"
 #import "PSStackedViewController.h"
-#import "PSStackedViewGlobal.h"
 #import "PSSVContainerView.h"
 #import "UIViewController+PSStackedView.h"
+
+enum {
+    PSSVLogLevelNothing,
+    PSSVLogLevelError,    
+    PSSVLogLevelInfo,
+    PSSVLogLevelVerbose
+}typedef PSSVLogLevel;
+
+extern PSSVLogLevel kPSSVDebugLogLevel; // defaults to PSSVLogLevelError
