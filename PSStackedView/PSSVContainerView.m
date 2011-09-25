@@ -236,11 +236,6 @@
     }
     
     transparentView_.alpha = darkRatio;
-    if (isTransparent) {
-        [self addSubview:transparentView_];
-    }else {
-        [transparentView_ removeFromSuperview];
-    }
 }
 
 - (CGFloat)darkRatio {
