@@ -45,7 +45,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    PSLog(@"load example view, frame: %@", NSStringFromCGRect(self.view.frame));
+    NSLog(@"load example view, frame: %@", NSStringFromCGRect(self.view.frame));
         
 #if 0
     self.view.layer.borderColor = [UIColor greenColor].CGColor;

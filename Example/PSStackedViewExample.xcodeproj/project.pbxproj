@@ -12,7 +12,6 @@
 		3798AD7E13E0B299004C1E33 /* NewGlow.png in Resources */ = {isa = PBXBuildFile; fileRef = 3798AD7813E0B299004C1E33 /* NewGlow.png */; };
 		3798AD8013E0B299004C1E33 /* NewGlow@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3798AD7A13E0B299004C1E33 /* NewGlow@2x.png */; };
 		3798ADF313E125F1004C1E33 /* UIImage+OverlayColor.m in Sources */ = {isa = PBXBuildFile; fileRef = 3798ADF213E125F1004C1E33 /* UIImage+OverlayColor.m */; };
-		7804D859140B10810084EA8A /* PSStackedViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 7804D858140B10810084EA8A /* PSStackedViewController.m */; };
 		78392A2E13D47F20000CAE6E /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 78392A2D13D47F20000CAE6E /* README.md */; };
 		787C229213CEE5F400105064 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 787C229113CEE5F400105064 /* UIKit.framework */; };
 		787C229413CEE5F400105064 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 787C229313CEE5F400105064 /* Foundation.framework */; };
@@ -24,14 +23,17 @@
 		7884393313CEF4B900D18A56 /* ExampleViewController1.m in Sources */ = {isa = PBXBuildFile; fileRef = 7884393113CEF4B900D18A56 /* ExampleViewController1.m */; };
 		7884393813CEF4C800D18A56 /* ExampleViewController2.m in Sources */ = {isa = PBXBuildFile; fileRef = 7884393613CEF4C800D18A56 /* ExampleViewController2.m */; };
 		7884394013CEF82D00D18A56 /* background.png in Resources */ = {isa = PBXBuildFile; fileRef = 7884393F13CEF82D00D18A56 /* background.png */; };
-		788820C513D38CDA004A66A2 /* UIView+PSSizes.m in Sources */ = {isa = PBXBuildFile; fileRef = 788820C313D38CDA004A66A2 /* UIView+PSSizes.m */; };
-		788820D213D38FA3004A66A2 /* PSSVContainerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 788820D113D38FA3004A66A2 /* PSSVContainerView.m */; };
 		789A1CDA13D44C150005364E /* ExampleMenuRootController.m in Sources */ = {isa = PBXBuildFile; fileRef = 789A1CD913D44C150005364E /* ExampleMenuRootController.m */; };
 		78BA6A0F13CEFECF00DDA16E /* MenuTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 78BA6A0E13CEFECF00DDA16E /* MenuTableViewCell.m */; };
 		78BA6A1213CF032B00DDA16E /* glow.png in Resources */ = {isa = PBXBuildFile; fileRef = 78BA6A1113CF032B00DDA16E /* glow.png */; };
 		78BA6A1613CF05C200DDA16E /* 08-chat.png in Resources */ = {isa = PBXBuildFile; fileRef = 78BA6A1313CF05C200DDA16E /* 08-chat.png */; };
 		78BA6A1713CF05C200DDA16E /* 11-clock.png in Resources */ = {isa = PBXBuildFile; fileRef = 78BA6A1413CF05C200DDA16E /* 11-clock.png */; };
 		78BA6A1813CF05C200DDA16E /* 15-tags.png in Resources */ = {isa = PBXBuildFile; fileRef = 78BA6A1513CF05C200DDA16E /* 15-tags.png */; };
+		78D4BE2A142F422C0036BD4B /* PSStackedViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 78D4BE20142F422C0036BD4B /* PSStackedViewController.m */; };
+		78D4BE2B142F422C0036BD4B /* PSStackedViewGlobal.m in Sources */ = {isa = PBXBuildFile; fileRef = 78D4BE23142F422C0036BD4B /* PSStackedViewGlobal.m */; };
+		78D4BE2C142F422C0036BD4B /* PSSVContainerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 78D4BE25142F422C0036BD4B /* PSSVContainerView.m */; };
+		78D4BE2D142F422C0036BD4B /* UIView+PSSizes.m in Sources */ = {isa = PBXBuildFile; fileRef = 78D4BE27142F422C0036BD4B /* UIView+PSSizes.m */; };
+		78D4BE2E142F422C0036BD4B /* UIViewController+PSStackedView.m in Sources */ = {isa = PBXBuildFile; fileRef = 78D4BE29142F422C0036BD4B /* UIViewController+PSStackedView.m */; };
 		78DE83D713D3271700D2BADD /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 78DE83D613D3271700D2BADD /* QuartzCore.framework */; };
 /* End PBXBuildFile section */
 
@@ -42,8 +44,6 @@
 		3798AD7A13E0B299004C1E33 /* NewGlow@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "NewGlow@2x.png"; sourceTree = "<group>"; };
 		3798ADF113E125F1004C1E33 /* UIImage+OverlayColor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+OverlayColor.h"; sourceTree = "<group>"; };
 		3798ADF213E125F1004C1E33 /* UIImage+OverlayColor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+OverlayColor.m"; sourceTree = "<group>"; };
-		7804D857140B10810084EA8A /* PSStackedViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PSStackedViewController.h; path = ../../PSStackedView/PSStackedViewController.h; sourceTree = "<group>"; };
-		7804D858140B10810084EA8A /* PSStackedViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PSStackedViewController.m; path = ../../PSStackedView/PSStackedViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		78392A2D13D47F20000CAE6E /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		787C228D13CEE5F400105064 /* StackedViewKit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StackedViewKit.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		787C229113CEE5F400105064 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -61,13 +61,6 @@
 		7884393513CEF4C800D18A56 /* ExampleViewController2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExampleViewController2.h; sourceTree = "<group>"; };
 		7884393613CEF4C800D18A56 /* ExampleViewController2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExampleViewController2.m; sourceTree = "<group>"; };
 		7884393F13CEF82D00D18A56 /* background.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = background.png; sourceTree = "<group>"; };
-		788820BD13D38CDA004A66A2 /* PSStackedView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PSStackedView.h; path = ../../PSStackedView/PSStackedView.h; sourceTree = "<group>"; };
-		788820BE13D38CDA004A66A2 /* PSStackedViewDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PSStackedViewDelegate.h; path = ../../PSStackedView/PSStackedViewDelegate.h; sourceTree = "<group>"; };
-		788820BF13D38CDA004A66A2 /* PSStackedViewGlobal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PSStackedViewGlobal.h; path = ../../PSStackedView/PSStackedViewGlobal.h; sourceTree = "<group>"; };
-		788820C213D38CDA004A66A2 /* UIView+PSSizes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIView+PSSizes.h"; path = "../../PSStackedView/UIView+PSSizes.h"; sourceTree = "<group>"; };
-		788820C313D38CDA004A66A2 /* UIView+PSSizes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIView+PSSizes.m"; path = "../../PSStackedView/UIView+PSSizes.m"; sourceTree = "<group>"; };
-		788820D013D38FA3004A66A2 /* PSSVContainerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PSSVContainerView.h; path = ../../PSStackedView/PSSVContainerView.h; sourceTree = "<group>"; };
-		788820D113D38FA3004A66A2 /* PSSVContainerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PSSVContainerView.m; path = ../../PSStackedView/PSSVContainerView.m; sourceTree = "<group>"; };
 		789A1CD813D44C150005364E /* ExampleMenuRootController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExampleMenuRootController.h; sourceTree = "<group>"; };
 		789A1CD913D44C150005364E /* ExampleMenuRootController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ExampleMenuRootController.m; sourceTree = "<group>"; };
 		78BA6A0D13CEFECF00DDA16E /* MenuTableViewCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MenuTableViewCell.h; sourceTree = "<group>"; };
@@ -76,6 +69,18 @@
 		78BA6A1313CF05C200DDA16E /* 08-chat.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "08-chat.png"; sourceTree = "<group>"; };
 		78BA6A1413CF05C200DDA16E /* 11-clock.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "11-clock.png"; sourceTree = "<group>"; };
 		78BA6A1513CF05C200DDA16E /* 15-tags.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "15-tags.png"; sourceTree = "<group>"; };
+		78D4BE1E142F422C0036BD4B /* PSStackedView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PSStackedView.h; path = ../../PSStackedView/PSStackedView.h; sourceTree = "<group>"; };
+		78D4BE1F142F422C0036BD4B /* PSStackedViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PSStackedViewController.h; path = ../../PSStackedView/PSStackedViewController.h; sourceTree = "<group>"; };
+		78D4BE20142F422C0036BD4B /* PSStackedViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PSStackedViewController.m; path = ../../PSStackedView/PSStackedViewController.m; sourceTree = "<group>"; };
+		78D4BE21142F422C0036BD4B /* PSStackedViewDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PSStackedViewDelegate.h; path = ../../PSStackedView/PSStackedViewDelegate.h; sourceTree = "<group>"; };
+		78D4BE22142F422C0036BD4B /* PSStackedViewGlobal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PSStackedViewGlobal.h; path = ../../PSStackedView/PSStackedViewGlobal.h; sourceTree = "<group>"; };
+		78D4BE23142F422C0036BD4B /* PSStackedViewGlobal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PSStackedViewGlobal.m; path = ../../PSStackedView/PSStackedViewGlobal.m; sourceTree = "<group>"; };
+		78D4BE24142F422C0036BD4B /* PSSVContainerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PSSVContainerView.h; path = ../../PSStackedView/PSSVContainerView.h; sourceTree = "<group>"; };
+		78D4BE25142F422C0036BD4B /* PSSVContainerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PSSVContainerView.m; path = ../../PSStackedView/PSSVContainerView.m; sourceTree = "<group>"; };
+		78D4BE26142F422C0036BD4B /* UIView+PSSizes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIView+PSSizes.h"; path = "../../PSStackedView/UIView+PSSizes.h"; sourceTree = "<group>"; };
+		78D4BE27142F422C0036BD4B /* UIView+PSSizes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIView+PSSizes.m"; path = "../../PSStackedView/UIView+PSSizes.m"; sourceTree = "<group>"; };
+		78D4BE28142F422C0036BD4B /* UIViewController+PSStackedView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIViewController+PSStackedView.h"; path = "../../PSStackedView/UIViewController+PSStackedView.h"; sourceTree = "<group>"; };
+		78D4BE29142F422C0036BD4B /* UIViewController+PSStackedView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIViewController+PSStackedView.m"; path = "../../PSStackedView/UIViewController+PSStackedView.m"; sourceTree = "<group>"; };
 		78DE83D613D3271700D2BADD /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -179,15 +184,18 @@
 		787C22DB13CEF1B200105064 /* PSStackedView */ = {
 			isa = PBXGroup;
 			children = (
-				788820BD13D38CDA004A66A2 /* PSStackedView.h */,
-				788820BE13D38CDA004A66A2 /* PSStackedViewDelegate.h */,
-				788820BF13D38CDA004A66A2 /* PSStackedViewGlobal.h */,
-				788820D013D38FA3004A66A2 /* PSSVContainerView.h */,
-				788820D113D38FA3004A66A2 /* PSSVContainerView.m */,
-				7804D857140B10810084EA8A /* PSStackedViewController.h */,
-				7804D858140B10810084EA8A /* PSStackedViewController.m */,
-				788820C213D38CDA004A66A2 /* UIView+PSSizes.h */,
-				788820C313D38CDA004A66A2 /* UIView+PSSizes.m */,
+				78D4BE1E142F422C0036BD4B /* PSStackedView.h */,
+				78D4BE1F142F422C0036BD4B /* PSStackedViewController.h */,
+				78D4BE20142F422C0036BD4B /* PSStackedViewController.m */,
+				78D4BE21142F422C0036BD4B /* PSStackedViewDelegate.h */,
+				78D4BE22142F422C0036BD4B /* PSStackedViewGlobal.h */,
+				78D4BE23142F422C0036BD4B /* PSStackedViewGlobal.m */,
+				78D4BE24142F422C0036BD4B /* PSSVContainerView.h */,
+				78D4BE25142F422C0036BD4B /* PSSVContainerView.m */,
+				78D4BE26142F422C0036BD4B /* UIView+PSSizes.h */,
+				78D4BE27142F422C0036BD4B /* UIView+PSSizes.m */,
+				78D4BE28142F422C0036BD4B /* UIViewController+PSStackedView.h */,
+				78D4BE29142F422C0036BD4B /* UIViewController+PSStackedView.m */,
 			);
 			name = PSStackedView;
 			path = StackedViewKitExample;
@@ -285,11 +293,13 @@
 				7884393313CEF4B900D18A56 /* ExampleViewController1.m in Sources */,
 				7884393813CEF4C800D18A56 /* ExampleViewController2.m in Sources */,
 				78BA6A0F13CEFECF00DDA16E /* MenuTableViewCell.m in Sources */,
-				788820C513D38CDA004A66A2 /* UIView+PSSizes.m in Sources */,
-				788820D213D38FA3004A66A2 /* PSSVContainerView.m in Sources */,
 				789A1CDA13D44C150005364E /* ExampleMenuRootController.m in Sources */,
 				3798ADF313E125F1004C1E33 /* UIImage+OverlayColor.m in Sources */,
-				7804D859140B10810084EA8A /* PSStackedViewController.m in Sources */,
+				78D4BE2A142F422C0036BD4B /* PSStackedViewController.m in Sources */,
+				78D4BE2B142F422C0036BD4B /* PSStackedViewGlobal.m in Sources */,
+				78D4BE2C142F422C0036BD4B /* PSSVContainerView.m in Sources */,
+				78D4BE2D142F422C0036BD4B /* UIView+PSSizes.m in Sources */,
+				78D4BE2E142F422C0036BD4B /* UIViewController+PSStackedView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
