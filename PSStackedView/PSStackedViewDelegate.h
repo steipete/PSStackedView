@@ -12,6 +12,8 @@
 
 @protocol PSStackedViewDelegate <NSObject>
 
+@optional
+
 /// viewController will be inserted
 - (void)stackedView:(PSStackedViewController *)stackedView willInsertViewController:(UIViewController *)viewController;
 
