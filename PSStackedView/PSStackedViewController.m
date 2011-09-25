@@ -870,7 +870,7 @@ enum {
     PSSVLog(@"container frame: %@", NSStringFromCGRect(container.frame));
     
     // relay willAppear and add to subview
-    IF_PRE_IOS5([viewController viewWillAppear:animated];)
+    [viewController viewWillAppear:animated];
     
     if (animated) {
         container.alpha = 0.f;
@@ -890,7 +890,7 @@ enum {
     [container layoutIfNeeded];
     //container.width = viewController.view.width; // sync width (after it may has changed in layoutIfNeeded)
     
-    IF_PRE_IOS5([viewController viewDidAppear:animated];)
+    [viewController viewDidAppear:animated];
     [viewControllers_ addObject:viewController];
     
     // register stack controller
@@ -918,12 +918,11 @@ enum {
         
         // remove from view stack!
         PSSVContainerView *container = lastController.containerView;
-        
-        IF_PRE_IOS5([lastController viewWillDisappear:animated];)
+        [lastController viewWillDisappear:animated];
         
         PSSVSimpleBlock finishBlock = ^{
             [container removeFromSuperview];
-            IF_PRE_IOS5([lastController viewDidDisappear:animated];)
+            [lastController viewDidDisappear:animated];
             [self delegateDidRemoveViewController:lastController];
         };
         
