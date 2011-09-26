@@ -21,7 +21,6 @@
 #define PSAppStatusBarOrientation ([[UIApplication sharedApplication] statusBarOrientation])
 #define PSIsPortrait()  UIInterfaceOrientationIsPortrait(PSAppStatusBarOrientation)
 #define PSIsLandscape() UIInterfaceOrientationIsLandscape(PSAppStatusBarOrientation)
-#define PSIsIpad() ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad)
 
 #ifdef kPSSVStackedViewKitDebugEnabled
 #define PSSVLogVerbose(fmt, ...) do { if(kPSSVDebugLogLevel >= PSSVLogLevelVerbose) NSLog((@"%s/%d " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__); }while(0)
