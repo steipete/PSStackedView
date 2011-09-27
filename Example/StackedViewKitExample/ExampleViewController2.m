@@ -30,7 +30,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
 
-    self.view.width = PSIsIpad() ? 250 : 100;
+    self.view.width = PSIsIpad() ? 550 : 100;
 }
 
 
