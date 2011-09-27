@@ -8,13 +8,19 @@ All the hard parts, moving, shadows, rounded borders is taken care of.
 ## Getting Started
 
 Much like UINavigationController, it's a good idea to put your PSStackedViewRootController in the AppDelegate:
-`@property (nonatomic, retain) PSStackedViewRootController *stackController;`
+
+```objc
+@property (nonatomic, retain) PSStackedViewRootController *stackController;
+```
 
 Create the stack in application:didFinishLaunchingWithOptions:
-`TVTabbedMenuViewController *menuController = [[[TVTabbedMenuViewController alloc] init] autorelease];`
-`self.stackController = [[[PSStackedViewRootController alloc] initWithRootViewController:menuController] autorelease];`
-`[self.stackController pushViewController:channelController fromViewController:nil animated:NO];`
-`window.rootViewController = self.stackController;`
+
+```objc
+ExampleMenuRootController *menuController = [[[ExampleMenuRootController alloc] init] autorelease];
+self.stackController = [[[PSStackedViewRootController alloc] initWithRootViewController:menuController] autorelease];
+[self.stackController pushViewController:demoViewController fromViewController:nil animated:NO];
+window.rootViewController = self.stackController;
+```
 
 PSStackedViewRootController's rootViewController is in the background and its left part is always visible. Adjust the size with leftInset and largeLeftInset.
 
