@@ -205,7 +205,8 @@ typedef void(^PSSVSimpleBlock)(void);
 
 // returns view controller that is displayed before viewController 
 - (UIViewController *)previousViewController:(UIViewController *)viewController {
-    NSParameterAssert(viewController);
+    if(!viewController) // don't assert on mere menu events
+        return nil;
     
     NSUInteger vcIndex = [self indexOfViewController:viewController];
     UIViewController *prevVC = nil;
