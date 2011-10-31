@@ -31,7 +31,7 @@ enum {
 /// limit to max width
 - (CGFloat)limitToMaxWidth:(CGFloat)maxWidth;
 
-/// add rounded masks. 
+/// add rounded masks.
 /// currently unused, because this needs offscreen-rendering, which is crazy slow
 /// as a workaround, fake te rounded corners yourself
 - (void)addMaskToCorners:(UIRectCorner)corners;
