@@ -9,6 +9,10 @@ I made it for the iPad-Version of the popular austrian TV app ["3MobileTV"](http
 
 Currently there is a positioning bug with small view controllers, I'll fix that in the foreseeable future. Otherwise, it's pretty much a drop-in-replacement for UINavigationController, using regular UIViewControllers. It supports iOS4 upwards, with some special support for iOS5's new view controller containment coming.
 
+It works on the iPad and the iPhone, but the _concept_ works better on the iPad.
+
+![PSStackedView](http://f.cl.ly/items/2O1p18263a2Q27223R3h/Screen%20Shot%202011-11-01%20at%206.03.02%20PM.png)
+
 ## Getting Started
 
 Much like UINavigationController, it's a good idea to put your PSStackedViewRootController in the AppDelegate:
