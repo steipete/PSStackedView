@@ -5,6 +5,10 @@ This one lets you add plain UIViewControllers to a PSStackedViewRootViewControll
 
 All the hard parts, moving, shadows, rounded borders is taken care of.
 
+I made it for the iPad-Version of the popular austrian TV app ["3MobileTV"](http://itunes.apple.com/at/app/3mobiletv/id404154552?mt=8). (you need an austrian 3-SIM to test it, but you can check out the screenshots to get the idea what's possible with it).
+
+Currently there is a positioning bug with small view controllers, I'll fix that in the foreseeable future. Otherwise, it's pretty much a drop-in-replacement for UINavigationController, using regular UIViewControllers. It supports iOS4 upwards, with some special support for iOS5's new view controller containment coming.
+
 ## Getting Started
 
 Much like UINavigationController, it's a good idea to put your PSStackedViewRootController in the AppDelegate:
@@ -26,8 +30,7 @@ PSStackedViewRootController's rootViewController is in the background and its le
 
 ## Roadmap
 - Add (conditional) support for the new child view controller system in iOS5
-- Bouncing
-- Better shadow & memory management
+- Appledoc
 - lots more
 
 ## License
