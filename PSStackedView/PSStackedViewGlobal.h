@@ -23,9 +23,9 @@
 #define PSIsLandscape() UIInterfaceOrientationIsLandscape(PSAppStatusBarOrientation)
 
 #ifdef kPSSVStackedViewKitDebugEnabled
-#define PSSVLogVerbose(fmt, ...) do { if (kPSSVDebugLogLevel >= PSSVLogLevelVerbose) NSLog((@"%s/%d " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__); }while (0)
-#define PSSVLog(fmt, ...) do { if (kPSSVDebugLogLevel >= PSSVLogLevelInfo) NSLog((@"%s/%d " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__); }while (0)
-#define PSSVLogError(fmt, ...) do { if (kPSSVDebugLogLevel >= PSSVLogLevelError) NSLog((@"Error: %s/%d " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__); }while (0)
+#define PSSVLogVerbose(fmt, ...) do { if(kPSSVDebugLogLevel >= PSSVLogLevelVerbose) NSLog((@"%s/%d " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__); }while(0)
+#define PSSVLog(fmt, ...) do { if(kPSSVDebugLogLevel >= PSSVLogLevelInfo) NSLog((@"%s/%d " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__); }while(0)
+#define PSSVLogError(fmt, ...) do { if(kPSSVDebugLogLevel >= PSSVLogLevelError) NSLog((@"Error: %s/%d " fmt), __PRETTY_FUNCTION__, __LINE__, ##__VA_ARGS__); }while(0)
 #else
 #define PSSVLogVerbose(...)
 #define PSSVLog(...)

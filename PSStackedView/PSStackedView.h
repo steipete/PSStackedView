@@ -13,7 +13,7 @@
 
 enum {
     PSSVLogLevelNothing,
-    PSSVLogLevelError,
+    PSSVLogLevelError,    
     PSSVLogLevelInfo,
     PSSVLogLevelVerbose
 }typedef PSSVLogLevel;

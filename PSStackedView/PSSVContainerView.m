@@ -14,9 +14,6 @@
 #define kPSSVShadowWidth 60.f
 #define kPSSVShadowAlpha 0.5f
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
 @interface PSSVContainerView ()
 @property(nonatomic, assign) CGFloat originalWidth;
 @property(nonatomic, retain) CAGradientLayer *leftShadowLayer;
@@ -25,9 +22,6 @@
 @property(nonatomic, retain) UIView *transparentView;
 @end
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////////////////
 @implementation PSSVContainerView
 
 @synthesize shadow = shadow_;
@@ -43,7 +37,6 @@
 #pragma mark private
 
 // creates vertical shadow
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (CAGradientLayer *)shadowAsInverse:(BOOL)inverse {
 	CAGradientLayer *newShadow = [[[CAGradientLayer alloc] init] autorelease];
     newShadow.startPoint = CGPointMake(0, 0.5);
@@ -58,7 +51,6 @@
 }
 
 // return available shadows as set, for easy enumeration
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (NSSet *)shadowSet {
     NSMutableSet *set = [NSMutableSet set];
     if (self.leftShadowLayer) {
@@ -76,14 +68,12 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - NSObject
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 + (PSSVContainerView *)containerViewWithController:(UIViewController *)controller; {
     PSSVContainerView *view = [[[PSSVContainerView alloc] initWithFrame:controller.view.frame] autorelease];
-    view.controller = controller;
+    view.controller = controller;    
     return view;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)dealloc {
     [self removeMask];
     self.shadow = PSSVSideNone; // TODO needed?
@@ -98,7 +88,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - UIView
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setFrame:(CGRect)frame {
     [super setFrame:frame];
 
@@ -113,85 +102,78 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - Public
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (CGFloat)limitToMaxWidth:(CGFloat)maxWidth; {
     BOOL widthChanged = NO;
-
+    
     if (maxWidth && self.width > maxWidth) {
         self.width = maxWidth;
         widthChanged = YES;
-    }else if (self.originalWidth && self.width < self.originalWidth) {
+    }else if(self.originalWidth && self.width < self.originalWidth) {
         self.width = MIN(maxWidth, self.originalWidth);
         widthChanged = YES;
     }
     self.controller.view.width = self.width;
-
+    
     // update shadow layers for new width
     if (widthChanged) {
         [self updateContainer];
     }
-
+    
     return self.width;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setController:(UIViewController *)aController {
     if (controller_ != aController) {
         if (controller_) {
             [controller_.view removeFromSuperview];
             [controller_ release];
-        }
+        }        
         controller_ = [aController retain];
-
+        
         // properly embed view
         self.originalWidth = self.controller.view.width;
-        controller_.view.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+        controller_.view.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth; 
         controller_.view.frame = CGRectMake(0, 0, controller_.view.width, controller_.view.height);
         [self addSubview:controller_.view];
         [self bringSubviewToFront:transparentView_];
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)addMaskToCorners:(UIRectCorner)corners; {
     // Re-calculate the size of the mask to account for adding/removing rows.
     CGRect frame = self.controller.view.bounds;
-    if ([self.controller.view isKindOfClass:[UIScrollView class]] && ((UIScrollView *)self.controller.view).contentSize.height > self.controller.view.frame.size.height) {
+    if([self.controller.view isKindOfClass:[UIScrollView class]] && ((UIScrollView *)self.controller.view).contentSize.height > self.controller.view.frame.size.height) {
     	frame.size = ((UIScrollView *)self.controller.view).contentSize;
-
     } else {
         frame.size = self.controller.view.frame.size;
     }
-
+    
     // Create the path (with only the top-left corner rounded)
-    UIBezierPath *maskPath = [UIBezierPath bezierPathWithRoundedRect:frame
+    UIBezierPath *maskPath = [UIBezierPath bezierPathWithRoundedRect:frame 
                                                    byRoundingCorners:corners
                                                          cornerRadii:CGSizeMake(kPSSVCornerRadius, kPSSVCornerRadius)];
-
+    
     // Create the shape layer and set its path
     CAShapeLayer *maskLayer = [CAShapeLayer layer];
     maskLayer.frame = frame;
     maskLayer.path = maskPath.CGPath;
-
+    
     // Set the newly created shape layer as the mask for the image view's layer
     self.controller.view.layer.mask = maskLayer;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)removeMask; {
     self.controller.view.layer.mask = nil;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)updateContainer {
     // re-set shadow property
     self.shadow = shadow_;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setShadow:(PSSVSide)shadow {
     shadow_ = shadow;
-
+    
     if (shadow & PSSVSideLeft) {
         if (!self.leftShadowLayer) {
             CAGradientLayer *leftShadow = [self shadowAsInverse:YES];
@@ -204,7 +186,7 @@
     }else {
         [self.leftShadowLayer removeFromSuperlayer];
     }
-
+    
     if (shadow & PSSVSideRight) {
         if (!self.rightShadowLayer) {
             CAGradientLayer *rightShadow = [self shadowAsInverse:NO];
@@ -217,7 +199,7 @@
     }else {
         [self.rightShadowLayer removeFromSuperlayer];
     }
-
+    
     if (shadow) {
         if (!self.innerShadowLayer) {
             CAGradientLayer *innerShadow = [[[CAGradientLayer alloc] init] autorelease];
@@ -234,10 +216,9 @@
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (void)setDarkRatio:(CGFloat)darkRatio {
     BOOL isTransparent = darkRatio > 0.01f;
-
+    
     if (isTransparent && !transparentView_) {
         transparentView_ = [[UIView alloc] initWithFrame:CGRectMake(0.f, 0.f, self.width, self.height)];
         transparentView_.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -246,11 +227,10 @@
         transparentView_.userInteractionEnabled = NO;
         [self addSubview:transparentView_];
     }
-
+    
     transparentView_.alpha = darkRatio;
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////
 - (CGFloat)darkRatio {
     return transparentView_.alpha;
 }
