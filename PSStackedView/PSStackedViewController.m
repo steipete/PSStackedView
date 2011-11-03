@@ -936,12 +936,11 @@ enum {
                 }
             }];
         }
-        
-        [viewControllers_ removeLastObject];
-        
-        if(!animated) {
+        else {
             finishBlock();
         }
+        
+        [viewControllers_ removeLastObject];        
         
         // save current stack controller as an associated object.
         objc_setAssociatedObject(lastController, kPSSVAssociatedStackViewControllerKey, nil, OBJC_ASSOCIATION_ASSIGN);
