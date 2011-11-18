@@ -13,8 +13,8 @@
     UIImage *savedImage;
 }
 
-@property(nonatomic,retain) UIImageView *glowView;
-@property(nonatomic,retain) UIView *disabledView;
+@property(nonatomic,strong) UIImageView *glowView;
+@property(nonatomic,strong) UIView *disabledView;
 @property(nonatomic) BOOL enabled;
 
 @end

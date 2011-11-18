@@ -44,7 +44,7 @@ enum {
 @property(nonatomic, assign) PSSVSide shadow;
 
 /// view controller that is being incapsulated
-@property(nonatomic, retain) UIViewController *controller;
+@property(nonatomic, strong) UIViewController *controller;
 
 /// darken down the view if it's not fully visible
 @property(nonatomic, assign) CGFloat darkRatio;

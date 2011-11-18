@@ -10,7 +10,7 @@
 
 @interface ExampleViewController1 : UIViewController <PSStackedViewDelegate>
 
-@property(nonatomic, retain) IBOutlet UILabel *indexNumberLabel;
+@property(nonatomic, strong) IBOutlet UILabel *indexNumberLabel;
 @property(nonatomic, assign) NSUInteger indexNumber;
 
 @end

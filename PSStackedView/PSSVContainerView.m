@@ -16,10 +16,10 @@
 
 @interface PSSVContainerView ()
 @property(nonatomic, assign) CGFloat originalWidth;
-@property(nonatomic, retain) CAGradientLayer *leftShadowLayer;
-@property(nonatomic, retain) CAGradientLayer *innerShadowLayer;
-@property(nonatomic, retain) CAGradientLayer *rightShadowLayer;
-@property(nonatomic, retain) UIView *transparentView;
+@property(nonatomic, strong) CAGradientLayer *leftShadowLayer;
+@property(nonatomic, strong) CAGradientLayer *innerShadowLayer;
+@property(nonatomic, strong) CAGradientLayer *rightShadowLayer;
+@property(nonatomic, strong) UIView *transparentView;
 @end
 
 @implementation PSSVContainerView
@@ -38,15 +38,18 @@
 
 // creates vertical shadow
 - (CAGradientLayer *)shadowAsInverse:(BOOL)inverse {
-	CAGradientLayer *newShadow = [[[CAGradientLayer alloc] init] autorelease];
+	CAGradientLayer *newShadow = [[CAGradientLayer alloc] init];
     newShadow.startPoint = CGPointMake(0, 0.5);
     newShadow.endPoint = CGPointMake(1.0, 0.5);
-	CGColorRef darkColor  = [UIColor colorWithWhite:0.0f alpha:kPSSVShadowAlpha].CGColor;
-	CGColorRef lightColor = [UIColor clearColor].CGColor;
+	CGColorRef darkColor  = (CGColorRef)CFRetain([UIColor colorWithWhite:0.0f alpha:kPSSVShadowAlpha].CGColor);
+	CGColorRef lightColor = (CGColorRef)CFRetain([UIColor clearColor].CGColor);
 	newShadow.colors = [NSArray arrayWithObjects:
-                        (id)(inverse ? lightColor : darkColor),
-                        (id)(inverse ? darkColor : lightColor),
+                        (__bridge id)(inverse ? lightColor : darkColor),
+                        (__bridge id)(inverse ? darkColor : lightColor),
                         nil];
+    
+    CFRelease(darkColor);
+    CFRelease(lightColor);
 	return newShadow;
 }
 
@@ -62,14 +65,14 @@
     if (self.rightShadowLayer) {
         [set addObject:self.rightShadowLayer];
     }
-    return [[set copy] autorelease];
+    return [set copy];
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - NSObject
 
 + (PSSVContainerView *)containerViewWithController:(UIViewController *)controller; {
-    PSSVContainerView *view = [[[PSSVContainerView alloc] initWithFrame:controller.view.frame] autorelease];
+    PSSVContainerView *view = [[PSSVContainerView alloc] initWithFrame:controller.view.frame];
     view.controller = controller;    
     return view;
 }
@@ -77,12 +80,6 @@
 - (void)dealloc {
     [self removeMask];
     self.shadow = PSSVSideNone; // TODO needed?
-    [leftShadowLayer_ release];
-    [innerShadowLayer_ release];
-    [rightShadowLayer_ release];
-    [transparentView_ release];
-    [controller_ release];
-    [super dealloc];
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -126,9 +123,8 @@
     if (controller_ != aController) {
         if (controller_) {
             [controller_.view removeFromSuperview];
-            [controller_ release];
         }        
-        controller_ = [aController retain];
+        controller_ = aController;
         
         // properly embed view
         self.originalWidth = self.controller.view.width;
@@ -202,9 +198,8 @@
     
     if (shadow) {
         if (!self.innerShadowLayer) {
-            CAGradientLayer *innerShadow = [[[CAGradientLayer alloc] init] autorelease];
-            CGColorRef darkColor = [UIColor colorWithWhite:0.0f alpha:kPSSVShadowAlpha].CGColor;
-            innerShadow.colors = [NSArray arrayWithObjects:(id)darkColor, (id)darkColor, nil];
+            CAGradientLayer *innerShadow = [[CAGradientLayer alloc] init];
+            innerShadow.colors = [NSArray arrayWithObjects:(id)[UIColor colorWithWhite:0.0f alpha:kPSSVShadowAlpha].CGColor, (id)[UIColor colorWithWhite:0.0f alpha:kPSSVShadowAlpha].CGColor, nil];
             self.innerShadowLayer = innerShadow;
         }
         self.innerShadowLayer.frame = CGRectMake(kPSSVCornerRadius, 0, self.width-kPSSVCornerRadius*2, self.controller.view.height);

@@ -21,8 +21,8 @@
 #define kCellImage @"CellImage" 
 
 @interface ExampleMenuRootController()
-@property (nonatomic, retain) UITableView *menuTable;
-@property (nonatomic, retain) NSArray *cellContents;
+@property (nonatomic, strong) UITableView *menuTable;
+@property (nonatomic, strong) NSArray *cellContents;
 @end
 
 @implementation ExampleMenuRootController
@@ -33,11 +33,6 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - NSObject
 
-- (void)dealloc {
-    [menuTable_ release];
-    [cellContents_ release];
-    [super dealloc];
-}
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -64,12 +59,10 @@
     [contents addObject:[NSDictionary dictionaryWithObjectsAndKeys:[UIImage invertImageNamed:@"11-clock"], kCellImage, NSLocalizedString(@"Expand ->",@""), kCellText, nil]];
     [contents addObject:[NSDictionary dictionaryWithObjectsAndKeys:[UIImage invertImageNamed:@"15-tags"], kCellImage, NSLocalizedString(@"Clear All",@""), kCellText, nil]];    
     self.cellContents = contents;
-	[contents release];
     
     // add table menu
 	UITableView *tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, kMenuWidth, self.view.height) style:UITableViewStylePlain];
     self.menuTable = tableView;
-	[tableView release];
     
     self.menuTable.backgroundColor = [UIColor clearColor];
     self.menuTable.delegate = self;
@@ -95,7 +88,7 @@
     
     MenuTableViewCell *cell = (MenuTableViewCell*)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
-        cell = [[[MenuTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
+        cell = [[MenuTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
     
 	cell.textLabel.text = [[cellContents_ objectAtIndex:indexPath.row] objectForKey:kCellText];
@@ -149,7 +142,6 @@
     
     if (viewController) {
         [XAppDelegate.stackController pushViewController:viewController fromViewController:nil animated:YES];
-		[viewController release];
     }
 }
 

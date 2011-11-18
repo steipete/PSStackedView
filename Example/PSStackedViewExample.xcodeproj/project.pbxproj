@@ -365,6 +365,7 @@
 		787C22A913CEE5F400105064 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "StackedViewKitExample/PSStackedViewExample-Prefix.pch";
 				INFOPLIST_FILE = "StackedViewKitExample/PSStackedViewExample-Info.plist";
@@ -376,6 +377,7 @@
 		787C22AA13CEE5F400105064 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "StackedViewKitExample/PSStackedViewExample-Prefix.pch";
 				INFOPLIST_FILE = "StackedViewKitExample/PSStackedViewExample-Info.plist";

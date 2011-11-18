@@ -24,7 +24,6 @@
         UIView* bgView = [[UIView alloc] init];
         bgView.backgroundColor = [UIColor colorWithWhite:0.f alpha:0.25f];
         self.selectedBackgroundView = bgView;
-        [bgView release];
         
         self.textLabel.font = [UIFont boldSystemFontOfSize:[UIFont systemFontSize]];
         self.textLabel.shadowOffset = CGSizeMake(0, 2);
@@ -35,18 +34,15 @@
         UIView *topLine = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 200, 1)];
         topLine.backgroundColor = [UIColor colorWithWhite:0.5 alpha:0.25];
         [self.textLabel.superview addSubview:topLine];
-        [topLine release];
         
         UIView *bottomLine = [[UIView alloc] initWithFrame:CGRectMake(0, 43, 200, 1)];
         bottomLine.backgroundColor = [UIColor colorWithWhite:0 alpha:0.25];
         [self.textLabel.superview addSubview:bottomLine];
-        [bottomLine release];
         
         glowView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 30, 43)];
         glowView.image = [UIImage imageNamed:@"NewGlow"];
         glowView.hidden = YES;
         [self addSubview:glowView];
-        [glowView release];
     }
     return self;
 }
@@ -86,7 +82,6 @@
         
         if (savedImage) {
             self.imageView.image = savedImage;
-            [savedImage release];
             savedImage = nil;
         }
         
@@ -100,7 +95,7 @@
         newView.backgroundColor = [UIColor colorWithWhite:.5f alpha:.5f];
         
         if (self.imageView.image) {
-            savedImage = [self.imageView.image retain];
+            savedImage = self.imageView.image;
             self.imageView.image = [UIImage imageNamed:@"error"];
         }
         else {
@@ -110,12 +105,10 @@
             CGRect frm = CGRectMake(195.f - imgDim , roundf((self.bounds.size.height/2) - (imgDim/2)), imgDim, imgDim);
             error.frame = frm;
             [newView addSubview:error];        
-            [error release];
         }
         [self addSubview:newView];
         [self bringSubviewToFront:newView];
         self.disabledView = newView;
-        [newView release];
         
         // Disable future user interaction and selections
         self.selectionStyle = UITableViewCellSelectionStyleNone;
@@ -132,10 +125,5 @@
     [self setNeedsDisplay];
 }
 
-- (void)dealloc {
-    [savedImage release];
-    [glowView release];
-    [super dealloc];
-}
 
 @end

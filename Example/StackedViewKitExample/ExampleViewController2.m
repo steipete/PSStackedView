@@ -53,7 +53,7 @@
     
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (cell == nil) {
-        cell = [[[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier] autorelease];
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
     
 	cell.textLabel.text = [NSString stringWithFormat:@"[%d] Cell %d", self.indexNumber, indexPath.row];
@@ -71,7 +71,6 @@
     
     [XAppDelegate.stackController pushViewController:viewController fromViewController:self animated:YES];
     ((ExampleViewController1 *)viewController).indexNumber = [[XAppDelegate.stackController viewControllers] count] - 1;
-	[viewController release];
 }
 
 - (void)setIndexNumber:(NSUInteger)anIndexNumber {
