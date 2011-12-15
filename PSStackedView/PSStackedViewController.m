@@ -921,7 +921,7 @@ enum {
 - (UIViewController *)popViewControllerAnimated:(BOOL)animated; {
     PSSVLog(@"popping controller: %@ (#%d total, animated:%d)", [self topViewController], [self.viewControllers count], animated);
     
-    UIViewController *lastController = [self topViewController];
+    UIViewController *lastController = [[[self topViewController] retain] autorelease];
     if (lastController) {        
         [self delegateWillRemoveViewController:lastController];
         
