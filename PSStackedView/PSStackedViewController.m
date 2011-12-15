@@ -26,7 +26,21 @@
 // prevents me getting crazy
 typedef void(^PSSVSimpleBlock)(void);
 
-@interface PSStackedViewController() <UIGestureRecognizerDelegate> 
+@interface PSStackedViewController() <UIGestureRecognizerDelegate> {
+    NSMutableArray *viewControllers_;
+    // internal drag state handling and other messy details
+    PSSVSnapOption lastDragOption_;
+    BOOL snapBackFromLeft_;
+    NSInteger lastDragOffset_;
+    BOOL lastDragDividedOne_;
+    NSInteger lastVisibleIndexBeforeRotation_;    
+    struct {
+        unsigned int delegateWillInsertViewController:1;
+        unsigned int delegateDidInsertViewController:1;
+        unsigned int delegateWillRemoveViewController:1;
+        unsigned int delegateDidRemoveViewController:1;        
+    }delegateFlags_;
+}
 @property(nonatomic, strong) UIViewController *rootViewController;
 @property(nonatomic, strong) NSMutableArray *viewControllers;
 @property(nonatomic, assign) NSInteger firstVisibleIndex;
@@ -1082,67 +1096,67 @@ enum {
             animationCurve = UIViewAnimationCurveEaseOut;
         }
     }
-
+    
     PSSVSimpleBlock alignmentBlock = ^{
-
-         PSSVLog(@"Begin aliging VCs. Last drag offset:%d direction:%d bounce:%d.", lastDragOffset_, lastDragOption_, bounce);
-         
-         // calculate offset used only when we're bleeding over
-         NSInteger snapOverOffset = 0; // > 0 = <--- ; we scrolled from right to left.
-         NSUInteger firstVisibleIndex = [self firstVisibleIndex];
-         NSUInteger lastFullyVCIndex = [self indexOfViewController:[self lastVisibleViewControllerCompletelyVisible:YES]];
-         BOOL bounceAtVeryEnd = NO;
-         
-         if ([self shouldSnapAnimate] && bounce == PSSVBounceBleedOver) {
-             snapOverOffset = abs(lastDragOffset_ / 5.f);
-             if (snapOverOffset > kPSSVMaxSnapOverOffset) {
-                 snapOverOffset = kPSSVMaxSnapOverOffset;
-             }
-             
-             // positive/negative snap offset depending on snap back direction
-             snapOverOffset *= snapBackFromLeft_ ? 1 : -1;
-             
-             // if we're dragging menu all the way out, bounce back in
-             PSSVLog(@"%@", NSStringFromCGRect(self.firstViewController.containerView.frame));
-             CGFloat firstVCLeft = self.firstViewController.containerView.left;
-             if (firstVisibleIndex == 0 && !snapBackFromLeft_ && firstVCLeft >= self.largeLeftInset) {
-                 bounceAtVeryEnd = YES;
-             }else if(lastFullyVCIndex == [self.viewControllers count]-1 && lastFullyVCIndex > 0) {
-                 bounceAtVeryEnd = YES;
-             }
-             
-             PSSVLog(@"bouncing with offset: %d, firstIndex:%d, snapToLeft:%d veryEnd:%d", snapOverOffset, firstVisibleIndex, snapOverOffset<0, bounceAtVeryEnd);
-         }
-         
-         // iterate over all view controllers and snap them to their correct positions
-         __block NSArray *frames = [self rectsForControllers];
-         [self.viewControllers enumerateObjectsWithOptions:0 usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-             UIViewController *currentVC = (UIViewController *)obj;
-             
-             CGRect currentFrame = [[frames objectAtIndex:idx] CGRectValue];
-             currentVC.containerView.left = currentFrame.origin.x;
-             
-             // menu drag to right case or swiping last vc towards menu
-             if (bounceAtVeryEnd) {
-                 if (idx == firstVisibleIndex) {
-                     frames = [self modifiedRects:frames newLeft:currentVC.containerView.left + snapOverOffset index:idx];
-                 }
-             }
-             // snap the leftmost view controller
-             else if ((snapOverOffset > 0 && idx == firstVisibleIndex) || (snapOverOffset < 0 && (idx == firstVisibleIndex+1))
-                      || [self.viewControllers count] == 1) {
-                 frames = [self modifiedRects:frames newLeft:currentVC.containerView.left + snapOverOffset index:idx];
-             }
-             
-             // set again (maybe changed)
-             currentFrame = [[frames objectAtIndex:idx] CGRectValue];
-             currentVC.containerView.left = currentFrame.origin.x;
-         }];
-         
-         [self updateViewControllerMasksAndShadow];
-         
+        
+        PSSVLog(@"Begin aliging VCs. Last drag offset:%d direction:%d bounce:%d.", lastDragOffset_, lastDragOption_, bounce);
+        
+        // calculate offset used only when we're bleeding over
+        NSInteger snapOverOffset = 0; // > 0 = <--- ; we scrolled from right to left.
+        NSUInteger firstVisibleIndex = [self firstVisibleIndex];
+        NSUInteger lastFullyVCIndex = [self indexOfViewController:[self lastVisibleViewControllerCompletelyVisible:YES]];
+        BOOL bounceAtVeryEnd = NO;
+        
+        if ([self shouldSnapAnimate] && bounce == PSSVBounceBleedOver) {
+            snapOverOffset = abs(lastDragOffset_ / 5.f);
+            if (snapOverOffset > kPSSVMaxSnapOverOffset) {
+                snapOverOffset = kPSSVMaxSnapOverOffset;
+            }
+            
+            // positive/negative snap offset depending on snap back direction
+            snapOverOffset *= snapBackFromLeft_ ? 1 : -1;
+            
+            // if we're dragging menu all the way out, bounce back in
+            PSSVLog(@"%@", NSStringFromCGRect(self.firstViewController.containerView.frame));
+            CGFloat firstVCLeft = self.firstViewController.containerView.left;
+            if (firstVisibleIndex == 0 && !snapBackFromLeft_ && firstVCLeft >= self.largeLeftInset) {
+                bounceAtVeryEnd = YES;
+            }else if(lastFullyVCIndex == [self.viewControllers count]-1 && lastFullyVCIndex > 0) {
+                bounceAtVeryEnd = YES;
+            }
+            
+            PSSVLog(@"bouncing with offset: %d, firstIndex:%d, snapToLeft:%d veryEnd:%d", snapOverOffset, firstVisibleIndex, snapOverOffset<0, bounceAtVeryEnd);
+        }
+        
+        // iterate over all view controllers and snap them to their correct positions
+        __block NSArray *frames = [self rectsForControllers];
+        [self.viewControllers enumerateObjectsWithOptions:0 usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+            UIViewController *currentVC = (UIViewController *)obj;
+            
+            CGRect currentFrame = [[frames objectAtIndex:idx] CGRectValue];
+            currentVC.containerView.left = currentFrame.origin.x;
+            
+            // menu drag to right case or swiping last vc towards menu
+            if (bounceAtVeryEnd) {
+                if (idx == firstVisibleIndex) {
+                    frames = [self modifiedRects:frames newLeft:currentVC.containerView.left + snapOverOffset index:idx];
+                }
+            }
+            // snap the leftmost view controller
+            else if ((snapOverOffset > 0 && idx == firstVisibleIndex) || (snapOverOffset < 0 && (idx == firstVisibleIndex+1))
+                     || [self.viewControllers count] == 1) {
+                frames = [self modifiedRects:frames newLeft:currentVC.containerView.left + snapOverOffset index:idx];
+            }
+            
+            // set again (maybe changed)
+            currentFrame = [[frames objectAtIndex:idx] CGRectValue];
+            currentVC.containerView.left = currentFrame.origin.x;
+        }];
+        
+        [self updateViewControllerMasksAndShadow];
+        
     };
-
+    
     if (animated) {
         [UIView animateWithDuration:duration delay:0.f
                             options:UIViewAnimationOptionAllowUserInteraction | UIViewAnimationOptionBeginFromCurrentState | animationCurve
@@ -1187,7 +1201,7 @@ enum {
     else {
         alignmentBlock();
     }
-        
+    
 }
 
 - (void)alignStackAnimated:(BOOL)animated; {
@@ -1376,7 +1390,7 @@ enum {
         [self updateViewControllerSizes];
         [self updateViewControllerMasksAndShadow];
     }
-        
+    
     for (UIViewController *controller in self.viewControllers) {
         [controller didRotateFromInterfaceOrientation:fromInterfaceOrientation];
     }
@@ -1393,7 +1407,7 @@ enum {
         [self updateViewControllerSizes];
         [self updateViewControllerMasksAndShadow];    
     }
-        
+    
     // finally relay rotation events
     for (UIViewController *controller in self.viewControllers) {
         [controller willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];

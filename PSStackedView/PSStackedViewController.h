@@ -18,34 +18,7 @@ enum {
 } typedef PSSVSnapOption;
 
 /// StackController hosing a backside rootViewController and the stacked controllers
-@interface PSStackedViewController : UIViewController {
-    id<PSStackedViewDelegate> __unsafe_unretained delegate_;
-    UIViewController *rootViewController_;
-    UIPanGestureRecognizer *panRecognizer_;
-    
-    // properites
-    NSUInteger leftInset_;
-    NSUInteger largeLeftInset_;
-    BOOL reduceAnimations_;
-    
-    // stack state
-    CGFloat floatIndex_;
-    NSMutableArray *viewControllers_;
-    
-    // internal drag state handling and other messy details
-    PSSVSnapOption lastDragOption_;
-    BOOL snapBackFromLeft_;
-    NSInteger lastDragOffset_;
-    BOOL lastDragDividedOne_;
-    NSInteger lastVisibleIndexBeforeRotation_;
-    
-    struct {
-        unsigned int delegateWillInsertViewController:1;
-        unsigned int delegateDidInsertViewController:1;
-        unsigned int delegateWillRemoveViewController:1;
-        unsigned int delegateDidRemoveViewController:1;        
-    }delegateFlags_;
-}
+@interface PSStackedViewController : UIViewController
 
 /// the root controller gets the whole background view
 - (id)initWithRootViewController:(UIViewController *)rootViewController;
