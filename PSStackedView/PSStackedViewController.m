@@ -42,7 +42,7 @@ typedef void(^PSSVSimpleBlock)(void);
     }delegateFlags_;
 }
 @property(nonatomic, strong) UIViewController *rootViewController;
-@property(nonatomic, strong) NSMutableArray *viewControllers;
+@property(nonatomic, strong) NSArray *viewControllers;
 @property(nonatomic, assign) NSInteger firstVisibleIndex;
 @property(nonatomic, assign) CGFloat floatIndex;
 - (UIViewController *)overlappedViewController;
