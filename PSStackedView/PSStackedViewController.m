@@ -70,6 +70,8 @@ typedef void(^PSSVSimpleBlock)(void);
 - (id)initWithRootViewController:(UIViewController *)rootViewController; {
     if ((self = [super init])) {
         rootViewController_ = rootViewController;
+        objc_setAssociatedObject(rootViewController, kPSSVAssociatedStackViewControllerKey, self, OBJC_ASSOCIATION_ASSIGN); // associate weak
+        
         viewControllers_ = [[NSMutableArray alloc] init];
         
         // set some reasonble defaults

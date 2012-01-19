@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1FEE7FF814C8E23200424F88 /* PSStackedViewSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = 1FEE7FF714C8E23200424F88 /* PSStackedViewSegue.m */; };
 		3798AD7B13E0B299004C1E33 /* error.png in Resources */ = {isa = PBXBuildFile; fileRef = 3798AD7413E0B299004C1E33 /* error.png */; };
 		3798AD7D13E0B299004C1E33 /* error@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 3798AD7613E0B299004C1E33 /* error@2x.png */; };
 		3798AD7E13E0B299004C1E33 /* NewGlow.png in Resources */ = {isa = PBXBuildFile; fileRef = 3798AD7813E0B299004C1E33 /* NewGlow.png */; };
@@ -38,6 +39,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1FEE7FF614C8E23200424F88 /* PSStackedViewSegue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PSStackedViewSegue.h; path = ../../PSStackedView/PSStackedViewSegue.h; sourceTree = "<group>"; };
+		1FEE7FF714C8E23200424F88 /* PSStackedViewSegue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PSStackedViewSegue.m; path = ../../PSStackedView/PSStackedViewSegue.m; sourceTree = "<group>"; };
 		3798AD7413E0B299004C1E33 /* error.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = error.png; sourceTree = "<group>"; };
 		3798AD7613E0B299004C1E33 /* error@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "error@2x.png"; sourceTree = "<group>"; };
 		3798AD7813E0B299004C1E33 /* NewGlow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = NewGlow.png; sourceTree = "<group>"; };
@@ -196,6 +199,8 @@
 				78D4BE27142F422C0036BD4B /* UIView+PSSizes.m */,
 				78D4BE28142F422C0036BD4B /* UIViewController+PSStackedView.h */,
 				78D4BE29142F422C0036BD4B /* UIViewController+PSStackedView.m */,
+				1FEE7FF614C8E23200424F88 /* PSStackedViewSegue.h */,
+				1FEE7FF714C8E23200424F88 /* PSStackedViewSegue.m */,
 			);
 			name = PSStackedView;
 			path = StackedViewKitExample;
@@ -300,6 +305,7 @@
 				78D4BE2C142F422C0036BD4B /* PSSVContainerView.m in Sources */,
 				78D4BE2D142F422C0036BD4B /* UIView+PSSizes.m in Sources */,
 				78D4BE2E142F422C0036BD4B /* UIViewController+PSStackedView.m in Sources */,
+				1FEE7FF814C8E23200424F88 /* PSStackedViewSegue.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
