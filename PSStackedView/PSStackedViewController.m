@@ -20,7 +20,7 @@
 #define kPSSVAssociatedBaseViewControllerKey @"kPSSVAssociatedBaseViewController"
 
 // reduces alpha over overlapped view controllers. 1.f would totally black-out on complete overlay
-#define kAlphaReductRatio 2.f
+#define kAlphaReductRatio 10.f
 #define EPSILON .001f // float calculations
 
 // prevents me getting crazy
