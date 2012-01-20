@@ -33,7 +33,8 @@ typedef void(^PSSVSimpleBlock)(void);
     BOOL snapBackFromLeft_;
     NSInteger lastDragOffset_;
     BOOL lastDragDividedOne_;
-    NSInteger lastVisibleIndexBeforeRotation_;    
+    NSInteger lastVisibleIndexBeforeRotation_;   
+    BOOL enableBounces_;
     struct {
         unsigned int delegateWillInsertViewController:1;
         unsigned int delegateDidInsertViewController:1;
@@ -58,6 +59,7 @@ typedef void(^PSSVSimpleBlock)(void);
 @synthesize panRecognizer = panRecognizer_;
 @synthesize delegate = delegate_;
 @synthesize reduceAnimations = reduceAnimations_;
+@synthesize enableBounces = enableBounces_;
 @dynamic firstVisibleIndex;
 
 #ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
@@ -87,7 +89,7 @@ typedef void(^PSSVSimpleBlock)(void);
         panRecognizer.delegate = self;
         [self.view addGestureRecognizer:panRecognizer];
         self.panRecognizer = panRecognizer;
-        
+        enableBounces_ = YES;
         
         
 #ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
@@ -1207,7 +1209,12 @@ enum {
 }
 
 - (void)alignStackAnimated:(BOOL)animated; {
-    [self alignStackAnimated:animated duration:kPSSVStackAnimationDuration bounceType:PSSVBounceMoveToInitial];
+    if([self enableBounces]) {
+        [self alignStackAnimated:animated duration:kPSSVStackAnimationDuration bounceType:PSSVBounceMoveToInitial];
+    }
+    else {
+        [self alignStackAnimated:animated duration:kPSSVStackAnimationDuration bounceType:PSSVBounceNone];
+    }
 }
 
 - (NSUInteger)canCollapseStack; {
