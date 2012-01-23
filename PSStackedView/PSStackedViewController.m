@@ -39,7 +39,8 @@ typedef void(^PSSVSimpleBlock)(void);
         unsigned int delegateWillInsertViewController:1;
         unsigned int delegateDidInsertViewController:1;
         unsigned int delegateWillRemoveViewController:1;
-        unsigned int delegateDidRemoveViewController:1;        
+        unsigned int delegateDidRemoveViewController:1;
+        unsigned int delegateDidPanViewController:1;
     }delegateFlags_;
 }
 @property(nonatomic, strong) UIViewController *rootViewController;
@@ -123,6 +124,7 @@ typedef void(^PSSVSimpleBlock)(void);
         delegateFlags_.delegateDidInsertViewController = [delegate respondsToSelector:@selector(stackedView:didInsertViewController:)];
         delegateFlags_.delegateWillRemoveViewController = [delegate respondsToSelector:@selector(stackedView:willRemoveViewController:)];
         delegateFlags_.delegateDidRemoveViewController = [delegate respondsToSelector:@selector(stackedView:didRemoveViewController:)];
+        delegateFlags_.delegateDidPanViewController = [delegate respondsToSelector:@selector(stackedView:didPanViewController:byOffset:)];
     }
 }
 
@@ -147,6 +149,12 @@ typedef void(^PSSVSimpleBlock)(void);
 - (void)delegateDidRemoveViewController:(UIViewController *)viewController {
     if (delegateFlags_.delegateDidRemoveViewController) {
         [self.delegate stackedView:self didRemoveViewController:viewController];
+    }
+}
+
+- (void)delegateDidPanViewController:(UIViewController *)viewController byOffset:(NSInteger)offset {
+    if (delegateFlags_.delegateDidPanViewController) {
+        [self.delegate stackedView:self didPanViewController:viewController byOffset:offset];
     }
 }
 
@@ -653,6 +661,11 @@ enum {
 // moves the stack to a specific offset. 
 - (void)moveStackWithOffset:(NSInteger)offset animated:(BOOL)animated userDragging:(BOOL)userDragging {
     PSSVLog(@"moving stack on %d pixels (animated:%d, decellerating:%d)", offset, animated, userDragging);
+    
+    // let the delegate know the user is moving the stack
+    if (self.delegate && userDragging) {
+        [self delegateDidPanViewController:self.topViewController byOffset:offset];
+    }
     
     [self stopStackAnimation];
     [UIView animateWithDuration:animated ? kPSSVStackAnimationDuration : 0.f delay:0.f options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionAllowUserInteraction animations:^{

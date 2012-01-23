@@ -26,4 +26,7 @@
 /// viewController has been removed
 - (void)stackedView:(PSStackedViewController *)stackedView didRemoveViewController:(UIViewController *)viewController;
 
+/// viewController has been panned
+- (void)stackedView:(PSStackedViewController *)stackedView didPanViewController:(UIViewController *)viewController byOffset:(NSInteger)offset;
+
 @end
