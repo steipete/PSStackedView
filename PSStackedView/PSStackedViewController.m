@@ -61,6 +61,7 @@ typedef void(^PSSVSimpleBlock)(void);
 @synthesize delegate = delegate_;
 @synthesize reduceAnimations = reduceAnimations_;
 @synthesize enableBounces = enableBounces_;
+@synthesize enableShadows = enableShadows_;
 @dynamic firstVisibleIndex;
 
 #ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
@@ -91,6 +92,7 @@ typedef void(^PSSVSimpleBlock)(void);
         [self.view addGestureRecognizer:panRecognizer];
         self.panRecognizer = panRecognizer;
         enableBounces_ = YES;
+        enableShadows_ = YES;
         
         
 #ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
@@ -559,35 +561,37 @@ enum {
 
 // updates view containers
 - (void)updateViewControllerMasksAndShadow {   
-    // only one!
-    if ([self.viewControllers count] == 1) {
-        //    [[self firstViewController].containerView addMaskToCorners:UIRectCornerAllCorners];
-        self.firstViewController.containerView.shadow = PSSVSideLeft | PSSVSideRight;
-    }else {
-        // rounded corners on first and last controller
-        [self.viewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            UIViewController *vc = (UIViewController *)obj;
-            if (idx == 0) {
-                //[vc.containerView addMaskToCorners:UIRectCornerBottomLeft | UIRectCornerTopLeft];
-            }else if(idx == [self.viewControllers count]-1) {
-                //        [vc.containerView addMaskToCorners:UIRectCornerBottomRight | UIRectCornerTopRight];
-                vc.containerView.shadow = PSSVSideLeft | PSSVSideRight;
-            }else {
-                //      [vc.containerView removeMask];
-                vc.containerView.shadow = PSSVSideLeft | PSSVSideRight;
+    if (enableShadows_ == YES) {
+        // only one!
+        if ([self.viewControllers count] == 1) {
+            //    [[self firstViewController].containerView addMaskToCorners:UIRectCornerAllCorners];
+            self.firstViewController.containerView.shadow = PSSVSideLeft | PSSVSideRight;
+        }else {
+            // rounded corners on first and last controller
+            [self.viewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                UIViewController *vc = (UIViewController *)obj;
+                if (idx == 0) {
+                    //[vc.containerView addMaskToCorners:UIRectCornerBottomLeft | UIRectCornerTopLeft];
+                }else if(idx == [self.viewControllers count]-1) {
+                    //        [vc.containerView addMaskToCorners:UIRectCornerBottomRight | UIRectCornerTopRight];
+                    vc.containerView.shadow = PSSVSideLeft | PSSVSideRight;
+                }else {
+                    //      [vc.containerView removeMask];
+                    vc.containerView.shadow = PSSVSideLeft | PSSVSideRight;
+                }
+            }];
+        }
+        
+        // update alpha mask
+        CGFloat overlapRatio = [self overlapRatio];
+        UIViewController *overlappedVC = [self overlappedViewController];
+        overlappedVC.containerView.darkRatio = MIN(overlapRatio, 1.f)/kAlphaReductRatio;
+        
+        // reset alpha ratio everywhere else
+        for (UIViewController *vc in self.viewControllers) {
+            if (vc != overlappedVC) {
+                vc.containerView.darkRatio = 0.0f;
             }
-        }];
-    }
-    
-    // update alpha mask
-    CGFloat overlapRatio = [self overlapRatio];
-    UIViewController *overlappedVC = [self overlappedViewController];
-    overlappedVC.containerView.darkRatio = MIN(overlapRatio, 1.f)/kAlphaReductRatio;
-    
-    // reset alpha ratio everywhere else
-    for (UIViewController *vc in self.viewControllers) {
-        if (vc != overlappedVC) {
-            vc.containerView.darkRatio = 0.0f;
         }
     }
 }
