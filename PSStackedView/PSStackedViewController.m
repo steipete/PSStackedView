@@ -94,7 +94,7 @@ typedef void(^PSSVSimpleBlock)(void);
         self.panRecognizer = panRecognizer;
         enableBounces_ = YES;
         enableShadows_ = YES;
-        enableDraggingPastInsets_ = NO;
+        enableDraggingPastInsets_ = YES;
         
         
 #ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
