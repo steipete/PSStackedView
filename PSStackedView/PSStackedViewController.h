@@ -118,6 +118,9 @@ enum {
 /// Property to disable shadows
 @property(nonatomic, assign) BOOL enableShadows;
 
+/// Property to disable dragging past left insets, recommend setting enableBouces to NO when this is set to NO
+@property(nonatomic, assign) BOOL enableDraggingPastInsets;
+
 /// left inset thats always visible. Defaults to 60.
 @property(nonatomic, assign) NSUInteger leftInset;
 /// animate setting of the left inset that is always visible

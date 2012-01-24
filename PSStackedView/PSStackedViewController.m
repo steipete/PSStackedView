@@ -63,6 +63,7 @@ typedef void(^PSSVSimpleBlock)(void);
 @synthesize reduceAnimations = reduceAnimations_;
 @synthesize enableBounces = enableBounces_;
 @synthesize enableShadows = enableShadows_;
+@synthesize enableDraggingPastInsets = enableDraggingPastInsets_;
 @dynamic firstVisibleIndex;
 
 #ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
@@ -94,6 +95,7 @@ typedef void(^PSSVSimpleBlock)(void);
         self.panRecognizer = panRecognizer;
         enableBounces_ = YES;
         enableShadows_ = YES;
+        enableDraggingPastInsets_ = NO;
         
         
 #ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
@@ -720,6 +722,19 @@ enum {
                     leftVCLeftPosition = minimalLeftInset;
                 }
                 leftViewController.containerView.left = leftVCLeftPosition;
+            }
+            
+            if (enableDraggingPastInsets_ == NO)
+            {
+                int stackWidth = (!isTopViewController) ? 0 : (leftViewController) ? leftViewController.view.frame.size.width : (rightViewController) ? rightViewController.view.frame.size.width : 0;
+                int padding  = 45;
+                if ((int)(currentVCLeftPosition-stackWidth) <= (int)leftInset_ ) {
+                    currentVCLeftPosition = leftInset_ + stackWidth;
+                }
+                else if ((int)(currentVCLeftPosition-stackWidth) >= (int)largeLeftInset_ + padding) {
+                    //For a more natural
+                    currentVCLeftPosition = largeLeftInset_ + stackWidth + padding;
+                }
             }
             
             currentViewController.containerView.left = currentVCLeftPosition;
