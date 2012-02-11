@@ -533,7 +533,7 @@ enum {
     }
     
     // hide menu, if first VC is larger than available screen space with floatIndex = 0.0
-    else if (index == 0 && [self.viewControllers count] && [[self.viewControllers objectAtIndex:0] containerView].width >= ([self screenWidth] - self.leftInset)) {
+    else if (index == 0 && [self.viewControllers count] /*&& [[self.viewControllers objectAtIndex:0] containerView].width >= ([self screenWidth] - self.leftInset)*/) {
         self.floatIndex = 0.5f;
         [self alignStackAnimated:YES];
     }
