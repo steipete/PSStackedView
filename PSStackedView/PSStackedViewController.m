@@ -539,6 +539,13 @@ enum {
     }
 }
 
+- (void)displayRootViewControllerAnimated:(BOOL)animated{
+    
+    self.floatIndex = 0.0f;
+    [self alignStackAnimated:YES];
+
+}
+
 // iterates controllers and sets width (also, enlarges if requested width is larger than current width)
 - (void)updateViewControllerSizes {
     CGFloat maxControllerView = [self maxControllerWidth];

@@ -66,6 +66,10 @@ enum {
 /// expands/collapses stack until entered controller is topmost right
 - (BOOL)displayViewControllerOnRightMost:(UIViewController *)vc animated:(BOOL)animated;
 
+//expand stack until root view is shown
+- (void)displayRootViewControllerAnimated:(BOOL)animated;
+
+
 /// return view controllers that follow a certain view controller. Helper function.
 - (NSArray *)viewControllersAfterViewController:(UIViewController *)viewController;
 
