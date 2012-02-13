@@ -41,6 +41,7 @@ typedef void(^PSSVSimpleBlock)(void);
         unsigned int delegateWillRemoveViewController:1;
         unsigned int delegateDidRemoveViewController:1;
         unsigned int delegateDidPanViewController:1;
+        unsigned int delegateDidAlign:1;
     }delegateFlags_;
 }
 @property(nonatomic, strong) UIViewController *rootViewController;
@@ -127,6 +128,8 @@ typedef void(^PSSVSimpleBlock)(void);
         delegateFlags_.delegateWillRemoveViewController = [delegate respondsToSelector:@selector(stackedView:willRemoveViewController:)];
         delegateFlags_.delegateDidRemoveViewController = [delegate respondsToSelector:@selector(stackedView:didRemoveViewController:)];
         delegateFlags_.delegateDidPanViewController = [delegate respondsToSelector:@selector(stackedView:didPanViewController:byOffset:)];
+        delegateFlags_.delegateDidAlign = [delegate respondsToSelector:@selector(stackedViewDidAlign:)];
+
     }
 }
 
@@ -157,6 +160,12 @@ typedef void(^PSSVSimpleBlock)(void);
 - (void)delegateDidPanViewController:(UIViewController *)viewController byOffset:(NSInteger)offset {
     if (delegateFlags_.delegateDidPanViewController) {
         [self.delegate stackedView:self didPanViewController:viewController byOffset:offset];
+    }
+}
+
+- (void)delegateDidAlign{
+    if (delegateFlags_.delegateDidAlign) {
+        [self.delegate stackedViewDidAlign:self];
     }
 }
 
@@ -1225,14 +1234,20 @@ enum {
                                          [self alignStackAnimated:YES duration:animationDuration bounceType:PSSVBounceBack];
                                      }break;
                                          
-                                         // we're done here
                                      case PSSVBounceNone:
+                                         [self delegateDidAlign];
                                      case PSSVBounceBack:
+                                         [self delegateDidAlign];
+
                                      default: {
                                          lastDragOffset_ = 0; // clear last drag offset for the animation
                                          //[self removeAnimationBlockerView];
                                      }break;
                                  }
+                             }else if(finished){
+                                 
+                                 [self delegateDidAlign];
+
                              }
                              
                          }
@@ -1240,6 +1255,8 @@ enum {
     }
     else {
         alignmentBlock();
+        //[self delegateDidAlign];
+
     }
     
 }

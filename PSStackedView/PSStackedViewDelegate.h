@@ -29,4 +29,7 @@
 /// viewController has been panned
 - (void)stackedView:(PSStackedViewController *)stackedView didPanViewController:(UIViewController *)viewController byOffset:(NSInteger)offset;
 
+/// viewController has been aligned (programmatically or by result of panning)
+- (void)stackedViewDidAlign:(PSStackedViewController *)stackedView;
+
 @end
