@@ -111,6 +111,9 @@ enum {
 /// Property to disable bounces
 @property(nonatomic, assign) BOOL enableBounces;
 
+/// Property to disable shadows
+@property(nonatomic, assign) BOOL enableShadows;
+
 /// left inset thats always visible. Defaults to 60.
 @property(nonatomic, assign) NSUInteger leftInset;
 /// animate setting of the left inset that is always visible

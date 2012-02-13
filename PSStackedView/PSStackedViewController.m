@@ -39,7 +39,8 @@ typedef void(^PSSVSimpleBlock)(void);
         unsigned int delegateWillInsertViewController:1;
         unsigned int delegateDidInsertViewController:1;
         unsigned int delegateWillRemoveViewController:1;
-        unsigned int delegateDidRemoveViewController:1;        
+        unsigned int delegateDidRemoveViewController:1;
+        unsigned int delegateDidPanViewController:1;
     }delegateFlags_;
 }
 @property(nonatomic, strong) UIViewController *rootViewController;
@@ -60,6 +61,7 @@ typedef void(^PSSVSimpleBlock)(void);
 @synthesize delegate = delegate_;
 @synthesize reduceAnimations = reduceAnimations_;
 @synthesize enableBounces = enableBounces_;
+@synthesize enableShadows = enableShadows_;
 @dynamic firstVisibleIndex;
 
 #ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
@@ -90,6 +92,7 @@ typedef void(^PSSVSimpleBlock)(void);
         [self.view addGestureRecognizer:panRecognizer];
         self.panRecognizer = panRecognizer;
         enableBounces_ = YES;
+        enableShadows_ = YES;
         
         
 #ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
@@ -123,6 +126,7 @@ typedef void(^PSSVSimpleBlock)(void);
         delegateFlags_.delegateDidInsertViewController = [delegate respondsToSelector:@selector(stackedView:didInsertViewController:)];
         delegateFlags_.delegateWillRemoveViewController = [delegate respondsToSelector:@selector(stackedView:willRemoveViewController:)];
         delegateFlags_.delegateDidRemoveViewController = [delegate respondsToSelector:@selector(stackedView:didRemoveViewController:)];
+        delegateFlags_.delegateDidPanViewController = [delegate respondsToSelector:@selector(stackedView:didPanViewController:byOffset:)];
     }
 }
 
@@ -147,6 +151,12 @@ typedef void(^PSSVSimpleBlock)(void);
 - (void)delegateDidRemoveViewController:(UIViewController *)viewController {
     if (delegateFlags_.delegateDidRemoveViewController) {
         [self.delegate stackedView:self didRemoveViewController:viewController];
+    }
+}
+
+- (void)delegateDidPanViewController:(UIViewController *)viewController byOffset:(NSInteger)offset {
+    if (delegateFlags_.delegateDidPanViewController) {
+        [self.delegate stackedView:self didPanViewController:viewController byOffset:offset];
     }
 }
 
@@ -551,35 +561,37 @@ enum {
 
 // updates view containers
 - (void)updateViewControllerMasksAndShadow {   
-    // only one!
-    if ([self.viewControllers count] == 1) {
-        //    [[self firstViewController].containerView addMaskToCorners:UIRectCornerAllCorners];
-        self.firstViewController.containerView.shadow = PSSVSideLeft | PSSVSideRight;
-    }else {
-        // rounded corners on first and last controller
-        [self.viewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
-            UIViewController *vc = (UIViewController *)obj;
-            if (idx == 0) {
-                //[vc.containerView addMaskToCorners:UIRectCornerBottomLeft | UIRectCornerTopLeft];
-            }else if(idx == [self.viewControllers count]-1) {
-                //        [vc.containerView addMaskToCorners:UIRectCornerBottomRight | UIRectCornerTopRight];
-                vc.containerView.shadow = PSSVSideLeft | PSSVSideRight;
-            }else {
-                //      [vc.containerView removeMask];
-                vc.containerView.shadow = PSSVSideLeft | PSSVSideRight;
+    if (enableShadows_ == YES) {
+        // only one!
+        if ([self.viewControllers count] == 1) {
+            //    [[self firstViewController].containerView addMaskToCorners:UIRectCornerAllCorners];
+            self.firstViewController.containerView.shadow = PSSVSideLeft | PSSVSideRight;
+        }else {
+            // rounded corners on first and last controller
+            [self.viewControllers enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+                UIViewController *vc = (UIViewController *)obj;
+                if (idx == 0) {
+                    //[vc.containerView addMaskToCorners:UIRectCornerBottomLeft | UIRectCornerTopLeft];
+                }else if(idx == [self.viewControllers count]-1) {
+                    //        [vc.containerView addMaskToCorners:UIRectCornerBottomRight | UIRectCornerTopRight];
+                    vc.containerView.shadow = PSSVSideLeft | PSSVSideRight;
+                }else {
+                    //      [vc.containerView removeMask];
+                    vc.containerView.shadow = PSSVSideLeft | PSSVSideRight;
+                }
+            }];
+        }
+        
+        // update alpha mask
+        CGFloat overlapRatio = [self overlapRatio];
+        UIViewController *overlappedVC = [self overlappedViewController];
+        overlappedVC.containerView.darkRatio = MIN(overlapRatio, 1.f)/kAlphaReductRatio;
+        
+        // reset alpha ratio everywhere else
+        for (UIViewController *vc in self.viewControllers) {
+            if (vc != overlappedVC) {
+                vc.containerView.darkRatio = 0.0f;
             }
-        }];
-    }
-    
-    // update alpha mask
-    CGFloat overlapRatio = [self overlapRatio];
-    UIViewController *overlappedVC = [self overlappedViewController];
-    overlappedVC.containerView.darkRatio = MIN(overlapRatio, 1.f)/kAlphaReductRatio;
-    
-    // reset alpha ratio everywhere else
-    for (UIViewController *vc in self.viewControllers) {
-        if (vc != overlappedVC) {
-            vc.containerView.darkRatio = 0.0f;
         }
     }
 }
@@ -653,6 +665,11 @@ enum {
 // moves the stack to a specific offset. 
 - (void)moveStackWithOffset:(NSInteger)offset animated:(BOOL)animated userDragging:(BOOL)userDragging {
     PSSVLog(@"moving stack on %d pixels (animated:%d, decellerating:%d)", offset, animated, userDragging);
+    
+    // let the delegate know the user is moving the stack
+    if (self.delegate && userDragging) {
+        [self delegateDidPanViewController:self.topViewController byOffset:offset];
+    }
     
     [self stopStackAnimation];
     [UIView animateWithDuration:animated ? kPSSVStackAnimationDuration : 0.f delay:0.f options:UIViewAnimationOptionBeginFromCurrentState | UIViewAnimationOptionAllowUserInteraction animations:^{
