@@ -947,7 +947,7 @@ enum {
     
     if (animated) {
         container.alpha = 0.f;
-        container.transform = CGAffineTransformMakeScale(1.2, 1.2); // large but fade in
+        //container.transform = CGAffineTransformMakeScale(1.2, 1.2); // large but fade in
     }
     
     [self.view addSubview:container];
@@ -955,7 +955,7 @@ enum {
     if (animated) {
         [UIView animateWithDuration:kPSSVStackAnimationPushDuration delay:0.f options:UIViewAnimationOptionAllowUserInteraction animations:^{
             container.alpha = 1.f;
-            container.transform = CGAffineTransformIdentity;
+            //container.transform = CGAffineTransformIdentity;
         } completion:nil];
     }
     
@@ -1002,7 +1002,7 @@ enum {
         if (animated) { // kPSSVStackAnimationDuration
             [UIView animateWithDuration:kPSSVStackAnimationPopDuration delay:0.f options:UIViewAnimationOptionBeginFromCurrentState animations:^(void) {
                 lastController.containerView.alpha = 0.f;
-                lastController.containerView.transform = CGAffineTransformMakeScale(0.8, 0.8); // make smaller while fading out
+                //lastController.containerView.transform = CGAffineTransformMakeScale(0.8, 0.8); // make smaller while fading out
             } completion:^(BOOL finished) {
                 // even with duration = 0, this doesn't fire instantly but on a future runloop with NSFireDelayedPerform, thus ugly double-check
                 if (finished) {
