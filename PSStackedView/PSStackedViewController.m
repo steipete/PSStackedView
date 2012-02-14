@@ -18,6 +18,7 @@
 #define kPSSVStackAnimationPopDuration kPSSVStackAnimationSpeedModifier * 0.25f
 #define kPSSVMaxSnapOverOffset 20
 #define kPSSVAssociatedBaseViewControllerKey @"kPSSVAssociatedBaseViewController"
+#define kPSSVPopOffDistance 350
 
 // reduces alpha over overlapped view controllers. 1.f would totally black-out on complete overlay
 #define kAlphaReductRatio 10.f
@@ -795,7 +796,7 @@ enum {
     }
     
     if(self.enablePopOffOnDragRight) {
-        if(self.floatIndex == 0.0 && lastDragOffset_ > 350) {
+        if(self.floatIndex == 0.0 && lastDragOffset_ > kPSSVPopOffDistance) {
             lastDragOption_ = SVSnapOptionPopRight;
         }
         else if(lastDragOption_ == SVSnapOptionPopRight) {
