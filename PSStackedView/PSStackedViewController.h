@@ -14,7 +14,8 @@
 enum {
     SVSnapOptionNearest,
     SVSnapOptionLeft,
-    SVSnapOptionRight
+    SVSnapOptionRight,
+    SVSnapOptionPopRight
 } typedef PSSVSnapOption;
 
 /// StackController hosing a backside rootViewController and the stacked controllers
@@ -110,6 +111,9 @@ enum {
 
 /// Property to disable bounces
 @property(nonatomic, assign) BOOL enableBounces;
+
+/// Property to enable poping off all of the stack views except the first when dragged past a specified amount
+@property(nonatomic, assign) BOOL enablePopOffOnDragRight;
 
 /// left inset thats always visible. Defaults to 60.
 @property(nonatomic, assign) NSUInteger leftInset;

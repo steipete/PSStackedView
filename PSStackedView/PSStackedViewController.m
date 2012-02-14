@@ -60,6 +60,7 @@ typedef void(^PSSVSimpleBlock)(void);
 @synthesize delegate = delegate_;
 @synthesize reduceAnimations = reduceAnimations_;
 @synthesize enableBounces = enableBounces_;
+@synthesize enablePopOffOnDragRight = enablePopOffOnDragRight_;
 @dynamic firstVisibleIndex;
 
 #ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
@@ -792,6 +793,15 @@ enum {
         lastDragOffset_ = translatedPoint.x;
     }
     
+    if(self.enablePopOffOnDragRight) {
+        if(self.floatIndex == 0.0 && lastDragOffset_ > 350) {
+            lastDragOption_ = SVSnapOptionPopRight;
+        }
+        else if(lastDragOption_ == SVSnapOptionPopRight) {
+            lastDragOption_ = SVSnapOptionNearest;
+        }
+    }
+    
     // perform snapping after gesture ended
     BOOL gestureEnded = state == UIGestureRecognizerStateEnded;
     if (gestureEnded) {
@@ -800,7 +810,11 @@ enum {
             self.floatIndex = [self nearestValidFloatIndex:self.floatIndex round:PSSVRoundDown];
         }else if(lastDragOption_ == SVSnapOptionLeft) {
             self.floatIndex = [self nearestValidFloatIndex:self.floatIndex round:PSSVRoundUp];
-        }else {
+        }else if(lastDragOption_ == SVSnapOptionPopRight) {
+            self.floatIndex = 0.0;
+            [self popToViewController:[self.viewControllers objectAtIndex:0] animated:YES];
+        }
+        else {
             self.floatIndex = [self nearestValidFloatIndex:self.floatIndex round:PSSVRoundNearest];
         }
         
