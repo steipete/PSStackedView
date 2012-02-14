@@ -18,6 +18,12 @@ enum {
     SVSnapOptionPopRight
 } typedef PSSVSnapOption;
 
+enum {
+    SVPopOptionAllButFirst,
+    SVPopOptionAll,
+    SVPopOptionTop
+} typedef PSSVPopOption;
+
 /// StackController hosing a backside rootViewController and the stacked controllers
 @interface PSStackedViewController : UIViewController
 
@@ -114,6 +120,9 @@ enum {
 
 /// Property to enable poping off all of the stack views except the first when dragged past a specified amount
 @property(nonatomic, assign) BOOL enablePopOffOnDragRight;
+
+/// Property to determine the type of pop off action that will be taken when entire stack is dragged to the right
+@property(nonatomic, assign) PSSVPopOption popOffType;
 
 /// left inset thats always visible. Defaults to 60.
 @property(nonatomic, assign) NSUInteger leftInset;

@@ -61,6 +61,7 @@ typedef void(^PSSVSimpleBlock)(void);
 @synthesize reduceAnimations = reduceAnimations_;
 @synthesize enableBounces = enableBounces_;
 @synthesize enablePopOffOnDragRight = enablePopOffOnDragRight_;
+@synthesize popOffType = popOffType_;
 @dynamic firstVisibleIndex;
 
 #ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
@@ -812,7 +813,18 @@ enum {
             self.floatIndex = [self nearestValidFloatIndex:self.floatIndex round:PSSVRoundUp];
         }else if(lastDragOption_ == SVSnapOptionPopRight) {
             self.floatIndex = 0.0;
-            [self popToViewController:[self.viewControllers objectAtIndex:0] animated:YES];
+            if(self.popOffType == SVPopOptionAll) {
+                [self popToRootViewControllerAnimated:YES];
+            }
+            else if(self.popOffType == SVPopOptionAllButFirst) {
+                [self popToViewController:[self.viewControllers objectAtIndex:0] animated:YES];
+            }
+            else if(self.popOffType == SVPopOptionTop) {
+                if([self.viewControllers count] == 1) 
+                    [self popToRootViewControllerAnimated:YES];
+                else 
+                    [self popToViewController:[self.viewControllers objectAtIndex:[self.viewControllers count]-2] animated:YES];
+            }
         }
         else {
             self.floatIndex = [self nearestValidFloatIndex:self.floatIndex round:PSSVRoundNearest];
