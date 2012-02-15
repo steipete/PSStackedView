@@ -40,7 +40,11 @@ typedef void(^PSSVSimpleBlock)(void);
         unsigned int delegateWillInsertViewController:1;
         unsigned int delegateDidInsertViewController:1;
         unsigned int delegateWillRemoveViewController:1;
-        unsigned int delegateDidRemoveViewController:1;        
+        unsigned int delegateDidRemoveViewController:1;
+        unsigned int delegateDidStartDragging:1;
+        unsigned int delegateDidStopDragging:1;
+        unsigned int delegateWillPopViewControllers:1;
+        unsigned int delegateWillNotPopViewControllers:1;
     }delegateFlags_;
 }
 @property(nonatomic, strong) UIViewController *rootViewController;
@@ -126,6 +130,10 @@ typedef void(^PSSVSimpleBlock)(void);
         delegateFlags_.delegateDidInsertViewController = [delegate respondsToSelector:@selector(stackedView:didInsertViewController:)];
         delegateFlags_.delegateWillRemoveViewController = [delegate respondsToSelector:@selector(stackedView:willRemoveViewController:)];
         delegateFlags_.delegateDidRemoveViewController = [delegate respondsToSelector:@selector(stackedView:didRemoveViewController:)];
+        delegateFlags_.delegateDidStartDragging = [delegate respondsToSelector:@selector(stackedViewDidStartDragging:)];
+        delegateFlags_.delegateDidStopDragging = [delegate respondsToSelector:@selector(stackedViewDidStopDragging:)];
+        delegateFlags_.delegateWillPopViewControllers = [delegate respondsToSelector:@selector(stackedViewWillPopViewControllers:)];
+        delegateFlags_.delegateWillNotPopViewControllers = [delegate respondsToSelector:@selector(stackedViewWillNotPopViewControllers:)];
     }
 }
 
@@ -778,6 +786,9 @@ enum {
     
     // set up designated drag destination
     if (state == UIGestureRecognizerStateBegan) {
+        if (delegateFlags_.delegateDidStartDragging) {
+            [delegate_ stackedViewDidStartDragging:self];
+        }
         if (offset > 0) {
             lastDragOption_ = SVSnapOptionRight;
         }else {
@@ -797,10 +808,18 @@ enum {
     
     if(self.enablePopOffOnDragRight) {
         if(self.floatIndex == 0.0 && lastDragOffset_ > kPSSVPopOffDistance) {
-            lastDragOption_ = SVSnapOptionPopRight;
+            if(lastDragOption_ != SVSnapOptionPopRight) {
+                lastDragOption_ = SVSnapOptionPopRight;
+                if(delegateFlags_.delegateWillPopViewControllers) {
+                    [delegate_ stackedViewWillPopViewControllers:self];
+                }
+            }
         }
         else if(lastDragOption_ == SVSnapOptionPopRight) {
             lastDragOption_ = SVSnapOptionNearest;
+            if(delegateFlags_.delegateWillNotPopViewControllers) {
+                [delegate_ stackedViewWillNotPopViewControllers:self];
+            }
         }
     }
     
@@ -832,6 +851,10 @@ enum {
         }
         
         [self alignStackAnimated:YES];
+        
+        if(delegateFlags_.delegateDidStopDragging) {
+            [delegate_ stackedViewDidStopDragging:self];
+        }
     }
 }
 

@@ -26,4 +26,16 @@
 /// viewController has been removed
 - (void)stackedView:(PSStackedViewController *)stackedView didRemoveViewController:(UIViewController *)viewController;
 
+/// stackcontroller will pop off view controllers because of drag to right
+- (void)stackedViewWillPopViewControllers:(PSStackedViewController *)stackedView;
+
+/// stackcontroller will no longer pop off view controllers because of drag to right
+- (void)stackedViewWillNotPopViewControllers:(PSStackedViewController *)stackedView;
+
+/// stackcontroller did start dragging stack
+- (void)stackedViewDidStartDragging:(PSStackedViewController*)stackedView;
+
+/// stackcontroller did stop dragging stack
+- (void)stackedViewDidStopDragging:(PSStackedViewController*)stackedView;
+
 @end
