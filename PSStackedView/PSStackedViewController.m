@@ -18,7 +18,7 @@
 #define kPSSVStackAnimationPopDuration kPSSVStackAnimationSpeedModifier * 0.25f
 #define kPSSVMaxSnapOverOffset 20
 #define kPSSVAssociatedBaseViewControllerKey @"kPSSVAssociatedBaseViewController"
-#define kPSSVDefaultPopOffDragDistance 300
+#define kPSSVDefaultPopOffDragDistance 150
 
 // reduces alpha over overlapped view controllers. 1.f would totally black-out on complete overlay
 #define kAlphaReductRatio 10.f
@@ -39,6 +39,7 @@ typedef void(^PSSVSimpleBlock)(void);
     BOOL enablePopOffOnDragRight_;
     PSSVPopOption popOffType_;
     NSUInteger popOffDragDistance_;
+    NSInteger popOffDragDistanceRemaining_;
     struct {
         unsigned int delegateWillInsertViewController:1;
         unsigned int delegateDidInsertViewController:1;
@@ -765,6 +766,7 @@ enum {
     // reset last offset if gesture just started
     if (state == UIGestureRecognizerStateBegan) {
         lastDragOffset_ = 0;
+        popOffDragDistanceRemaining_ = popOffDragDistance_;
     }
     
     NSInteger offset = translatedPoint.x - lastDragOffset_;
@@ -812,25 +814,30 @@ enum {
     }
     
     if(self.enablePopOffOnDragRight) {
-        if(self.floatIndex == 0.0 && lastDragOffset_ > popOffDragDistance_) {
-            if(lastDragOption_ != SVSnapOptionPopRight) {
-                lastDragOption_ = SVSnapOptionPopRight;
-                if(delegateFlags_.delegateWillPopViewControllers) {
-                    NSArray* toPop;
-                    if(self.popOffType == SVPopOptionAll) {
-                        toPop = [self.viewControllers copy];
-                    }
-                    else if(self.popOffType == SVPopOptionAllButFirst) {
-                        toPop = [self.viewControllers subarrayWithRange:NSMakeRange(1, [self.viewControllers count] - 1)];
-                    }
-                    else if(self.popOffType == SVPopOptionTop) {
-                        toPop = [self.viewControllers subarrayWithRange:NSMakeRange([self.viewControllers count] - 1, 1)];
-                    }
-                    [delegate_ stackedView:self WillPopViewControllers:toPop];
+        if(self.floatIndex == 0.0) {
+            popOffDragDistanceRemaining_ -= offset;
+        }
+        else {
+            popOffDragDistanceRemaining_ = popOffDragDistance_;
+        }
+        
+        if(popOffDragDistanceRemaining_ <= 0 && lastDragOption_ != SVSnapOptionPopRight) {
+            lastDragOption_ = SVSnapOptionPopRight;
+            if(delegateFlags_.delegateWillPopViewControllers) {
+                NSArray* toPop;
+                if(self.popOffType == SVPopOptionAll) {
+                    toPop = [self.viewControllers copy];
                 }
+                else if(self.popOffType == SVPopOptionAllButFirst) {
+                    toPop = [self.viewControllers subarrayWithRange:NSMakeRange(1, [self.viewControllers count] - 1)];
+                }
+                else if(self.popOffType == SVPopOptionTop) {
+                    toPop = [self.viewControllers subarrayWithRange:NSMakeRange([self.viewControllers count] - 1, 1)];
+                }
+                [delegate_ stackedView:self WillPopViewControllers:toPop];
             }
         }
-        else if(lastDragOption_ == SVSnapOptionPopRight) {
+        else if(popOffDragDistanceRemaining_ > 0 && lastDragOption_ == SVSnapOptionPopRight) {
             lastDragOption_ = SVSnapOptionNearest;
             if(delegateFlags_.delegateWillNotPopViewControllers) {
                 NSArray* toPop;
