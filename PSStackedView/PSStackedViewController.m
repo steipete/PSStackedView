@@ -18,7 +18,7 @@
 #define kPSSVStackAnimationPopDuration kPSSVStackAnimationSpeedModifier * 0.25f
 #define kPSSVMaxSnapOverOffset 20
 #define kPSSVAssociatedBaseViewControllerKey @"kPSSVAssociatedBaseViewController"
-#define kPSSVPopOffDistance 350
+#define kPSSVDefaultPopOffDragDistance 300
 
 // reduces alpha over overlapped view controllers. 1.f would totally black-out on complete overlay
 #define kAlphaReductRatio 10.f
@@ -36,6 +36,9 @@ typedef void(^PSSVSimpleBlock)(void);
     BOOL lastDragDividedOne_;
     NSInteger lastVisibleIndexBeforeRotation_;   
     BOOL enableBounces_;
+    BOOL enablePopOffOnDragRight_;
+    PSSVPopOption popOffType_;
+    NSUInteger popOffDragDistance_;
     struct {
         unsigned int delegateWillInsertViewController:1;
         unsigned int delegateDidInsertViewController:1;
@@ -67,6 +70,7 @@ typedef void(^PSSVSimpleBlock)(void);
 @synthesize enableBounces = enableBounces_;
 @synthesize enablePopOffOnDragRight = enablePopOffOnDragRight_;
 @synthesize popOffType = popOffType_;
+@synthesize popOffDragDistance = popOffDragDistance_;
 @dynamic firstVisibleIndex;
 
 #ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
@@ -86,6 +90,7 @@ typedef void(^PSSVSimpleBlock)(void);
         // set some reasonble defaults
         leftInset_ = 60;
         largeLeftInset_ = 200;
+        popOffDragDistance_ = kPSSVDefaultPopOffDragDistance;
         
         // add a gesture recognizer to detect dragging to the guest controllers
         UIPanGestureRecognizer *panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanFrom:)];
@@ -807,7 +812,7 @@ enum {
     }
     
     if(self.enablePopOffOnDragRight) {
-        if(self.floatIndex == 0.0 && lastDragOffset_ > kPSSVPopOffDistance) {
+        if(self.floatIndex == 0.0 && lastDragOffset_ > popOffDragDistance_) {
             if(lastDragOption_ != SVSnapOptionPopRight) {
                 lastDragOption_ = SVSnapOptionPopRight;
                 if(delegateFlags_.delegateWillPopViewControllers) {
