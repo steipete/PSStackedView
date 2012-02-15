@@ -26,6 +26,9 @@
     // set root controller as stack controller
     ExampleMenuRootController *menuController = [[ExampleMenuRootController alloc] init];
     self.stackController = [[PSStackedViewController alloc] initWithRootViewController:menuController];
+    self.stackController.enablePopOffOnDragRight = YES;
+    self.stackController.popOffType = SVPopOptionAllButFirst;
+    self.stackController.delegate = menuController;
     self.window.rootViewController = self.stackController;
     [self.window makeKeyAndVisible];
 

@@ -23,12 +23,16 @@
 @interface ExampleMenuRootController()
 @property (nonatomic, strong) UITableView *menuTable;
 @property (nonatomic, strong) NSArray *cellContents;
+@property (nonatomic, strong) UIImageView *popIconLeft;
+@property (nonatomic, strong) UIImageView *popIconRight;
 @end
 
 @implementation ExampleMenuRootController
 
 @synthesize menuTable = menuTable_;
 @synthesize cellContents = cellContents_;
+@synthesize popIconLeft = popIconLeft_;
+@synthesize popIconRight = popIconRight_;
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - NSObject
@@ -69,6 +73,16 @@
     self.menuTable.dataSource = self;
     [self.view addSubview:self.menuTable];
     [self.menuTable reloadData];
+    
+    self.popIconLeft = [[UIImageView alloc] initWithFrame:CGRectMake(225, 482, 50, 70)];
+    self.popIconLeft.image = [UIImage imageNamed:@"popIcon.png"];
+    self.popIconLeft.hidden = YES;
+    [self.view addSubview:self.popIconLeft];
+    
+    self.popIconRight = [[UIImageView alloc] initWithFrame:CGRectMake(245, 502, 50, 70)];
+    self.popIconRight.image = [UIImage imageNamed:@"popIcon.png"];
+    self.popIconRight.hidden = YES;
+    [self.view addSubview:self.popIconRight];
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -143,6 +157,38 @@
     if (viewController) {
         [XAppDelegate.stackController pushViewController:viewController fromViewController:nil animated:YES];
     }
+}
+
+/// PSStackedViewDelegate methods
+
+- (void)stackedViewDidStartDragging:(PSStackedViewController *)stackedView {
+    if([stackedView.viewControllers count] > 0) {
+        self.popIconLeft.hidden = NO;
+        self.popIconRight.hidden = NO;
+    }
+}
+
+- (void)stackedViewDidStopDragging:(PSStackedViewController *)stackedView {
+    self.popIconLeft.hidden = YES;
+    self.popIconRight.hidden = YES;
+    self.popIconRight.alpha = 1.0;
+    self.popIconRight.transform = CGAffineTransformIdentity;
+}
+
+- (void)stackedViewWillPopViewControllers:(PSStackedViewController *)stackedView {
+    [UIView animateWithDuration:0.2 animations:^(void) {
+        self.popIconRight.alpha = 0.5;
+        CGAffineTransform trans = CGAffineTransformMakeTranslation(40, 10);
+        trans = CGAffineTransformRotate(trans, M_PI/4);
+        self.popIconRight.transform = trans;
+    }];
+}
+
+- (void)stackedViewWillNotPopViewControllers:(PSStackedViewController *)stackedView {
+    [UIView animateWithDuration:0.2 animations:^(void) {
+        self.popIconRight.alpha = 1.0;
+        self.popIconRight.transform = CGAffineTransformIdentity;
+    }];
 }
 
 @end
