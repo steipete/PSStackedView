@@ -132,8 +132,8 @@ typedef void(^PSSVSimpleBlock)(void);
         delegateFlags_.delegateDidRemoveViewController = [delegate respondsToSelector:@selector(stackedView:didRemoveViewController:)];
         delegateFlags_.delegateDidStartDragging = [delegate respondsToSelector:@selector(stackedViewDidStartDragging:)];
         delegateFlags_.delegateDidStopDragging = [delegate respondsToSelector:@selector(stackedViewDidStopDragging:)];
-        delegateFlags_.delegateWillPopViewControllers = [delegate respondsToSelector:@selector(stackedViewWillPopViewControllers:)];
-        delegateFlags_.delegateWillNotPopViewControllers = [delegate respondsToSelector:@selector(stackedViewWillNotPopViewControllers:)];
+        delegateFlags_.delegateWillPopViewControllers = [delegate respondsToSelector:@selector(stackedView:WillPopViewControllers:)];
+        delegateFlags_.delegateWillNotPopViewControllers = [delegate respondsToSelector:@selector(stackedView:WillNotPopViewControllers:)];
     }
 }
 
@@ -811,14 +811,34 @@ enum {
             if(lastDragOption_ != SVSnapOptionPopRight) {
                 lastDragOption_ = SVSnapOptionPopRight;
                 if(delegateFlags_.delegateWillPopViewControllers) {
-                    [delegate_ stackedViewWillPopViewControllers:self];
+                    NSArray* toPop;
+                    if(self.popOffType == SVPopOptionAll) {
+                        toPop = [self.viewControllers copy];
+                    }
+                    else if(self.popOffType == SVPopOptionAllButFirst) {
+                        toPop = [self.viewControllers subarrayWithRange:NSMakeRange(1, [self.viewControllers count] - 1)];
+                    }
+                    else if(self.popOffType == SVPopOptionTop) {
+                        toPop = [self.viewControllers subarrayWithRange:NSMakeRange([self.viewControllers count] - 1, 1)];
+                    }
+                    [delegate_ stackedView:self WillPopViewControllers:toPop];
                 }
             }
         }
         else if(lastDragOption_ == SVSnapOptionPopRight) {
             lastDragOption_ = SVSnapOptionNearest;
             if(delegateFlags_.delegateWillNotPopViewControllers) {
-                [delegate_ stackedViewWillNotPopViewControllers:self];
+                NSArray* toPop;
+                if(self.popOffType == SVPopOptionAll) {
+                    toPop = [self.viewControllers copy];
+                }
+                else if(self.popOffType == SVPopOptionAllButFirst) {
+                    toPop = [self.viewControllers subarrayWithRange:NSMakeRange(1, [self.viewControllers count] - 1)];
+                }
+                else if(self.popOffType == SVPopOptionTop) {
+                    toPop = [self.viewControllers subarrayWithRange:NSMakeRange([self.viewControllers count] - 1, 1)];
+                }
+                [delegate_ stackedView:self WillNotPopViewControllers:toPop];
             }
         }
     }

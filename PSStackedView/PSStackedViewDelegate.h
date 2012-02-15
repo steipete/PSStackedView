@@ -27,10 +27,10 @@
 - (void)stackedView:(PSStackedViewController *)stackedView didRemoveViewController:(UIViewController *)viewController;
 
 /// stackcontroller will pop off view controllers because of drag to right
-- (void)stackedViewWillPopViewControllers:(PSStackedViewController *)stackedView;
+- (void)stackedView:(PSStackedViewController*)stackedView WillPopViewControllers:(NSArray*)controllers;
 
 /// stackcontroller will no longer pop off view controllers because of drag to right
-- (void)stackedViewWillNotPopViewControllers:(PSStackedViewController *)stackedView;
+- (void)stackedView:(PSStackedViewController *)stackedView WillNotPopViewControllers:(NSArray*)controllers;
 
 /// stackcontroller did start dragging stack
 - (void)stackedViewDidStartDragging:(PSStackedViewController*)stackedView;
