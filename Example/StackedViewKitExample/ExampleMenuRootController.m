@@ -162,7 +162,7 @@
 /// PSStackedViewDelegate methods
 
 - (void)stackedViewDidStartDragging:(PSStackedViewController *)stackedView {
-    if([stackedView.viewControllers count] > 0) {
+    if([stackedView.viewControllers count] > 1) {
         [UIView animateWithDuration:0.2 animations:^(void) {
             self.popIconLeft.alpha = 1.0;
             self.popIconRight.alpha = 1.0;
@@ -178,20 +178,24 @@
     }];
 }
 
-- (void)stackedViewWillPopViewControllers:(PSStackedViewController *)stackedView {
-    [UIView animateWithDuration:0.2 animations:^(void) {
-        self.popIconRight.alpha = 0.5;
-        CGAffineTransform trans = CGAffineTransformMakeTranslation(40, 10);
-        trans = CGAffineTransformRotate(trans, M_PI/4);
-        self.popIconRight.transform = trans;
-    }];
+-(void)stackedView:(PSStackedViewController *)stackedView WillPopViewControllers:(NSArray *)controllers {
+    if([controllers count] > 0) {
+        [UIView animateWithDuration:0.2 animations:^(void) {
+            self.popIconRight.alpha = 0.5;
+            CGAffineTransform trans = CGAffineTransformMakeTranslation(40, 10);
+            trans = CGAffineTransformRotate(trans, M_PI/4);
+            self.popIconRight.transform = trans;
+        }];
+    }
 }
 
-- (void)stackedViewWillNotPopViewControllers:(PSStackedViewController *)stackedView {
-    [UIView animateWithDuration:0.2 animations:^(void) {
-        self.popIconRight.alpha = 1.0;
-        self.popIconRight.transform = CGAffineTransformIdentity;
-    }];
+- (void)stackedView:(PSStackedViewController *)stackedView WillNotPopViewControllers:(NSArray *)controllers {
+    if([controllers count] > 0) {
+        [UIView animateWithDuration:0.2 animations:^(void) {
+            self.popIconRight.alpha = 1.0;
+            self.popIconRight.transform = CGAffineTransformIdentity;
+        }];
+    }
 }
 
 @end
