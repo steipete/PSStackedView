@@ -76,12 +76,12 @@
     
     self.popIconLeft = [[UIImageView alloc] initWithFrame:CGRectMake(225, 482, 50, 70)];
     self.popIconLeft.image = [UIImage imageNamed:@"popIcon.png"];
-    self.popIconLeft.hidden = YES;
+    self.popIconLeft.alpha = 0.0;
     [self.view addSubview:self.popIconLeft];
     
     self.popIconRight = [[UIImageView alloc] initWithFrame:CGRectMake(245, 502, 50, 70)];
     self.popIconRight.image = [UIImage imageNamed:@"popIcon.png"];
-    self.popIconRight.hidden = YES;
+    self.popIconRight.alpha = 0.0;
     [self.view addSubview:self.popIconRight];
 }
 
@@ -163,16 +163,19 @@
 
 - (void)stackedViewDidStartDragging:(PSStackedViewController *)stackedView {
     if([stackedView.viewControllers count] > 0) {
-        self.popIconLeft.hidden = NO;
-        self.popIconRight.hidden = NO;
+        [UIView animateWithDuration:0.2 animations:^(void) {
+            self.popIconLeft.alpha = 1.0;
+            self.popIconRight.alpha = 1.0;
+        }];
     }
 }
 
 - (void)stackedViewDidStopDragging:(PSStackedViewController *)stackedView {
-    self.popIconLeft.hidden = YES;
-    self.popIconRight.hidden = YES;
-    self.popIconRight.alpha = 1.0;
-    self.popIconRight.transform = CGAffineTransformIdentity;
+    [UIView animateWithDuration:0.2 animations:^(void) {
+        self.popIconLeft.alpha = 0.0;
+        self.popIconRight.alpha = 0.0;
+        self.popIconRight.transform = CGAffineTransformIdentity;
+    }];
 }
 
 - (void)stackedViewWillPopViewControllers:(PSStackedViewController *)stackedView {
