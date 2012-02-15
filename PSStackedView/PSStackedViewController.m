@@ -18,7 +18,7 @@
 #define kPSSVStackAnimationPopDuration kPSSVStackAnimationSpeedModifier * 0.25f
 #define kPSSVMaxSnapOverOffset 20
 #define kPSSVAssociatedBaseViewControllerKey @"kPSSVAssociatedBaseViewController"
-#define kPSSVDefaultPopOffDragDistance 200
+#define kPSSVDefaultPopOffDragDistance 150
 
 // reduces alpha over overlapped view controllers. 1.f would totally black-out on complete overlay
 #define kAlphaReductRatio 10.f
@@ -39,7 +39,6 @@ typedef void(^PSSVSimpleBlock)(void);
     BOOL enablePopOffOnDragRight_;
     PSSVPopOption popOffType_;
     NSUInteger popOffDragDistance_;
-    NSInteger popOffDragDistanceRemaining_;
     struct {
         unsigned int delegateWillInsertViewController:1;
         unsigned int delegateDidInsertViewController:1;
@@ -766,7 +765,6 @@ enum {
     // reset last offset if gesture just started
     if (state == UIGestureRecognizerStateBegan) {
         lastDragOffset_ = 0;
-        popOffDragDistanceRemaining_ = popOffDragDistance_;
     }
     
     NSInteger offset = translatedPoint.x - lastDragOffset_;
@@ -813,15 +811,13 @@ enum {
         lastDragOffset_ = translatedPoint.x;
     }
     
-    if(self.enablePopOffOnDragRight) {
-        if(self.floatIndex < 0.5) {
-            popOffDragDistanceRemaining_ -= offset;
-        }
-        else {
-            popOffDragDistanceRemaining_ = popOffDragDistance_;
-        }
+    if(self.enablePopOffOnDragRight && [viewControllers_ count] > 0) {
+        UIViewController* fvc = (UIViewController*)[viewControllers_ objectAtIndex:0];
+        NSInteger currentDragDistance = (fvc.containerView.left - largeLeftInset_);
         
-        if(popOffDragDistanceRemaining_ <= 0 && lastDragOption_ != SVSnapOptionPopRight) {
+        NSLog(@"Current Drag Distance: %d", currentDragDistance);
+        
+        if(currentDragDistance > popOffDragDistance_ && lastDragOption_ != SVSnapOptionPopRight) {
             lastDragOption_ = SVSnapOptionPopRight;
             if(delegateFlags_.delegateWillPopViewControllers) {
                 NSArray* toPop;
@@ -837,7 +833,7 @@ enum {
                 [delegate_ stackedView:self WillPopViewControllers:toPop];
             }
         }
-        else if(popOffDragDistanceRemaining_ > 0 && lastDragOption_ == SVSnapOptionPopRight) {
+        else if(currentDragDistance < popOffDragDistance_ && lastDragOption_ == SVSnapOptionPopRight) {
             lastDragOption_ = SVSnapOptionNearest;
             if(delegateFlags_.delegateWillNotPopViewControllers) {
                 NSArray* toPop;
