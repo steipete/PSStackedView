@@ -64,6 +64,10 @@ typedef void(^PSSVSimpleBlock)(void);
 @synthesize enableBounces = enableBounces_;
 @synthesize enableShadows = enableShadows_;
 @synthesize enableDraggingPastInsets = enableDraggingPastInsets_;
+@synthesize enableScalingFadeInOut = enableScalingFadeInOut_;
+@synthesize defaultShadowWidth = defaultShadowWidth_;
+@synthesize defaultShadowAlpha  = defaultShadowAlpha_;
+@synthesize cornerRadius = cornerRadius_;
 @dynamic firstVisibleIndex;
 
 #ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
@@ -96,6 +100,10 @@ typedef void(^PSSVSimpleBlock)(void);
         enableBounces_ = YES;
         enableShadows_ = YES;
         enableDraggingPastInsets_ = YES;
+        enableScalingFadeInOut_ = YES;
+        defaultShadowWidth_ = 60.0f;
+        defaultShadowAlpha_ = 0.2f;
+        cornerRadius_ = 6.0f;
         
         
 #ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
@@ -939,6 +947,9 @@ enum {
     container.left = leftGap;
     container.width = viewController.view.width;
     container.autoresizingMask = UIViewAutoresizingFlexibleHeight; // width is not flexible!
+    container.shadowWidth = defaultShadowWidth_;
+    container.shadowAlpha = defaultShadowAlpha_;
+    container.cornerRadius = cornerRadius_;
     [container limitToMaxWidth:[self maxControllerWidth]];
     PSSVLog(@"container frame: %@", NSStringFromCGRect(container.frame));
     
@@ -947,7 +958,8 @@ enum {
     
     if (animated) {
         container.alpha = 0.f;
-        container.transform = CGAffineTransformMakeScale(1.2, 1.2); // large but fade in
+        if (enableScalingFadeInOut_)
+            container.transform = CGAffineTransformMakeScale(1.2, 1.2); // large but fade in
     }
     
     [self.view addSubview:container];
@@ -1002,7 +1014,8 @@ enum {
         if (animated) { // kPSSVStackAnimationDuration
             [UIView animateWithDuration:kPSSVStackAnimationPopDuration delay:0.f options:UIViewAnimationOptionBeginFromCurrentState animations:^(void) {
                 lastController.containerView.alpha = 0.f;
-                lastController.containerView.transform = CGAffineTransformMakeScale(0.8, 0.8); // make smaller while fading out
+                if (enableScalingFadeInOut_)
+                    lastController.containerView.transform = CGAffineTransformMakeScale(0.8, 0.8); // make smaller while fading out
             } completion:^(BOOL finished) {
                 // even with duration = 0, this doesn't fire instantly but on a future runloop with NSFireDelayedPerform, thus ugly double-check
                 if (finished) {

@@ -121,6 +121,18 @@ enum {
 /// Property to disable dragging past left insets, recommend setting enableBouces to NO when this is set to NO
 @property(nonatomic, assign) BOOL enableDraggingPastInsets;
 
+/// enable scaling while fade in/out
+@property(nonatomic, assign) BOOL enableScalingFadeInOut;
+
+/// shadow width
+@property(nonatomic, assign) CGFloat defaultShadowWidth;
+
+/// shadow alpha
+@property(nonatomic, assign) CGFloat defaultShadowAlpha;
+
+/// corner radius
+@property(nonatomic, assign) CGFloat cornerRadius;
+
 /// left inset thats always visible. Defaults to 60.
 @property(nonatomic, assign) NSUInteger leftInset;
 /// animate setting of the left inset that is always visible
