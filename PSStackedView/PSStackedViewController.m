@@ -963,7 +963,6 @@ enum {
     [container layoutIfNeeded];
     //container.width = viewController.view.width; // sync width (after it may has changed in layoutIfNeeded)
     
-    [viewController viewDidAppear:animated];
     [viewControllers_ addObject:viewController];
     
     // register stack controller
@@ -971,7 +970,15 @@ enum {
     
     [self updateViewControllerMasksAndShadow];
     [self displayViewControllerIndexOnRightMost:[self.viewControllers count]-1 animated:animated];
-    [self delegateDidInsertViewController:viewController];
+    
+    double delayInSeconds = kPSSVStackAnimationPushDuration;
+    dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, delayInSeconds * NSEC_PER_SEC);
+    dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+        
+        [viewController viewDidAppear:animated];
+        [self delegateDidInsertViewController:viewController];
+
+    });
 }
 
 - (BOOL)popViewController:(UIViewController *)controller animated:(BOOL)animated {
