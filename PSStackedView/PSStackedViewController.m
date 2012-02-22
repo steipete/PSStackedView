@@ -1021,6 +1021,7 @@ enum {
             finishBlock();
         }
         
+        [[[viewControllers_ lastObject] retain] autorelease];
         [viewControllers_ removeLastObject];        
         
         // save current stack controller as an associated object.
