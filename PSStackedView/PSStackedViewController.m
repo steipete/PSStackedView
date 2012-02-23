@@ -38,7 +38,7 @@ typedef void(^PSSVSimpleBlock)(void);
     BOOL enableBounces_;
     BOOL enablePopOffOnDragRight_;
     PSSVPopOption popOffType_;
-    NSUInteger popOffDragDistance_;
+    NSInteger popOffDragDistance_;
     struct {
         unsigned int delegateWillInsertViewController:1;
         unsigned int delegateDidInsertViewController:1;
@@ -814,8 +814,6 @@ enum {
     if(self.enablePopOffOnDragRight && [viewControllers_ count] > 0) {
         UIViewController* fvc = (UIViewController*)[viewControllers_ objectAtIndex:0];
         NSInteger currentDragDistance = (fvc.containerView.left - largeLeftInset_);
-        
-        NSLog(@"Current Drag Distance: %d", currentDragDistance);
         
         if(currentDragDistance > popOffDragDistance_ && lastDragOption_ != SVSnapOptionPopRight) {
             lastDragOption_ = SVSnapOptionPopRight;

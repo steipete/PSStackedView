@@ -125,7 +125,7 @@ enum {
 @property(nonatomic, assign) PSSVPopOption popOffType;
 
 /// Property to determine the distance the stack has to be dragged to the right to trigger popOff
-@property(nonatomic, assign) NSUInteger popOffDragDistance;
+@property(nonatomic, assign) NSInteger popOffDragDistance;
 
 /// left inset thats always visible. Defaults to 60.
 @property(nonatomic, assign) NSUInteger leftInset;
