@@ -121,6 +121,21 @@ enum {
 /// Property to disable dragging past left insets, recommend setting enableBouces to NO when this is set to NO
 @property(nonatomic, assign) BOOL enableDraggingPastInsets;
 
+/// enable scaling while fade in/out
+@property(nonatomic, assign) BOOL enableScalingFadeInOut;
+
+/// shadow width
+@property(nonatomic, assign) CGFloat defaultShadowWidth;
+
+/// shadow alpha
+@property(nonatomic, assign) CGFloat defaultShadowAlpha;
+
+/// corner radius
+@property(nonatomic, assign) CGFloat cornerRadius;
+
+///number of touches
+@property(nonatomic, assign) NSUInteger numberOfTouches;
+
 /// left inset thats always visible. Defaults to 60.
 @property(nonatomic, assign) NSUInteger leftInset;
 /// animate setting of the left inset that is always visible
@@ -130,6 +145,8 @@ enum {
 @property(nonatomic, assign) NSUInteger largeLeftInset;
 /// animate setting of large left inset
 - (void)setLargeLeftInset:(NSUInteger)largeLeftInset animated:(BOOL)animated;
+
+
 
 // compatibility with UINavigationBar -- returns nil
 #ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER

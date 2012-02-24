@@ -49,4 +49,13 @@ enum {
 /// darken down the view if it's not fully visible
 @property(nonatomic, assign) CGFloat darkRatio;
 
+/// shadow width
+@property(nonatomic, assign) CGFloat shadowWidth;
+
+/// shadow alpha
+@property(nonatomic, assign) CGFloat shadowAlpha;
+
+/// corner radius
+@property(nonatomic, assign) CGFloat cornerRadius;
+
 @end
