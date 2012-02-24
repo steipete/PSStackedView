@@ -133,6 +133,9 @@ enum {
 /// corner radius
 @property(nonatomic, assign) CGFloat cornerRadius;
 
+///number of touches
+@property(nonatomic, assign) NSUInteger numberOfTouches;
+
 /// left inset thats always visible. Defaults to 60.
 @property(nonatomic, assign) NSUInteger leftInset;
 /// animate setting of the left inset that is always visible
@@ -142,6 +145,8 @@ enum {
 @property(nonatomic, assign) NSUInteger largeLeftInset;
 /// animate setting of large left inset
 - (void)setLargeLeftInset:(NSUInteger)largeLeftInset animated:(BOOL)animated;
+
+
 
 // compatibility with UINavigationBar -- returns nil
 #ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER

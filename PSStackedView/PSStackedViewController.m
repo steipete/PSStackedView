@@ -68,6 +68,7 @@ typedef void(^PSSVSimpleBlock)(void);
 @synthesize defaultShadowWidth = defaultShadowWidth_;
 @synthesize defaultShadowAlpha  = defaultShadowAlpha_;
 @synthesize cornerRadius = cornerRadius_;
+@synthesize numberOfTouches = numberOfTouches_;
 @dynamic firstVisibleIndex;
 
 #ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
@@ -76,6 +77,26 @@ typedef void(^PSSVSimpleBlock)(void);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - NSObject
+
+- (void)configureGestureRecognizer
+{
+    [self.view removeGestureRecognizer:self.panRecognizer];
+    
+    // add a gesture recognizer to detect dragging to the guest controllers
+    UIPanGestureRecognizer *panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanFrom:)];
+    if (numberOfTouches_ > 0)
+    {
+        [panRecognizer setMinimumNumberOfTouches:numberOfTouches_];
+    } else {
+        [panRecognizer setMaximumNumberOfTouches:1];            
+    }
+    [panRecognizer setDelaysTouchesBegan:NO];
+    [panRecognizer setDelaysTouchesEnded:YES];
+    [panRecognizer setCancelsTouchesInView:YES];
+    panRecognizer.delegate = self;
+    [self.view addGestureRecognizer:panRecognizer];
+    self.panRecognizer = panRecognizer;
+}
 
 - (id)initWithRootViewController:(UIViewController *)rootViewController; {
     if ((self = [super init])) {
@@ -88,15 +109,8 @@ typedef void(^PSSVSimpleBlock)(void);
         leftInset_ = 60;
         largeLeftInset_ = 200;
         
-        // add a gesture recognizer to detect dragging to the guest controllers
-        UIPanGestureRecognizer *panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanFrom:)];
-        [panRecognizer setMaximumNumberOfTouches:1];
-        [panRecognizer setDelaysTouchesBegan:NO];
-        [panRecognizer setDelaysTouchesEnded:YES];
-        [panRecognizer setCancelsTouchesInView:YES];
-        panRecognizer.delegate = self;
-        [self.view addGestureRecognizer:panRecognizer];
-        self.panRecognizer = panRecognizer;
+        [self configureGestureRecognizer];
+
         enableBounces_ = YES;
         enableShadows_ = YES;
         enableDraggingPastInsets_ = YES;
@@ -104,8 +118,7 @@ typedef void(^PSSVSimpleBlock)(void);
         defaultShadowWidth_ = 60.0f;
         defaultShadowAlpha_ = 0.2f;
         cornerRadius_ = 6.0f;
-        
-        
+
 #ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
         PSSVLog("Swizzling UIViewController.navigationController");
         Method origMethod = class_getInstanceMethod([UIViewController class], @selector(navigationController));
@@ -798,7 +811,7 @@ enum {
     } completion:nil];
 }
 
-- (void)handlePanFrom:(UIPanGestureRecognizer *)recognizer {
+- (void)handlePanFrom:(UIPanGestureRecognizer *)recognizer {    
     CGPoint translatedPoint = [recognizer translationInView:self.view];
     UIGestureRecognizerState state = recognizer.state;
     
@@ -1357,6 +1370,12 @@ enum {
     
     [self alignStackAnimated:animated];
     return steps; 
+}
+
+- (void)setNumberOfTouches:(NSUInteger)numberOfTouches
+{
+    numberOfTouches_ = numberOfTouches;
+    [self configureGestureRecognizer];
 }
 
 - (void)setLeftInset:(NSUInteger)leftInset {
