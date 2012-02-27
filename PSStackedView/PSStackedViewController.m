@@ -116,6 +116,7 @@ typedef void(^PSSVSimpleBlock)(void);
         [self popViewControllerAnimated:NO];
     }
     
+    [super dealloc];
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -622,7 +623,7 @@ enum {
         }
     }];
     
-    return [array copy];
+    return [[array copy] autorelease];
 }
 
 
