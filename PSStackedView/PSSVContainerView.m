@@ -10,10 +10,6 @@
 #import "PSStackedViewGlobal.h"
 #import "UIView+PSSizes.h"
 
-#define kPSSVCornerRadius 6.f
-#define kPSSVShadowWidth 60.f
-#define kPSSVShadowAlpha 0.2f
-
 @interface PSSVContainerView ()
 @property(nonatomic, assign) CGFloat originalWidth;
 @property(nonatomic, strong) CAGradientLayer *leftShadowLayer;
@@ -31,7 +27,9 @@
 @synthesize innerShadowLayer = innerShadowLayer_;
 @synthesize rightShadowLayer = rightShadowLayer_;
 @synthesize transparentView = transparentView_;
-
+@synthesize shadowWidth = shadowWidth_;
+@synthesize shadowAlpha = shadowAlpha_;
+@synthesize cornerRadius = cornerRadius_;
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark -
 #pragma mark private
@@ -41,7 +39,7 @@
 	CAGradientLayer *newShadow = [[CAGradientLayer alloc] init];
     newShadow.startPoint = CGPointMake(0, 0.5);
     newShadow.endPoint = CGPointMake(1.0, 0.5);
-	CGColorRef darkColor  = (CGColorRef)CFRetain([UIColor colorWithWhite:0.0f alpha:kPSSVShadowAlpha].CGColor);
+	CGColorRef darkColor  = (CGColorRef)CFRetain([UIColor colorWithWhite:0.0f alpha:shadowAlpha_].CGColor);
 	CGColorRef lightColor = (CGColorRef)CFRetain([UIColor clearColor].CGColor);
 	newShadow.colors = [NSArray arrayWithObjects:
                         (__bridge id)(inverse ? lightColor : darkColor),
@@ -147,7 +145,7 @@
     // Create the path (with only the top-left corner rounded)
     UIBezierPath *maskPath = [UIBezierPath bezierPathWithRoundedRect:frame 
                                                    byRoundingCorners:corners
-                                                         cornerRadii:CGSizeMake(kPSSVCornerRadius, kPSSVCornerRadius)];
+                                                         cornerRadii:CGSizeMake(cornerRadius_, cornerRadius_)];
     
     // Create the shape layer and set its path
     CAShapeLayer *maskLayer = [CAShapeLayer layer];
@@ -175,7 +173,7 @@
             CAGradientLayer *leftShadow = [self shadowAsInverse:YES];
             self.leftShadowLayer = leftShadow;
         }
-        self.leftShadowLayer.frame = CGRectMake(-kPSSVShadowWidth, 0, kPSSVShadowWidth+kPSSVCornerRadius, self.controller.view.height);;
+        self.leftShadowLayer.frame = CGRectMake(-shadowWidth_, 0, shadowWidth_+cornerRadius_, self.controller.view.height);;
         if ([self.layer.sublayers indexOfObjectIdenticalTo:self.leftShadowLayer] != 0) {
             [self.layer insertSublayer:self.leftShadowLayer atIndex:0];
         }
@@ -188,7 +186,7 @@
             CAGradientLayer *rightShadow = [self shadowAsInverse:NO];
             self.rightShadowLayer = rightShadow;
         }
-        self.rightShadowLayer.frame = CGRectMake(self.width-kPSSVCornerRadius, 0, kPSSVShadowWidth, self.controller.view.height);
+        self.rightShadowLayer.frame = CGRectMake(self.width-cornerRadius_, 0, shadowWidth_, self.controller.view.height);
         if ([self.layer.sublayers indexOfObjectIdenticalTo:self.rightShadowLayer] != 0) {
             [self.layer insertSublayer:self.rightShadowLayer atIndex:0];
         }
@@ -199,10 +197,10 @@
     if (shadow) {
         if (!self.innerShadowLayer) {
             CAGradientLayer *innerShadow = [[CAGradientLayer alloc] init];
-            innerShadow.colors = [NSArray arrayWithObjects:(id)[UIColor colorWithWhite:0.0f alpha:kPSSVShadowAlpha].CGColor, (id)[UIColor colorWithWhite:0.0f alpha:kPSSVShadowAlpha].CGColor, nil];
+            innerShadow.colors = [NSArray arrayWithObjects:(id)[UIColor colorWithWhite:0.0f alpha:shadowAlpha_].CGColor, (id)[UIColor colorWithWhite:0.0f alpha:shadowAlpha_].CGColor, nil];
             self.innerShadowLayer = innerShadow;
         }
-        self.innerShadowLayer.frame = CGRectMake(kPSSVCornerRadius, 0, self.width-kPSSVCornerRadius*2, self.controller.view.height);
+        self.innerShadowLayer.frame = CGRectMake(cornerRadius_, 0, self.width-cornerRadius_*2, self.controller.view.height);
         if ([self.layer.sublayers indexOfObjectIdenticalTo:self.innerShadowLayer] != 0) {
             [self.layer insertSublayer:self.innerShadowLayer atIndex:0];
         }

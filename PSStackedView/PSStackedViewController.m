@@ -64,6 +64,11 @@ typedef void(^PSSVSimpleBlock)(void);
 @synthesize enableBounces = enableBounces_;
 @synthesize enableShadows = enableShadows_;
 @synthesize enableDraggingPastInsets = enableDraggingPastInsets_;
+@synthesize enableScalingFadeInOut = enableScalingFadeInOut_;
+@synthesize defaultShadowWidth = defaultShadowWidth_;
+@synthesize defaultShadowAlpha  = defaultShadowAlpha_;
+@synthesize cornerRadius = cornerRadius_;
+@synthesize numberOfTouches = numberOfTouches_;
 @dynamic firstVisibleIndex;
 
 #ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
@@ -72,6 +77,26 @@ typedef void(^PSSVSimpleBlock)(void);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - NSObject
+
+- (void)configureGestureRecognizer
+{
+    [self.view removeGestureRecognizer:self.panRecognizer];
+    
+    // add a gesture recognizer to detect dragging to the guest controllers
+    UIPanGestureRecognizer *panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanFrom:)];
+    if (numberOfTouches_ > 0)
+    {
+        [panRecognizer setMinimumNumberOfTouches:numberOfTouches_];
+    } else {
+        [panRecognizer setMaximumNumberOfTouches:1];            
+    }
+    [panRecognizer setDelaysTouchesBegan:NO];
+    [panRecognizer setDelaysTouchesEnded:YES];
+    [panRecognizer setCancelsTouchesInView:YES];
+    panRecognizer.delegate = self;
+    [self.view addGestureRecognizer:panRecognizer];
+    self.panRecognizer = panRecognizer;
+}
 
 - (id)initWithRootViewController:(UIViewController *)rootViewController; {
     if ((self = [super init])) {
@@ -84,20 +109,16 @@ typedef void(^PSSVSimpleBlock)(void);
         leftInset_ = 60;
         largeLeftInset_ = 200;
         
-        // add a gesture recognizer to detect dragging to the guest controllers
-        UIPanGestureRecognizer *panRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanFrom:)];
-        [panRecognizer setMaximumNumberOfTouches:1];
-        [panRecognizer setDelaysTouchesBegan:NO];
-        [panRecognizer setDelaysTouchesEnded:YES];
-        [panRecognizer setCancelsTouchesInView:YES];
-        panRecognizer.delegate = self;
-        [self.view addGestureRecognizer:panRecognizer];
-        self.panRecognizer = panRecognizer;
+        [self configureGestureRecognizer];
+
         enableBounces_ = YES;
         enableShadows_ = YES;
         enableDraggingPastInsets_ = YES;
-        
-        
+        enableScalingFadeInOut_ = YES;
+        defaultShadowWidth_ = 60.0f;
+        defaultShadowAlpha_ = 0.2f;
+        cornerRadius_ = 6.0f;
+
 #ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
         PSSVLog("Swizzling UIViewController.navigationController");
         Method origMethod = class_getInstanceMethod([UIViewController class], @selector(navigationController));
@@ -790,7 +811,7 @@ enum {
     } completion:nil];
 }
 
-- (void)handlePanFrom:(UIPanGestureRecognizer *)recognizer {
+- (void)handlePanFrom:(UIPanGestureRecognizer *)recognizer {    
     CGPoint translatedPoint = [recognizer translationInView:self.view];
     UIGestureRecognizerState state = recognizer.state;
     
@@ -939,6 +960,9 @@ enum {
     container.left = leftGap;
     container.width = viewController.view.width;
     container.autoresizingMask = UIViewAutoresizingFlexibleHeight; // width is not flexible!
+    container.shadowWidth = defaultShadowWidth_;
+    container.shadowAlpha = defaultShadowAlpha_;
+    container.cornerRadius = cornerRadius_;
     [container limitToMaxWidth:[self maxControllerWidth]];
     PSSVLog(@"container frame: %@", NSStringFromCGRect(container.frame));
     
@@ -947,7 +971,8 @@ enum {
     
     if (animated) {
         container.alpha = 0.f;
-        container.transform = CGAffineTransformMakeScale(1.2, 1.2); // large but fade in
+        if (enableScalingFadeInOut_)
+            container.transform = CGAffineTransformMakeScale(1.2, 1.2); // large but fade in
     }
     
     [self.view addSubview:container];
@@ -1002,7 +1027,8 @@ enum {
         if (animated) { // kPSSVStackAnimationDuration
             [UIView animateWithDuration:kPSSVStackAnimationPopDuration delay:0.f options:UIViewAnimationOptionBeginFromCurrentState animations:^(void) {
                 lastController.containerView.alpha = 0.f;
-                lastController.containerView.transform = CGAffineTransformMakeScale(0.8, 0.8); // make smaller while fading out
+                if (enableScalingFadeInOut_)
+                    lastController.containerView.transform = CGAffineTransformMakeScale(0.8, 0.8); // make smaller while fading out
             } completion:^(BOOL finished) {
                 // even with duration = 0, this doesn't fire instantly but on a future runloop with NSFireDelayedPerform, thus ugly double-check
                 if (finished) {
@@ -1344,6 +1370,12 @@ enum {
     
     [self alignStackAnimated:animated];
     return steps; 
+}
+
+- (void)setNumberOfTouches:(NSUInteger)numberOfTouches
+{
+    numberOfTouches_ = numberOfTouches;
+    [self configureGestureRecognizer];
 }
 
 - (void)setLeftInset:(NSUInteger)leftInset {
