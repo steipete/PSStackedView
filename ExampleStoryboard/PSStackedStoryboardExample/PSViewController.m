@@ -42,7 +42,7 @@
     [[viewController view] setBackgroundColor:color];
     [viewController setShowBackButton:YES];
     
-    [[self stackController] pushViewController:viewController animated:YES];
+    [[self stackController] pushViewController:viewController fromViewController:self animated:YES];
 }
 
 
