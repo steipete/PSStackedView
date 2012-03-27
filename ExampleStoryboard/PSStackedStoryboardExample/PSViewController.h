@@ -10,4 +10,7 @@
 
 @interface PSViewController : UIViewController
 
+- (IBAction)addRedViewController:(id)sender;
+- (IBAction)addGreenViewController:(id)sender;
+- (IBAction)addBlueViewController:(id)sender;
 @end
