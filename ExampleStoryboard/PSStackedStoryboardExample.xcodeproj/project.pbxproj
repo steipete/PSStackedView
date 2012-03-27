@@ -1,0 +1,350 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		E23C175115217912007A3611 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E23C175015217912007A3611 /* UIKit.framework */; };
+		E23C175315217912007A3611 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E23C175215217912007A3611 /* Foundation.framework */; };
+		E23C175515217912007A3611 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E23C175415217912007A3611 /* CoreGraphics.framework */; };
+		E23C175B15217912007A3611 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E23C175915217912007A3611 /* InfoPlist.strings */; };
+		E23C175D15217912007A3611 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E23C175C15217912007A3611 /* main.m */; };
+		E23C176115217912007A3611 /* PSAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E23C176015217912007A3611 /* PSAppDelegate.m */; };
+		E23C176415217912007A3611 /* MainStoryboard_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E23C176215217912007A3611 /* MainStoryboard_iPhone.storyboard */; };
+		E23C176715217912007A3611 /* MainStoryboard_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E23C176515217912007A3611 /* MainStoryboard_iPad.storyboard */; };
+		E23C176A15217912007A3611 /* PSViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E23C176915217912007A3611 /* PSViewController.m */; };
+		E23C178515217A04007A3611 /* PSStackedViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = E23C177915217A04007A3611 /* PSStackedViewController.m */; };
+		E23C178615217A04007A3611 /* PSStackedViewGlobal.m in Sources */ = {isa = PBXBuildFile; fileRef = E23C177C15217A04007A3611 /* PSStackedViewGlobal.m */; };
+		E23C178715217A04007A3611 /* PSStackedViewSegue.m in Sources */ = {isa = PBXBuildFile; fileRef = E23C177E15217A04007A3611 /* PSStackedViewSegue.m */; };
+		E23C178815217A04007A3611 /* PSSVContainerView.m in Sources */ = {isa = PBXBuildFile; fileRef = E23C178015217A04007A3611 /* PSSVContainerView.m */; };
+		E23C178915217A04007A3611 /* UIView+PSSizes.m in Sources */ = {isa = PBXBuildFile; fileRef = E23C178215217A04007A3611 /* UIView+PSSizes.m */; };
+		E23C178A15217A04007A3611 /* UIViewController+PSStackedView.m in Sources */ = {isa = PBXBuildFile; fileRef = E23C178415217A04007A3611 /* UIViewController+PSStackedView.m */; };
+		E23C178C15217A1C007A3611 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E23C178B15217A1C007A3611 /* QuartzCore.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		E23C174C15217912007A3611 /* PSStackedStoryboardExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PSStackedStoryboardExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E23C175015217912007A3611 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		E23C175215217912007A3611 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		E23C175415217912007A3611 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		E23C175815217912007A3611 /* PSStackedStoryboardExample-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "PSStackedStoryboardExample-Info.plist"; sourceTree = "<group>"; };
+		E23C175A15217912007A3611 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		E23C175C15217912007A3611 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		E23C175E15217912007A3611 /* PSStackedStoryboardExample-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "PSStackedStoryboardExample-Prefix.pch"; sourceTree = "<group>"; };
+		E23C175F15217912007A3611 /* PSAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PSAppDelegate.h; sourceTree = "<group>"; };
+		E23C176015217912007A3611 /* PSAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PSAppDelegate.m; sourceTree = "<group>"; };
+		E23C176315217912007A3611 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPhone.storyboard; sourceTree = "<group>"; };
+		E23C176615217912007A3611 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPad.storyboard; sourceTree = "<group>"; };
+		E23C176815217912007A3611 /* PSViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PSViewController.h; sourceTree = "<group>"; };
+		E23C176915217912007A3611 /* PSViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PSViewController.m; sourceTree = "<group>"; };
+		E23C177715217A04007A3611 /* PSStackedView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PSStackedView.h; path = ../PSStackedView/PSStackedView.h; sourceTree = "<group>"; };
+		E23C177815217A04007A3611 /* PSStackedViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PSStackedViewController.h; path = ../PSStackedView/PSStackedViewController.h; sourceTree = "<group>"; };
+		E23C177915217A04007A3611 /* PSStackedViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PSStackedViewController.m; path = ../PSStackedView/PSStackedViewController.m; sourceTree = "<group>"; };
+		E23C177A15217A04007A3611 /* PSStackedViewDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PSStackedViewDelegate.h; path = ../PSStackedView/PSStackedViewDelegate.h; sourceTree = "<group>"; };
+		E23C177B15217A04007A3611 /* PSStackedViewGlobal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PSStackedViewGlobal.h; path = ../PSStackedView/PSStackedViewGlobal.h; sourceTree = "<group>"; };
+		E23C177C15217A04007A3611 /* PSStackedViewGlobal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PSStackedViewGlobal.m; path = ../PSStackedView/PSStackedViewGlobal.m; sourceTree = "<group>"; };
+		E23C177D15217A04007A3611 /* PSStackedViewSegue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PSStackedViewSegue.h; path = ../PSStackedView/PSStackedViewSegue.h; sourceTree = "<group>"; };
+		E23C177E15217A04007A3611 /* PSStackedViewSegue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PSStackedViewSegue.m; path = ../PSStackedView/PSStackedViewSegue.m; sourceTree = "<group>"; };
+		E23C177F15217A04007A3611 /* PSSVContainerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PSSVContainerView.h; path = ../PSStackedView/PSSVContainerView.h; sourceTree = "<group>"; };
+		E23C178015217A04007A3611 /* PSSVContainerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PSSVContainerView.m; path = ../PSStackedView/PSSVContainerView.m; sourceTree = "<group>"; };
+		E23C178115217A04007A3611 /* UIView+PSSizes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIView+PSSizes.h"; path = "../PSStackedView/UIView+PSSizes.h"; sourceTree = "<group>"; };
+		E23C178215217A04007A3611 /* UIView+PSSizes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIView+PSSizes.m"; path = "../PSStackedView/UIView+PSSizes.m"; sourceTree = "<group>"; };
+		E23C178315217A04007A3611 /* UIViewController+PSStackedView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIViewController+PSStackedView.h"; path = "../PSStackedView/UIViewController+PSStackedView.h"; sourceTree = "<group>"; };
+		E23C178415217A04007A3611 /* UIViewController+PSStackedView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIViewController+PSStackedView.m"; path = "../PSStackedView/UIViewController+PSStackedView.m"; sourceTree = "<group>"; };
+		E23C178B15217A1C007A3611 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		E23C174915217912007A3611 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E23C178C15217A1C007A3611 /* QuartzCore.framework in Frameworks */,
+				E23C175115217912007A3611 /* UIKit.framework in Frameworks */,
+				E23C175315217912007A3611 /* Foundation.framework in Frameworks */,
+				E23C175515217912007A3611 /* CoreGraphics.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		E23C174115217912007A3611 = {
+			isa = PBXGroup;
+			children = (
+				E23C178B15217A1C007A3611 /* QuartzCore.framework */,
+				E23C1775152179F2007A3611 /* PSStackedView */,
+				E23C175615217912007A3611 /* PSStackedStoryboardExample */,
+				E23C174F15217912007A3611 /* Frameworks */,
+				E23C174D15217912007A3611 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E23C174D15217912007A3611 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E23C174C15217912007A3611 /* PSStackedStoryboardExample.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E23C174F15217912007A3611 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				E23C175015217912007A3611 /* UIKit.framework */,
+				E23C175215217912007A3611 /* Foundation.framework */,
+				E23C175415217912007A3611 /* CoreGraphics.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		E23C175615217912007A3611 /* PSStackedStoryboardExample */ = {
+			isa = PBXGroup;
+			children = (
+				E23C175F15217912007A3611 /* PSAppDelegate.h */,
+				E23C176015217912007A3611 /* PSAppDelegate.m */,
+				E23C176215217912007A3611 /* MainStoryboard_iPhone.storyboard */,
+				E23C176515217912007A3611 /* MainStoryboard_iPad.storyboard */,
+				E23C176815217912007A3611 /* PSViewController.h */,
+				E23C176915217912007A3611 /* PSViewController.m */,
+				E23C175715217912007A3611 /* Supporting Files */,
+			);
+			path = PSStackedStoryboardExample;
+			sourceTree = "<group>";
+		};
+		E23C175715217912007A3611 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				E23C175815217912007A3611 /* PSStackedStoryboardExample-Info.plist */,
+				E23C175915217912007A3611 /* InfoPlist.strings */,
+				E23C175C15217912007A3611 /* main.m */,
+				E23C175E15217912007A3611 /* PSStackedStoryboardExample-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		E23C1775152179F2007A3611 /* PSStackedView */ = {
+			isa = PBXGroup;
+			children = (
+				E23C177715217A04007A3611 /* PSStackedView.h */,
+				E23C177815217A04007A3611 /* PSStackedViewController.h */,
+				E23C177915217A04007A3611 /* PSStackedViewController.m */,
+				E23C177A15217A04007A3611 /* PSStackedViewDelegate.h */,
+				E23C177B15217A04007A3611 /* PSStackedViewGlobal.h */,
+				E23C177C15217A04007A3611 /* PSStackedViewGlobal.m */,
+				E23C177D15217A04007A3611 /* PSStackedViewSegue.h */,
+				E23C177E15217A04007A3611 /* PSStackedViewSegue.m */,
+				E23C177F15217A04007A3611 /* PSSVContainerView.h */,
+				E23C178015217A04007A3611 /* PSSVContainerView.m */,
+				E23C178115217A04007A3611 /* UIView+PSSizes.h */,
+				E23C178215217A04007A3611 /* UIView+PSSizes.m */,
+				E23C178315217A04007A3611 /* UIViewController+PSStackedView.h */,
+				E23C178415217A04007A3611 /* UIViewController+PSStackedView.m */,
+			);
+			name = PSStackedView;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E23C174B15217912007A3611 /* PSStackedStoryboardExample */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E23C176D15217912007A3611 /* Build configuration list for PBXNativeTarget "PSStackedStoryboardExample" */;
+			buildPhases = (
+				E23C174815217912007A3611 /* Sources */,
+				E23C174915217912007A3611 /* Frameworks */,
+				E23C174A15217912007A3611 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PSStackedStoryboardExample;
+			productName = PSStackedStoryboardExample;
+			productReference = E23C174C15217912007A3611 /* PSStackedStoryboardExample.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E23C174315217912007A3611 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				CLASSPREFIX = PS;
+				LastUpgradeCheck = 0430;
+				ORGANIZATIONNAME = "University of Washington";
+			};
+			buildConfigurationList = E23C174615217912007A3611 /* Build configuration list for PBXProject "PSStackedStoryboardExample" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = E23C174115217912007A3611;
+			productRefGroup = E23C174D15217912007A3611 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E23C174B15217912007A3611 /* PSStackedStoryboardExample */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		E23C174A15217912007A3611 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E23C175B15217912007A3611 /* InfoPlist.strings in Resources */,
+				E23C176415217912007A3611 /* MainStoryboard_iPhone.storyboard in Resources */,
+				E23C176715217912007A3611 /* MainStoryboard_iPad.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		E23C174815217912007A3611 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E23C175D15217912007A3611 /* main.m in Sources */,
+				E23C176115217912007A3611 /* PSAppDelegate.m in Sources */,
+				E23C176A15217912007A3611 /* PSViewController.m in Sources */,
+				E23C178515217A04007A3611 /* PSStackedViewController.m in Sources */,
+				E23C178615217A04007A3611 /* PSStackedViewGlobal.m in Sources */,
+				E23C178715217A04007A3611 /* PSStackedViewSegue.m in Sources */,
+				E23C178815217A04007A3611 /* PSSVContainerView.m in Sources */,
+				E23C178915217A04007A3611 /* UIView+PSSizes.m in Sources */,
+				E23C178A15217A04007A3611 /* UIViewController+PSStackedView.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		E23C175915217912007A3611 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E23C175A15217912007A3611 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		E23C176215217912007A3611 /* MainStoryboard_iPhone.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E23C176315217912007A3611 /* en */,
+			);
+			name = MainStoryboard_iPhone.storyboard;
+			sourceTree = "<group>";
+		};
+		E23C176515217912007A3611 /* MainStoryboard_iPad.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E23C176615217912007A3611 /* en */,
+			);
+			name = MainStoryboard_iPad.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		E23C176B15217912007A3611 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		E23C176C15217912007A3611 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		E23C176E15217912007A3611 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "PSStackedStoryboardExample/PSStackedStoryboardExample-Prefix.pch";
+				INFOPLIST_FILE = "PSStackedStoryboardExample/PSStackedStoryboardExample-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		E23C176F15217912007A3611 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "PSStackedStoryboardExample/PSStackedStoryboardExample-Prefix.pch";
+				INFOPLIST_FILE = "PSStackedStoryboardExample/PSStackedStoryboardExample-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		E23C174615217912007A3611 /* Build configuration list for PBXProject "PSStackedStoryboardExample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E23C176B15217912007A3611 /* Debug */,
+				E23C176C15217912007A3611 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E23C176D15217912007A3611 /* Build configuration list for PBXNativeTarget "PSStackedStoryboardExample" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E23C176E15217912007A3611 /* Debug */,
+				E23C176F15217912007A3611 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E23C174315217912007A3611 /* Project object */;
+}
