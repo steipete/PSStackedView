@@ -135,6 +135,16 @@ typedef void(^PSSVSimpleBlock)(void);
     return self;
 }
 
+- (id)initWithCoder:(NSCoder *)coder {
+    self = [super initWithCoder:coder];
+    if (self) {
+        
+        [self sharedInitialization];
+        
+    }
+    return self;
+}
+
 - (id)initWithRootViewController:(UIViewController *)rootViewController; {
     
     if ((self = [super init])) {
