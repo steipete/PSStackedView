@@ -11,6 +11,14 @@
             <objects>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4" sceneMemberID="firstResponder"/>
                 <viewController id="2" customClass="PSStackedViewController" sceneMemberID="viewController">
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="number" keyPath="leftInset">
+                            <real key="value" value="0.0"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="number" keyPath="largeLeftInset">
+                            <real key="value" value="320"/>
+                        </userDefinedRuntimeAttribute>
+                    </userDefinedRuntimeAttributes>
                     <connections>
                         <outlet property="rootViewController" destination="hla-rk-vUF" id="UIv-3W-oQV"/>
                     </connections>
@@ -28,6 +36,11 @@
         </class>
         <class className="PSViewController" superclassName="UIViewController">
             <source key="sourceIdentifier" type="project" relativePath="./Classes/PSViewController.h"/>
+            <relationships>
+                <relationship kind="action" name="addBlueViewController:"/>
+                <relationship kind="action" name="addGreenViewController:"/>
+                <relationship kind="action" name="addRedViewController:"/>
+            </relationships>
         </class>
     </classes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">

@@ -10,7 +10,12 @@
 
 @interface PSViewController : UIViewController
 
+@property (nonatomic,assign) BOOL showBackButton;
+@property (weak, nonatomic) IBOutlet UIButton *backButton;
+
 - (IBAction)addRedViewController:(id)sender;
 - (IBAction)addGreenViewController:(id)sender;
 - (IBAction)addBlueViewController:(id)sender;
+
+- (IBAction)goBack:(id)sender;
 @end
