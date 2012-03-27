@@ -139,9 +139,7 @@ typedef void(^PSSVSimpleBlock)(void);
     
     if ((self = [super init])) {
         
-        rootViewController_ = rootViewController;
-        objc_setAssociatedObject(rootViewController, kPSSVAssociatedStackViewControllerKey, self, OBJC_ASSOCIATION_ASSIGN); // associate weak
-        
+        [self setRootViewController:rootViewController];
         [self sharedInitialization];
 
     }
@@ -159,6 +157,20 @@ typedef void(^PSSVSimpleBlock)(void);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#pragma mark - Root View Controller
+
+- (void)setRootViewController:(UIViewController *)rootViewController {
+    
+    if (rootViewController_ != rootViewController) {
+        rootViewController_ = nil;
+        
+        rootViewController_ = rootViewController;
+        objc_setAssociatedObject(rootViewController, kPSSVAssociatedStackViewControllerKey, self, OBJC_ASSOCIATION_ASSIGN); // associate weak
+        
+    }
+}
+
 #pragma mark - Delegate
 
 - (void)setDelegate:(id<PSStackedViewDelegate>)delegate {
