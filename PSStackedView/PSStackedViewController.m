@@ -1209,7 +1209,8 @@ enum {
     PSSVBounceBack,    
 }typedef PSSVBounceOption;
 
-- (void)alignStackAnimated:(BOOL)animated duration:(CGFloat)duration bounceType:(PSSVBounceOption)bounce; {
+- (void)alignStackAnimated:(BOOL)animated duration:(CGFloat)duration bounceType:(PSSVBounceOption)bounce {
+    
     animated = animated && !self.isReducingAnimations; // don't animate if set
     self.floatIndex = [self nearestValidFloatIndex:self.floatIndex]; // round to nearest correct index
     UIViewAnimationCurve animationCurve = UIViewAnimationCurveEaseInOut;
@@ -1230,7 +1231,7 @@ enum {
     
     PSSVSimpleBlock alignmentBlock = ^{
         
-        PSSVLog(@"Begin aliging VCs. Last drag offset:%d direction:%d bounce:%d.", lastDragOffset_, lastDragOption_, bounce);
+        PSSVLog(@"Begin aligning VCs. Last drag offset:%d direction:%d bounce:%d.", lastDragOffset_, lastDragOption_, bounce);
         
         // calculate offset used only when we're bleeding over
         NSInteger snapOverOffset = 0; // > 0 = <--- ; we scrolled from right to left.
