@@ -80,7 +80,7 @@ enum {
 @property(nonatomic, unsafe_unretained) id<PSStackedViewDelegate> delegate;
 
 /// root view controller, always displayed behind stack
-@property(nonatomic, strong, readonly) UIViewController *rootViewController;
+@property(nonatomic, strong) IBOutlet UIViewController *rootViewController;
 
 /// The top(last) view controller on the stack.
 @property(nonatomic, readonly, strong) UIViewController *topViewController;

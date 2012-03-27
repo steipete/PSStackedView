@@ -44,7 +44,7 @@ typedef void(^PSSVSimpleBlock)(void);
         unsigned int delegateDidAlign:1;
     }delegateFlags_;
 }
-@property(nonatomic, strong) UIViewController *rootViewController;
+
 @property(nonatomic, strong) NSArray *viewControllers;
 @property(nonatomic, assign) NSInteger firstVisibleIndex;
 @property(nonatomic, assign) CGFloat floatIndex;
@@ -98,33 +98,52 @@ typedef void(^PSSVSimpleBlock)(void);
     self.panRecognizer = panRecognizer;
 }
 
-- (id)initWithRootViewController:(UIViewController *)rootViewController; {
+
+- (void)sharedInitialization {
+    viewControllers_ = [[NSMutableArray alloc] init];
+    
+    // set some reasonble defaults
+    leftInset_ = 60;
+    largeLeftInset_ = 200;
+    
+    [self configureGestureRecognizer];
+    
+    enableBounces_ = YES;
+    enableShadows_ = YES;
+    enableDraggingPastInsets_ = YES;
+    enableScalingFadeInOut_ = YES;
+    defaultShadowWidth_ = 60.0f;
+    defaultShadowAlpha_ = 0.2f;
+    cornerRadius_ = 6.0f;
+    
+#ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
+    PSSVLog("Swizzling UIViewController.navigationController");
+    Method origMethod = class_getInstanceMethod([UIViewController class], @selector(navigationController));
+    Method overrideMethod = class_getInstanceMethod([UIViewController class], @selector(navigationControllerSwizzled));
+    method_exchangeImplementations(origMethod, overrideMethod);
+#endif
+
+}
+
+- (id)init {
+    
     if ((self = [super init])) {
+    
+        [self sharedInitialization];
+        
+    }
+    return self;
+}
+
+- (id)initWithRootViewController:(UIViewController *)rootViewController; {
+    
+    if ((self = [super init])) {
+        
         rootViewController_ = rootViewController;
         objc_setAssociatedObject(rootViewController, kPSSVAssociatedStackViewControllerKey, self, OBJC_ASSOCIATION_ASSIGN); // associate weak
         
-        viewControllers_ = [[NSMutableArray alloc] init];
-        
-        // set some reasonble defaults
-        leftInset_ = 60;
-        largeLeftInset_ = 200;
-        
-        [self configureGestureRecognizer];
+        [self sharedInitialization];
 
-        enableBounces_ = YES;
-        enableShadows_ = YES;
-        enableDraggingPastInsets_ = YES;
-        enableScalingFadeInOut_ = YES;
-        defaultShadowWidth_ = 60.0f;
-        defaultShadowAlpha_ = 0.2f;
-        cornerRadius_ = 6.0f;
-
-#ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
-        PSSVLog("Swizzling UIViewController.navigationController");
-        Method origMethod = class_getInstanceMethod([UIViewController class], @selector(navigationController));
-        Method overrideMethod = class_getInstanceMethod([UIViewController class], @selector(navigationControllerSwizzled));
-        method_exchangeImplementations(origMethod, overrideMethod);
-#endif
     }
     return self;
 }
