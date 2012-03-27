@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 University of Washington. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#import "PSStackedViewController.h"
 
 @interface PSViewController : UIViewController
 

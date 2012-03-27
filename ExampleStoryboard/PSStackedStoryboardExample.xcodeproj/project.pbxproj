@@ -23,6 +23,7 @@
 		E23C178915217A04007A3611 /* UIView+PSSizes.m in Sources */ = {isa = PBXBuildFile; fileRef = E23C178215217A04007A3611 /* UIView+PSSizes.m */; };
 		E23C178A15217A04007A3611 /* UIViewController+PSStackedView.m in Sources */ = {isa = PBXBuildFile; fileRef = E23C178415217A04007A3611 /* UIViewController+PSStackedView.m */; };
 		E23C178C15217A1C007A3611 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E23C178B15217A1C007A3611 /* QuartzCore.framework */; };
+		E23C178E15217C34007A3611 /* PSViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E23C178D15217C34007A3611 /* PSViewController.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -55,6 +56,7 @@
 		E23C178315217A04007A3611 /* UIViewController+PSStackedView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UIViewController+PSStackedView.h"; path = "../PSStackedView/UIViewController+PSStackedView.h"; sourceTree = "<group>"; };
 		E23C178415217A04007A3611 /* UIViewController+PSStackedView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIViewController+PSStackedView.m"; path = "../PSStackedView/UIViewController+PSStackedView.m"; sourceTree = "<group>"; };
 		E23C178B15217A1C007A3611 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		E23C178D15217C34007A3611 /* PSViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PSViewController.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,6 +112,7 @@
 				E23C176515217912007A3611 /* MainStoryboard_iPad.storyboard */,
 				E23C176815217912007A3611 /* PSViewController.h */,
 				E23C176915217912007A3611 /* PSViewController.m */,
+				E23C178D15217C34007A3611 /* PSViewController.xib */,
 				E23C175715217912007A3611 /* Supporting Files */,
 			);
 			path = PSStackedStoryboardExample;
@@ -202,6 +205,7 @@
 				E23C175B15217912007A3611 /* InfoPlist.strings in Resources */,
 				E23C176415217912007A3611 /* MainStoryboard_iPhone.storyboard in Resources */,
 				E23C176715217912007A3611 /* MainStoryboard_iPad.storyboard in Resources */,
+				E23C178E15217C34007A3611 /* PSViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
