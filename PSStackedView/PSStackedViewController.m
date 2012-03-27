@@ -98,6 +98,7 @@ typedef void(^PSSVSimpleBlock)(void);
     self.panRecognizer = panRecognizer;
 }
 
+#pragma mark - Initialization
 
 - (void)sharedInitialization {
     viewControllers_ = [[NSMutableArray alloc] init];
