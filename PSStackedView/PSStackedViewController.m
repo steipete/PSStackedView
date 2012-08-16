@@ -1026,14 +1026,16 @@ enum {
         [UIView animateWithDuration:kPSSVStackAnimationPushDuration delay:0.f options:UIViewAnimationOptionAllowUserInteraction animations:^{
             container.alpha = 1.f;
             container.transform = CGAffineTransformIdentity;
-        } completion:nil];
+        } completion:^(BOOL finished) {
+            [viewController viewDidAppear:animated];
+            [self delegateDidInsertViewController:viewController];
+        }];
     }
     
     // properly sizes the scroll view contents (for table view scrolling)
     [container layoutIfNeeded];
     //container.width = viewController.view.width; // sync width (after it may has changed in layoutIfNeeded)
     
-    [viewController viewDidAppear:animated];
     [viewControllers_ addObject:viewController];
     
     // register stack controller
@@ -1041,7 +1043,6 @@ enum {
     
     [self updateViewControllerMasksAndShadow];
     [self displayViewControllerIndexOnRightMost:[self.viewControllers count]-1 animated:animated];
-    [self delegateDidInsertViewController:viewController];
 }
 
 - (BOOL)popViewController:(UIViewController *)controller animated:(BOOL)animated {
