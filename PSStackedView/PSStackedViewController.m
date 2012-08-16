@@ -44,7 +44,7 @@ typedef void(^PSSVSimpleBlock)(void);
         unsigned int delegateDidAlign:1;
     }delegateFlags_;
 }
-@property(nonatomic, strong) UIViewController *rootViewController;
+
 @property(nonatomic, strong) NSArray *viewControllers;
 @property(nonatomic, assign) NSInteger firstVisibleIndex;
 @property(nonatomic, assign) CGFloat floatIndex;
@@ -98,33 +98,61 @@ typedef void(^PSSVSimpleBlock)(void);
     self.panRecognizer = panRecognizer;
 }
 
-- (id)initWithRootViewController:(UIViewController *)rootViewController; {
-    if ((self = [super init])) {
-        rootViewController_ = rootViewController;
-        objc_setAssociatedObject(rootViewController, kPSSVAssociatedStackViewControllerKey, self, OBJC_ASSOCIATION_ASSIGN); // associate weak
-        
-        viewControllers_ = [[NSMutableArray alloc] init];
-        
-        // set some reasonble defaults
-        leftInset_ = 60;
-        largeLeftInset_ = 200;
-        
-        [self configureGestureRecognizer];
+#pragma mark - Initialization
 
-        enableBounces_ = YES;
-        enableShadows_ = YES;
-        enableDraggingPastInsets_ = YES;
-        enableScalingFadeInOut_ = YES;
-        defaultShadowWidth_ = 60.0f;
-        defaultShadowAlpha_ = 0.2f;
-        cornerRadius_ = 6.0f;
-
+- (void)sharedInitialization {
+    viewControllers_ = [[NSMutableArray alloc] init];
+    
+    // set some reasonble defaults
+    leftInset_ = 60;
+    largeLeftInset_ = 200;
+    
+    [self configureGestureRecognizer];
+    
+    enableBounces_ = YES;
+    enableShadows_ = YES;
+    enableDraggingPastInsets_ = YES;
+    enableScalingFadeInOut_ = YES;
+    defaultShadowWidth_ = 60.0f;
+    defaultShadowAlpha_ = 0.2f;
+    cornerRadius_ = 6.0f;
+    
 #ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
-        PSSVLog("Swizzling UIViewController.navigationController");
-        Method origMethod = class_getInstanceMethod([UIViewController class], @selector(navigationController));
-        Method overrideMethod = class_getInstanceMethod([UIViewController class], @selector(navigationControllerSwizzled));
-        method_exchangeImplementations(origMethod, overrideMethod);
+    PSSVLog("Swizzling UIViewController.navigationController");
+    Method origMethod = class_getInstanceMethod([UIViewController class], @selector(navigationController));
+    Method overrideMethod = class_getInstanceMethod([UIViewController class], @selector(navigationControllerSwizzled));
+    method_exchangeImplementations(origMethod, overrideMethod);
 #endif
+
+}
+
+- (id)init {
+    
+    if ((self = [super init])) {
+    
+        [self sharedInitialization];
+        
+    }
+    return self;
+}
+
+- (id)initWithCoder:(NSCoder *)coder {
+    self = [super initWithCoder:coder];
+    if (self) {
+        
+        [self sharedInitialization];
+        
+    }
+    return self;
+}
+
+- (id)initWithRootViewController:(UIViewController *)rootViewController; {
+    
+    if ((self = [super init])) {
+        
+        [self setRootViewController:rootViewController];
+        [self sharedInitialization];
+
     }
     return self;
 }
@@ -140,6 +168,20 @@ typedef void(^PSSVSimpleBlock)(void);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+#pragma mark - Root View Controller
+
+- (void)setRootViewController:(UIViewController *)rootViewController {
+    
+    if (rootViewController_ != rootViewController) {
+        rootViewController_ = nil;
+        
+        rootViewController_ = rootViewController;
+        objc_setAssociatedObject(rootViewController, kPSSVAssociatedStackViewControllerKey, self, OBJC_ASSOCIATION_ASSIGN); // associate weak
+        
+    }
+}
+
 #pragma mark - Delegate
 
 - (void)setDelegate:(id<PSStackedViewDelegate>)delegate {
@@ -1168,7 +1210,8 @@ enum {
     PSSVBounceBack,    
 }typedef PSSVBounceOption;
 
-- (void)alignStackAnimated:(BOOL)animated duration:(CGFloat)duration bounceType:(PSSVBounceOption)bounce; {
+- (void)alignStackAnimated:(BOOL)animated duration:(CGFloat)duration bounceType:(PSSVBounceOption)bounce {
+    
     animated = animated && !self.isReducingAnimations; // don't animate if set
     self.floatIndex = [self nearestValidFloatIndex:self.floatIndex]; // round to nearest correct index
     UIViewAnimationCurve animationCurve = UIViewAnimationCurveEaseInOut;
@@ -1189,7 +1232,7 @@ enum {
     
     PSSVSimpleBlock alignmentBlock = ^{
         
-        PSSVLog(@"Begin aliging VCs. Last drag offset:%d direction:%d bounce:%d.", lastDragOffset_, lastDragOption_, bounce);
+        PSSVLog(@"Begin aligning VCs. Last drag offset:%d direction:%d bounce:%d.", lastDragOffset_, lastDragOption_, bounce);
         
         // calculate offset used only when we're bleeding over
         NSInteger snapOverOffset = 0; // > 0 = <--- ; we scrolled from right to left.
