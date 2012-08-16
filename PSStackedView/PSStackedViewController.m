@@ -980,11 +980,14 @@ enum {
     
     PSSVLog(@"pushing with index %d on stack: %@ (animated: %d)", [self.viewControllers count], viewController, animated);    
     viewController.view.height = [self screenHeight];
+
+    [viewController view]; //trigger viewDidload to ensure we get stack width
     
     // get predefined stack width; query topViewController if we have a UINavigationController
     CGFloat stackWidth = viewController.stackWidth;
     if (stackWidth == 0.f && [viewController isKindOfClass:[UINavigationController class]]) {
         UIViewController *topVC = ((UINavigationController *)viewController).topViewController;
+        [topVC view]; //trigger viewDidload to ensure we get stack width
         stackWidth = topVC.stackWidth;
     }
     if (stackWidth > 0.f) {
