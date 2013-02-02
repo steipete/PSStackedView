@@ -153,4 +153,5 @@ enum {
 @property(nonatomic, assign) UINavigationBar *navigationBar;
 #endif
 
+@property (nonatomic) BOOL disablePartialFloat;
 @end
