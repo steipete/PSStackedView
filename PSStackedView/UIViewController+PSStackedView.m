@@ -12,6 +12,7 @@
 #import <objc/runtime.h>
 
 #define kPSSVAssociatedStackViewControllerWidth @"kPSSVAssociatedStackViewControllerWidth"
+#define kPSSVAssociatedStackViewControllerPanEnabled @"kPSSVAssociatedStackViewControllerPanEnabled"
 
 @implementation UIViewController (PSStackedView)
 
@@ -48,4 +49,16 @@
     objc_setAssociatedObject(self, kPSSVAssociatedStackViewControllerWidth, stackWidthNumber, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
+- (BOOL)panEnabled
+{
+    NSNumber *panEnabledNumber = objc_getAssociatedObject(self, kPSSVAssociatedStackViewControllerPanEnabled);
+    BOOL panEnabled = panEnabledNumber ? [panEnabledNumber boolValue] : YES;
+    return panEnabled;
+}
+
+- (void)setPanEnabled:(BOOL)panEnabled
+{
+    NSNumber *panEnabledNumber = [NSNumber numberWithBool:panEnabled];
+    objc_setAssociatedObject(self, kPSSVAssociatedStackViewControllerPanEnabled, panEnabledNumber, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
 @end
