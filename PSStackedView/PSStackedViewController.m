@@ -70,6 +70,7 @@ typedef void(^PSSVSimpleBlock)(void);
 @synthesize cornerRadius = cornerRadius_;
 @synthesize numberOfTouches = numberOfTouches_;
 @dynamic firstVisibleIndex;
+@synthesize disablePartialFloat = _disablePartialFloat;
 
 #ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
 @synthesize navigationBar;
@@ -663,6 +664,23 @@ enum {
             }];
         }
         
+        // remove left shadow for overlapped controller
+        int from = self.viewControllers.count-1;
+        int cleft = 10000;
+        for (int i = from; i >= 0; i--)
+        {
+            UIViewController *cvc = [[self viewControllers] objectAtIndex:i];
+            if (cvc.containerView.left == cleft)
+            {
+                cvc.containerView.shadow = PSSVSideRight;
+            }
+            else
+            {
+                cvc.containerView.shadow = PSSVSideLeft|PSSVSideRight;
+            }
+            cleft = cvc.containerView.left;
+        }
+        
         // update alpha mask
         CGFloat overlapRatio = [self overlapRatio];
         UIViewController *overlappedVC = [self overlappedViewController];
@@ -909,6 +927,9 @@ enum {
         
         if (lastDragOption_ == SVSnapOptionRight) {
             self.floatIndex = [self nearestValidFloatIndex:self.floatIndex round:PSSVRoundDown];
+            if (_disablePartialFloat) {
+                self.floatIndex = floorf(self.floatIndex);
+            }
         }else if(lastDragOption_ == SVSnapOptionLeft) {
             self.floatIndex = [self nearestValidFloatIndex:self.floatIndex round:PSSVRoundUp];
         }else {
@@ -1151,23 +1172,16 @@ enum {
 
 // last visible index is calculated dynamically, depending on width of VCs
 - (NSInteger)lastVisibleIndex {
-    NSInteger lastVisibleIndex = self.firstVisibleIndex;
-    
-    NSUInteger currentLeftInset = [self currentLeftInset];
-    NSInteger screenSpaceLeft = [self screenWidth] - currentLeftInset;
-    while (screenSpaceLeft > 0 && lastVisibleIndex < [self.viewControllers count]) {
-        UIViewController *vc = [self.viewControllers objectAtIndex:lastVisibleIndex];
-        screenSpaceLeft -= vc.containerView.width;
-        
-        if (screenSpaceLeft >= 0) {
+    NSInteger lastVisibleIndex = -1;
+    CGFloat rootWidth = self.rootViewController.view.width;
+    for (UIViewController *c in self.viewControllers)
+    {
+        if (c.containerView.left < rootWidth)
+        {
             lastVisibleIndex++;
-        }        
+        }
+        else break;
     }
-    
-    if (lastVisibleIndex > 0) {
-        lastVisibleIndex--; // compensate for last failure
-    }
-    
     return lastVisibleIndex;
 }
 
@@ -1574,14 +1588,45 @@ enum {
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
+- (BOOL)shouldReceiveTouchForView:(UIView *)view
+{
+    NSMutableArray *viewsWithPanDisabled = [NSMutableArray arrayWithCapacity:0];
+    for (UIViewController *c in self.viewControllers)
+    {
+        if (!c.panEnabled) [viewsWithPanDisabled addObject:c.view];
+    }
+    for (UIViewController *c in self.rootViewController.childViewControllers)
+    {
+        if (!c.panEnabled) [viewsWithPanDisabled addObject:c.view];
+    }
+    BOOL shouldReceiveTouch = YES;
+    if (viewsWithPanDisabled.count > 0)
+    {
+        UIView *v = view;
+        do {
+            if ([viewsWithPanDisabled containsObject:v])
+            {
+                shouldReceiveTouch = NO;
+                break;
+            }
+            v = v.superview;
+        } while (v != nil);
+    }
+    return shouldReceiveTouch;
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - UIGestureRecognizerDelegate
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
+    
+    BOOL shouldReceiveTouch = YES;
     if ([touch.view isKindOfClass:[UIControl class]]) {
         // prevent recognizing touches on the slider
-        return NO;
+        shouldReceiveTouch = NO;
     }
-    return YES;
+    if (shouldReceiveTouch) shouldReceiveTouch = [self shouldReceiveTouchForView:touch.view];
+    
+    return shouldReceiveTouch;
 }
 
 @end
