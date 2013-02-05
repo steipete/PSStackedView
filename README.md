@@ -37,6 +37,12 @@ window.rootViewController = self.stackController;
 
 PSStackedViewRootController's rootViewController is in the background and its left part is always visible. Adjust the size with leftInset and largeLeftInset.
 
+PS: Added "Remove top view controller if user slides stack to the right"
+
+Code by: [mball-crrc](https://github.com/mball-crrc/PSStackedView/tree/feature/pop_off_on_drag_right)
+
+Pull merge by: [fabiosoft](https://github.com/fabiosoft) - [website](http://www.fabiosoft.com)
+
 ## Roadmap
 - Add (conditional) support for the new child view controller system in iOS5
 - Appledoc
