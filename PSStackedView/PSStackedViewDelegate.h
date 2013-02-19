@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 
 @class PSStackedViewController;
+@class UIViewController;
 
 @protocol PSStackedViewDelegate <NSObject>
 
