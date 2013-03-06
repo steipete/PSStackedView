@@ -999,6 +999,7 @@ enum {
         objc_setAssociatedObject(viewController, kPSSVAssociatedBaseViewControllerKey, baseViewController, OBJC_ASSOCIATION_ASSIGN); // associate weak
     }
     
+    [self addChildViewController:viewController];
     PSSVLog(@"pushing with index %d on stack: %@ (animated: %d)", [self.viewControllers count], viewController, animated);    
     viewController.view.height = [self screenHeight];
 
@@ -1032,9 +1033,6 @@ enum {
     [container limitToMaxWidth:[self maxControllerWidth]];
     PSSVLog(@"container frame: %@", NSStringFromCGRect(container.frame));
     
-    // relay willAppear and add to subview
-    [viewController viewWillAppear:animated];
-    
     if (animated) {
         container.alpha = 0.f;
         if (enableScalingFadeInOut_)
@@ -1043,14 +1041,20 @@ enum {
     
     [self.view addSubview:container];
     
+    PSSVSimpleBlock finishBlock = ^{
+        [viewController didMoveToParentViewController:self];
+        [self delegateDidInsertViewController:viewController];
+    };
+        
     if (animated) {
         [UIView animateWithDuration:kPSSVStackAnimationPushDuration delay:0.f options:UIViewAnimationOptionAllowUserInteraction animations:^{
             container.alpha = 1.f;
             container.transform = CGAffineTransformIdentity;
         } completion:^(BOOL finished) {
-            [viewController viewDidAppear:animated];
-            [self delegateDidInsertViewController:viewController];
+            finishBlock();
         }];
+    } else {
+        finishBlock();
     }
     
     // properly sizes the scroll view contents (for table view scrolling)
@@ -1078,16 +1082,16 @@ enum {
     PSSVLog(@"popping controller: %@ (#%d total, animated:%d)", [self topViewController], [self.viewControllers count], animated);
     
     UIViewController *lastController = [self topViewController];
-    if (lastController) {        
+    if (lastController) {
+        [lastController willMoveToParentViewController:nil];
         [self delegateWillRemoveViewController:lastController];
         
         // remove from view stack!
         PSSVContainerView *container = lastController.containerView;
-        [lastController viewWillDisappear:animated];
         
         PSSVSimpleBlock finishBlock = ^{
             [container removeFromSuperview];
-            [lastController viewDidDisappear:animated];
+            [lastController removeFromParentViewController]; 
             [self delegateDidRemoveViewController:lastController];
         };
         
@@ -1465,9 +1469,11 @@ enum {
     
     // embedding rootViewController
     if (self.rootViewController) {
+        [self addChildViewController:self.rootViewController];
         [self.view addSubview:self.rootViewController.view];
         self.rootViewController.view.frame = self.view.bounds;
         self.rootViewController.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        [self.rootViewController didMoveToParentViewController:self];
     }
     
     for (UIViewController *controller in self.viewControllers) {
@@ -1481,56 +1487,25 @@ enum {
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     
-    [self.rootViewController viewWillAppear:animated];
-    for (UIViewController *controller in self.viewControllers) {
-        [controller viewWillAppear:animated];
-    }
-    
     // enlarge/shrinken stack
     [self updateViewControllerSizes];
     [self updateViewControllerMasksAndShadow];    
     [self alignStackAnimated:NO];
 }
 
-- (void)viewDidAppear:(BOOL)animated {
-    [super viewDidAppear:animated];
-    
-    [self.rootViewController viewDidAppear:animated];
-    for (UIViewController *controller in self.viewControllers) {
-        [controller viewDidAppear:animated];
-    }
-}
-
-- (void)viewWillDisappear:(BOOL)animated {
-    [super viewWillDisappear:animated];
-    
-    [self.rootViewController viewWillDisappear:animated];
-    for (UIViewController *controller in self.viewControllers) {
-        [controller viewWillDisappear:animated];
-    }
-}
-
-- (void)viewDidDisappear:(BOOL)animated {
-    [super viewDidDisappear:animated];
-    
-    [self.rootViewController viewDidDisappear:animated];
-    for (UIViewController *controller in self.viewControllers) {
-        [controller viewDidDisappear:animated];
-    }   
-}
-
 - (void)viewDidUnload {
+    [super viewDidUnload];
+
+    [self.rootViewController willMoveToParentViewController:nil];
     [self.rootViewController.view removeFromSuperview];
     self.rootViewController.view = nil;
-    [self.rootViewController viewDidUnload];
+    [self.rootViewController removeFromParentViewController];
+    
     
     for (UIViewController *controller in self.viewControllers) {
         [controller.view removeFromSuperview];
         controller.view = nil;
-        [controller viewDidUnload];
     }
-    
-    [super viewDidUnload];
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation {
@@ -1542,46 +1517,26 @@ enum {
 }
 
 // event relay
-- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration; {
-    //lastVisibleIndexBeforeRotation_ = self.lastVisibleIndex;
-    
-    [rootViewController_ willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
-    
-    for (UIViewController *controller in self.viewControllers) {
-        [controller willRotateToInterfaceOrientation:toInterfaceOrientation duration:duration];
-    }    
-}
-
-// event relay
 - (void)didRotateFromInterfaceOrientation:(UIInterfaceOrientation)fromInterfaceOrientation; {
-    [rootViewController_ didRotateFromInterfaceOrientation:fromInterfaceOrientation];
+    [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
     
     if (self.isReducingAnimations) {
         [self updateViewControllerSizes];
         [self updateViewControllerMasksAndShadow];
     }
-    
-    for (UIViewController *controller in self.viewControllers) {
-        [controller didRotateFromInterfaceOrientation:fromInterfaceOrientation];
-    }
-    
+
     // ensure we're correctly aligned (may be messed up in willAnimate, if panRecognizer is still active)
     [self alignStackAnimated:!self.isReducingAnimations];
 }
 
 // event relay
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration; {
-    [rootViewController_ willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-    
+    [super willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
     if (!self.isReducingAnimations) {
         [self updateViewControllerSizes];
         [self updateViewControllerMasksAndShadow];    
     }
     
-    // finally relay rotation events
-    for (UIViewController *controller in self.viewControllers) {
-        [controller willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
-    }
     
     // enlarge/shrinken stack
     [self alignStackAnimated:!self.isReducingAnimations];
