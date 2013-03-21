@@ -1034,6 +1034,9 @@ enum {
     container.shadowWidth = defaultShadowWidth_;
     container.shadowAlpha = defaultShadowAlpha_;
     container.cornerRadius = cornerRadius_;
+    if(!self.view.superview) {
+        container.height = self.view.height;
+    }
     [container limitToMaxWidth:[self maxControllerWidth]];
     PSSVLog(@"container frame: %@", NSStringFromCGRect(container.frame));
     
