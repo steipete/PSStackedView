@@ -18,6 +18,7 @@
 #define kPSSVStackAnimationPopDuration kPSSVStackAnimationSpeedModifier * 0.25f
 #define kPSSVMaxSnapOverOffset 20
 #define kPSSVAssociatedBaseViewControllerKey @"kPSSVAssociatedBaseViewController"
+#define kPSSVOverlapMinimalValueToApplyDarkRatio 0.05
 
 // reduces alpha over overlapped view controllers. 1.f would totally black-out on complete overlay
 #define kAlphaReductRatio 10.f
@@ -71,7 +72,7 @@ typedef void(^PSSVSimpleBlock)(void);
 @synthesize numberOfTouches = numberOfTouches_;
 @dynamic firstVisibleIndex;
 @synthesize disablePartialFloat = _disablePartialFloat;
-
+@synthesize enablePopOverlapedViewOnTap = enablePopOverlapedViewOnTap_;
 #ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
 @synthesize navigationBar;
 #endif
@@ -683,6 +684,9 @@ enum {
         
         // update alpha mask
         CGFloat overlapRatio = [self overlapRatio];
+        // We dont concider view as overlaped if the ratio is beside kPSSVOverlapMinimalValueToApplyDarkRatio
+        overlapRatio = (overlapRatio > kPSSVOverlapMinimalValueToApplyDarkRatio) ? overlapRatio : 0;
+        
         UIViewController *overlappedVC = [self overlappedViewController];
         overlappedVC.containerView.darkRatio = MIN(overlapRatio, 1.f)/kAlphaReductRatio;
         
