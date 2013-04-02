@@ -120,10 +120,14 @@ typedef void(^PSSVSimpleBlock)(void);
     cornerRadius_ = 6.0f;
     
 #ifdef ALLOW_SWIZZLING_NAVIGATIONCONTROLLER
-    PSSVLog("Swizzling UIViewController.navigationController");
-    Method origMethod = class_getInstanceMethod([UIViewController class], @selector(navigationController));
-    Method overrideMethod = class_getInstanceMethod([UIViewController class], @selector(navigationControllerSwizzled));
-    method_exchangeImplementations(origMethod, overrideMethod);
+    static dispatch_once_t token;
+    
+    dispatch_once(&token, ^{
+        PSSVLog("Swizzling UIViewController.navigationController");
+        Method origMethod = class_getInstanceMethod([UIViewController class], @selector(navigationController));
+        Method overrideMethod = class_getInstanceMethod([UIViewController class], @selector(navigationControllerSwizzled));
+        method_exchangeImplementations(origMethod, overrideMethod);
+    });
 #endif
 
 }
