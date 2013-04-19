@@ -107,6 +107,9 @@
     }else if(self.originalWidth && self.width < self.originalWidth) {
         self.width = MIN(maxWidth, self.originalWidth);
         widthChanged = YES;
+    }else if(self.originalWidth && self.width >= self.originalWidth && self.controller.stretchable) {
+        self.width = MAX(maxWidth, self.originalWidth);
+        widthChanged = YES;
     }
     self.controller.view.width = self.width;
     
