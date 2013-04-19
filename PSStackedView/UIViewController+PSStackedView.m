@@ -13,6 +13,7 @@
 
 #define kPSSVAssociatedStackViewControllerWidth @"kPSSVAssociatedStackViewControllerWidth"
 #define kPSSVAssociatedStackViewControllerPanEnabled @"kPSSVAssociatedStackViewControllerPanEnabled"
+#define kPSSVAssociatedStackViewControllerStretchable @"kPSSVAssociatedStackViewControllerStretchable" 
 
 @implementation UIViewController (PSStackedView)
 
@@ -61,4 +62,18 @@
     NSNumber *panEnabledNumber = [NSNumber numberWithBool:panEnabled];
     objc_setAssociatedObject(self, kPSSVAssociatedStackViewControllerPanEnabled, panEnabledNumber, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
+
+- (BOOL)stretchable
+{
+    NSNumber *stretchabledNumber = objc_getAssociatedObject(self, kPSSVAssociatedStackViewControllerStretchable);
+    BOOL stretchable = stretchabledNumber ? [stretchabledNumber boolValue] : NO;
+    return stretchable;
+}
+
+- (void)setStretchable:(BOOL)stretchable
+{
+    NSNumber *stretchableNumber = [NSNumber numberWithBool:stretchable];
+    objc_setAssociatedObject(self, kPSSVAssociatedStackViewControllerStretchable, stretchableNumber, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
 @end
