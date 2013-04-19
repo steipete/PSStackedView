@@ -27,6 +27,6 @@
 - (void)setPanEnabled:(BOOL)panEnabled;
 
 - (BOOL)stretchable;
-- (void)setStretchable:(BOOL)panEnabled;
+- (void)setStretchable:(BOOL)stretchable;
 
 @end
