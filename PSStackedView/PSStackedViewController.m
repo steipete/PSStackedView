@@ -66,6 +66,7 @@ typedef void(^PSSVSimpleBlock)(void);
 @synthesize enableShadows = enableShadows_;
 @synthesize enableDraggingPastInsets = enableDraggingPastInsets_;
 @synthesize enableScalingFadeInOut = enableScalingFadeInOut_;
+@synthesize enablePanOverUIControls = enablePanOverUIControls_;
 @synthesize defaultShadowWidth = defaultShadowWidth_;
 @synthesize defaultShadowAlpha  = defaultShadowAlpha_;
 @synthesize cornerRadius = cornerRadius_;
@@ -115,6 +116,7 @@ typedef void(^PSSVSimpleBlock)(void);
     enableShadows_ = YES;
     enableDraggingPastInsets_ = YES;
     enableScalingFadeInOut_ = YES;
+    enablePanOverUIControls_ = NO;
     defaultShadowWidth_ = 60.0f;
     defaultShadowAlpha_ = 0.2f;
     cornerRadius_ = 6.0f;
@@ -1586,13 +1588,18 @@ enum {
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch {
     
     BOOL shouldReceiveTouch = YES;
-    if ([touch.view isKindOfClass:[UIControl class]]) {
+    if ([touch.view isKindOfClass:[UIControl class]] && !enablePanOverUIControls_) {
         // prevent recognizing touches on the slider
         shouldReceiveTouch = NO;
     }
     if (shouldReceiveTouch) shouldReceiveTouch = [self shouldReceiveTouchForView:touch.view];
     
     return shouldReceiveTouch;
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
+{
+    return enablePanOverUIControls_;
 }
 
 @end
