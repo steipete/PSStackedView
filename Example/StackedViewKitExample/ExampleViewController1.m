@@ -8,6 +8,7 @@
 
 #import "ExampleViewController1.h"
 #import "PSStackedView.h"
+#import "UIViewController+PSStackedView.h"
 
 @implementation ExampleViewController1
 
@@ -43,9 +44,21 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 #pragma mark - PSStackedViewDelegate
 
-- (NSUInteger)stackableMinWidth; {
-    return 100;
+///////////////////////////////////////////////////////////////////////////////////////////////////
+#pragma mark - Button Actions
+
+- (IBAction)maximizeView:(id)sender {
+    
+    NSInteger index = [self.stackController indexOfViewController:self];
+    [self maximizeStackViewAtIndex:index];
 }
+
+
+- (IBAction)minimizeView:(id)sender {
+    NSInteger index = [self.stackController indexOfViewController:self];
+    [self minimizeStackViewAtIndex:index];
+}   
+
 
 
 @end

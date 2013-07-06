@@ -19,6 +19,7 @@
 #define kPSSVMaxSnapOverOffset 20
 #define kPSSVAssociatedBaseViewControllerKey @"kPSSVAssociatedBaseViewController"
 #define kPSSVOverlapMinimalValueToApplyDarkRatio 0.05
+#define kPSSVStackWantsFull @"kPSSVAssociatedStackViewControllerWantsFull"
 
 // reduces alpha over overlapped view controllers. 1.f would totally black-out on complete overlay
 #define kAlphaReductRatio 10.f
@@ -1538,6 +1539,16 @@ enum {
 
     // ensure we're correctly aligned (may be messed up in willAnimate, if panRecognizer is still active)
     [self alignStackAnimated:!self.isReducingAnimations];
+
+    //Mazimize
+    [self.viewControllers enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
+        UIViewController *controllerWantsFull = (UIViewController *)obj;
+        NSNumber *wantsFull = objc_getAssociatedObject(controllerWantsFull, kPSSVStackWantsFull);
+        if ([wantsFull isEqualToNumber:[NSNumber numberWithBool:YES]]) {
+            [controllerWantsFull maximizeStackViewAtIndex:idx];
+            *stop = YES;
+        }
+    }];
 }
 
 // event relay
