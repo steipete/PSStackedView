@@ -1047,9 +1047,16 @@ enum {
     if (animated) {
         container.alpha = 0.f;
         if (enableScalingFadeInOut_)
-            container.transform = CGAffineTransformMakeScale(1.2, 1.2); // large but fade in
+#warning removing the scale animation
+            //container.transform = CGAffineTransformMakeScale(1.2, 1.2); // large but fade in
     }
     
+#warning hack for iOS7
+	CGFloat heightGap = 0.0;
+	if([[[UIDevice currentDevice] systemVersion] compare:@"7.0" options:NSNumericSearch] != NSOrderedAscending) {
+		heightGap = 20.0;
+	}
+	container.center = CGPointMake(container.center.x, container.center.y + heightGap);
     [self.view addSubview:container];
     
     PSSVSimpleBlock finishBlock = ^{
@@ -1108,9 +1115,10 @@ enum {
         
         if (animated) { // kPSSVStackAnimationDuration
             [UIView animateWithDuration:kPSSVStackAnimationPopDuration delay:0.f options:UIViewAnimationOptionBeginFromCurrentState animations:^(void) {
-                lastController.containerView.alpha = 0.f;
+                //lastController.containerView.alpha = 0.f;
                 if (enableScalingFadeInOut_)
-                    lastController.containerView.transform = CGAffineTransformMakeScale(0.8, 0.8); // make smaller while fading out
+                    //lastController.containerView.transform = CGAffineTransformMakeScale(0.8, 0.8); // make smaller while fading out
+                    lastController.containerView.center = CGPointMake(lastController.containerView.center.x + lastController.containerView.frame.size.width, lastController.containerView.center.y);
             } completion:^(BOOL finished) {
                 // even with duration = 0, this doesn't fire instantly but on a future runloop with NSFireDelayedPerform, thus ugly double-check
                 if (finished) {
