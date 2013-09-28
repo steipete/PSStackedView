@@ -1046,7 +1046,7 @@ enum {
     
     if (animated) {
         container.alpha = 0.f;
-        if (enableScalingFadeInOut_)
+			if (enableScalingFadeInOut_);
 #warning removing the scale animation
             //container.transform = CGAffineTransformMakeScale(1.2, 1.2); // large but fade in
     }
