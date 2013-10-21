@@ -12,6 +12,7 @@
 
 /// grid snapping options
 enum {
+    SVSnapOptionUndecided,
     SVSnapOptionNearest,
     SVSnapOptionLeft,
     SVSnapOptionRight

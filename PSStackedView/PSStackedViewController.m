@@ -912,16 +912,16 @@ enum {
     
     // set up designated drag destination
     if (state == UIGestureRecognizerStateBegan) {
-        if (offset > 0) {
-            lastDragOption_ = SVSnapOptionRight;
-        }else {
-            lastDragOption_ = SVSnapOptionLeft;
-        }
+	    lastDragOption_ = [self snapOptionFromOffset:offset];
     }else {
-        // if there's a continuous drag in one direction, keep designation - else use nearest to snap.
-        if ((lastDragOption_ == SVSnapOptionLeft && offset > 0) || (lastDragOption_ == SVSnapOptionRight && offset < 0)) {
-            lastDragOption_ = SVSnapOptionNearest;
-        }
+	    if (lastDragOption_ == SVSnapOptionUndecided) {
+		    lastDragOption_ = [self snapOptionFromOffset:offset];
+	    }
+
+	    // if there's a continuous drag in one direction, keep designation - else use nearest to snap.
+	    if ((lastDragOption_ == SVSnapOptionLeft && offset > 0) || (lastDragOption_ == SVSnapOptionRight && offset < 0)) {
+		    lastDragOption_ = SVSnapOptionNearest;
+	    }
     }
     
     // save last point to calculate new offset
@@ -932,7 +932,10 @@ enum {
     // perform snapping after gesture ended
     BOOL gestureEnded = state == UIGestureRecognizerStateEnded;
     if (gestureEnded) {
-        
+	    if (lastDragOption_ == SVSnapOptionUndecided) {
+		    lastDragOption_ = SVSnapOptionNearest;
+	    }
+
         if (lastDragOption_ == SVSnapOptionRight) {
             self.floatIndex = [self nearestValidFloatIndex:self.floatIndex round:PSSVRoundDown];
             if (_disablePartialFloat) {
@@ -946,6 +949,18 @@ enum {
         
         [self alignStackAnimated:YES];
     }
+}
+
+- (PSSVSnapOption)snapOptionFromOffset:(NSInteger)offset {
+	if (offset > 0) {
+		return SVSnapOptionRight;
+	}
+	else if (offset < 0) {
+		return SVSnapOptionLeft;
+	}
+	else {
+		return SVSnapOptionUndecided;
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
