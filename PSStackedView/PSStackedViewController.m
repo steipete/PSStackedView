@@ -869,10 +869,11 @@ enum {
         }
         
         // special case for menu
-        if (floatIndex == 0.f) {
-            CGFloat menuCollapsedRatio = (self.largeLeftInset - self.firstViewController.containerView.left)/(self.largeLeftInset - self.leftInset);
-            menuCollapsedRatio = MAX(0.0f, MIN(0.5f, menuCollapsedRatio/2));
-            floatIndex += menuCollapsedRatio;
+        if (floatIndex < 0.5f) {
+	        floatIndex = 0.0f;
+	        CGFloat menuCollapsedRatio = (self.largeLeftInset - self.firstViewController.containerView.left)/(self.largeLeftInset - self.leftInset);
+            floatIndex += menuCollapsedRatio/2;
+	        floatIndex = MAX(0.0f, MIN(0.5f, floatIndex));
         }
         
         floatIndex_ = floatIndex;
