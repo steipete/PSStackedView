@@ -854,28 +854,30 @@ enum {
             PSSVLog(@"overlapping %@ with %@", NSStringFromCGRect(overlappedVC.containerView.frame), NSStringFromCGRect(rightVC.containerView.frame));
             overlapRatio = fabsf(overlappedVC.containerView.right - rightVC.containerView.left)/(overlappedVC.containerView.right - ([self screenWidth] - rightVC.containerView.width));
         }
-        
-        // only update ratio if < 1 (else we move sth else)
-        if (overlapRatio <= 1.f && overlapRatio > 0.f) {
-            floatIndex += 0.5f + overlapRatio*0.5f; // fully overlapped = the .5 ratio!
-        }else {
-            // overlap ratio
-            UIViewController *lastVC = [self.visibleViewControllers lastObject];
-            UIViewController *prevVC = [self previousViewController:lastVC];
-            if (lastVC && prevVC && lastVC.containerView.right > [self screenWidth]) {
-                overlapRatio = fabsf(([self screenWidth] - lastVC.containerView.left)/([self screenWidth] - (self.leftInset + prevVC.containerView.width)))*.5f;
-                floatIndex += overlapRatio;
-            }
-        }
-        
-        // special case for menu
-        if (floatIndex == 0.f) {
-            CGFloat menuCollapsedRatio = (self.largeLeftInset - self.firstViewController.containerView.left)/(self.largeLeftInset - self.leftInset);
-            menuCollapsedRatio = MAX(0.0f, MIN(0.5f, menuCollapsedRatio/2));
-            floatIndex += menuCollapsedRatio;
-        }
-        
-        floatIndex_ = floatIndex;
+
+	    // special case for menu
+	    if (floatIndex == 0.f) {
+		    CGFloat menuCollapsedRatio = (self.largeLeftInset - self.firstViewController.containerView.left)/(self.largeLeftInset - self.leftInset);
+		    menuCollapsedRatio = MAX(0.0f, MIN(0.5f, menuCollapsedRatio/2));
+		    floatIndex += menuCollapsedRatio;
+	    }
+	    else {
+		    // only update ratio if < 1 (else we move sth else)
+		    if (overlapRatio <= 1.f && overlapRatio > 0.f) {
+			    floatIndex += 0.5f + overlapRatio*0.5f; // fully overlapped = the .5 ratio!
+		    }else {
+			    // overlap ratio
+			    UIViewController *lastVC = [self.visibleViewControllers lastObject];
+			    UIViewController *prevVC = [self previousViewController:lastVC];
+			    if (lastVC && prevVC && lastVC.containerView.right > [self screenWidth]) {
+				    overlapRatio = fabsf(([self screenWidth] - lastVC.containerView.left)/([self screenWidth] - (self.leftInset + prevVC.containerView.width)))*.5f;
+				    floatIndex += overlapRatio;
+			    }
+		    }
+	    }
+
+
+	    floatIndex_ = floatIndex;
     } completion:nil];
 }
 
