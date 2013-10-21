@@ -111,6 +111,7 @@ typedef void(^PSSVSimpleBlock)(void);
     
     [self configureGestureRecognizer];
     
+    _alwaysSnapToNearest = NO;
     enableBounces_ = YES;
     enableShadows_ = YES;
     enableDraggingPastInsets_ = YES;
@@ -952,6 +953,10 @@ enum {
 }
 
 - (PSSVSnapOption)snapOptionFromOffset:(NSInteger)offset {
+	if (self.alwaysSnapToNearest) {
+		return PSSVRoundNearest;
+	}
+
 	if (offset > 0) {
 		return SVSnapOptionRight;
 	}

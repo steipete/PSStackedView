@@ -113,6 +113,9 @@ enum {
 /// reduces animations to a minimum to get smoother reactions on frontmost view.
 @property(nonatomic, assign, getter=isReducingAnimations) BOOL reduceAnimations;
 
+/// Property to enable always snapping to nearest
+@property(nonatomic, assign) BOOL alwaysSnapToNearest;
+
 /// Property to disable bounces
 @property(nonatomic, assign) BOOL enableBounces;
 
