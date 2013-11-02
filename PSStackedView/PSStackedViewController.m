@@ -1047,11 +1047,9 @@ enum {
     if (animated) {
         container.alpha = 0.f;
 			if (enableScalingFadeInOut_);
-#warning removing the scale animation
             //container.transform = CGAffineTransformMakeScale(1.2, 1.2); // large but fade in
     }
     
-#warning hack for iOS7
 	CGFloat heightGap = 0.0;
 	if([[[UIDevice currentDevice] systemVersion] compare:@"7.0" options:NSNumericSearch] != NSOrderedAscending) {
 		heightGap = 20.0;
@@ -1565,6 +1563,9 @@ enum {
 - (BOOL)shouldReceiveTouchForView:(UIView *)view
 {
     NSMutableArray *viewsWithPanDisabled = [NSMutableArray arrayWithCapacity:0];
+	if(!self.rootViewController.panEnabled) {
+		[viewsWithPanDisabled addObject:self.rootViewController.view];
+	}
     for (UIViewController *c in self.viewControllers)
     {
         if (!c.panEnabled) [viewsWithPanDisabled addObject:c.view];

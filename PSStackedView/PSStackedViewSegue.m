@@ -14,6 +14,9 @@
 
 - (void)perform {
     PSStackedViewController* stackController = [self.sourceViewController stackController];
+	if(!stackController) {
+		stackController = ((UIViewController*)self.sourceViewController).navigationController.stackController;
+	}
     [stackController pushViewController:self.destinationViewController fromViewController:self.sourceViewController animated:YES];
 }
 
