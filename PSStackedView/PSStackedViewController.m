@@ -1054,7 +1054,9 @@ enum {
 	if([[[UIDevice currentDevice] systemVersion] compare:@"7.0" options:NSNumericSearch] != NSOrderedAscending) {
 		heightGap = 20.0;
 	}
-	container.center = CGPointMake(container.center.x, container.center.y + heightGap);
+	CGRect newFrame = container.frame;
+	newFrame.size.height += heightGap;
+	container.frame = newFrame;
     [self.view addSubview:container];
     
     PSSVSimpleBlock finishBlock = ^{
