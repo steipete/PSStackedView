@@ -364,7 +364,7 @@ enum {
 }typedef PSSVRoundOption;
 
 - (BOOL)isFloatIndexBetween:(CGFloat)floatIndex {
-    CGFloat intIndex, restIndex;
+    float intIndex, restIndex;//can't use CGFloat on 64-bit architecture (on 64-bit it's actually a double, not float)
     restIndex = modff(floatIndex, &intIndex);
     BOOL isBetween = fabsf(restIndex - 0.5f) < EPSILON;
     return isBetween;
@@ -381,7 +381,7 @@ enum {
             isValid = contentWidth > [self screenWidth] - self.largeLeftInset;
         }else {
             NSUInteger stackCount = [self.viewControllers count];
-            CGFloat intIndex, restIndex;
+            float intIndex, restIndex;//can't use CGFloat on 64-bit architecture (on 64-bit it's actually a double, not float)
             restIndex = modff(floatIndex, &intIndex); // split e.g. 1.5 in 1.0 and 0.5
             isValid = stackCount > intIndex && contentWidth > ([self screenWidth] - self.leftInset);
             if (isValid && fabsf(restIndex - 0.5f) < EPSILON) {  // comparing floats -> if so, we have a .5 here
@@ -400,7 +400,7 @@ enum {
 
 - (CGFloat)nearestValidFloatIndex:(CGFloat)floatIndex round:(PSSVRoundOption)roundOption {
     CGFloat roundedFloat;
-    CGFloat intIndex, restIndex;
+    float intIndex, restIndex;//can't use CGFloat on 64-bit architecture (on 64-bit it's actually a double, not float)
     restIndex = modff(floatIndex, &intIndex);
     
     if (restIndex < 0.5f) {
