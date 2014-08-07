@@ -1,5 +1,11 @@
 ## PSStackedView - put your UIViewControllers in a stack, inspired by Twitter's iPAD UI.
 
+
+NOTE: This component was made for iOS 4. There surely are better ways to do this right now and I'm only keeping this up for historical reasons. Don't use it anymore.
+
+
+
+
 After reviewing other stacked implementations, i wrote my own solutions from scratch.
 This one lets you add plain UIViewControllers to a PSStackedViewRootViewController, working much like a UINavigationController.
 
