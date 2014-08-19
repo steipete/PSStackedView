@@ -251,7 +251,7 @@ typedef void(^PSSVSimpleBlock)(void);
 
 - (CGRect)viewRect {
     // self.view.frame not used, it's wrong in viewWillAppear
-    CGRect viewRect = [[UIScreen mainScreen] applicationFrame];
+    CGRect viewRect = [[UIScreen mainScreen] bounds];
     return viewRect;
 }
 
