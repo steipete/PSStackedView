@@ -251,8 +251,15 @@ typedef void(^PSSVSimpleBlock)(void);
 
 - (CGRect)viewRect {
     // self.view.frame not used, it's wrong in viewWillAppear
-    CGRect viewRect = [[UIScreen mainScreen] bounds];
-    return viewRect;
+    CGRect screenBounds = [UIScreen mainScreen].bounds;
+    CGRect portraitScreenBounds = screenBounds;
+    
+    if ((NSFoundationVersionNumber > NSFoundationVersionNumber_iOS_7_1) && (PSIsLandscape())) {
+        portraitScreenBounds.size.width = screenBounds.size.height;
+        portraitScreenBounds.size.height = screenBounds.size.width;
+    }
+    
+    return portraitScreenBounds;
 }
 
 // return screen width
