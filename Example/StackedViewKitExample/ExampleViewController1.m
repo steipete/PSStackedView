@@ -36,7 +36,7 @@
 }
 
 - (void)setIndexNumber:(NSUInteger)anIndexNumber {
-    self.indexNumberLabel.text = [NSString stringWithFormat:@"%d", anIndexNumber];
+    self.indexNumberLabel.text = [NSString stringWithFormat:@"%lu", (unsigned long)anIndexNumber];
 }
 
 

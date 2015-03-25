@@ -56,7 +56,7 @@
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
     
-	cell.textLabel.text = [NSString stringWithFormat:@"[%d] Cell %d", self.indexNumber, indexPath.row];
+	cell.textLabel.text = [NSString stringWithFormat:@"[%ld] Cell %ld", (unsigned long)self.indexNumber, (long)indexPath.row];
     
     return cell;
 }
