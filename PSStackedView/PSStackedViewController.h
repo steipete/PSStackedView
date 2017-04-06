@@ -128,6 +128,9 @@ enum {
 /// enable scaling while fade in/out
 @property(nonatomic, assign) BOOL enableScalingFadeInOut;
 
+/// Property to enable panning when the touch starts in a UIControl (Defaults to NO).
+@property(nonatomic, assign) BOOL enablePanOverUIControls;
+
 // When true, overlaped views (with overlap ratio under kPSSVOverlapMinimalValueToApplyDarkRatio)
 // do not accept touches from user. But, when view is tapped (via UITapGestureRecognizer), the
 // stack is poped to this viewController
